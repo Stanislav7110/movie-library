@@ -1,1 +1,205 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Моя Кинотека</title>
 
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111318;
+      color: #ffffff;
+    }
+
+    header {
+      background: #1a1d24;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #2d313b;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    nav a {
+      color: #ffffff;
+      text-decoration: none;
+      margin-left: 25px;
+      cursor: pointer;
+    }
+
+    nav a:hover {
+      color: #ffcc00;
+    }
+
+    .hero {
+      padding: 70px 40px;
+      text-align: center;
+      background: linear-gradient(135deg, #191c25, #101116);
+    }
+
+    .hero h1 {
+      font-size: 48px;
+      margin-bottom: 15px;
+    }
+
+    .hero p {
+      color: #b8bcc6;
+      font-size: 19px;
+    }
+
+    .categories {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      padding: 30px 20px;
+      flex-wrap: wrap;
+    }
+
+    .category {
+      background: #242832;
+      padding: 14px 25px;
+      border-radius: 30px;
+      cursor: pointer;
+    }
+
+    .category:hover {
+      background: #ffcc00;
+      color: #111;
+    }
+
+    .content {
+      max-width: 1200px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .content h2 {
+      margin-bottom: 25px;
+    }
+
+    .movies {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 25px;
+    }
+
+    .movie {
+      background: #1b1e26;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: 0.2s;
+    }
+
+    .movie:hover {
+      transform: translateY(-5px);
+    }
+
+    .poster {
+      height: 270px;
+      background: linear-gradient(135deg, #292e39, #181a20);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #777;
+    }
+
+    .movie-info {
+      padding: 15px;
+    }
+
+    .movie-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .rating {
+      color: #ffcc00;
+    }
+
+    footer {
+      margin-top: 60px;
+      padding: 30px;
+      text-align: center;
+      color: #777;
+      border-top: 1px solid #2d313b;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="logo">🎬 Моя Кинотека</div>
+
+    <nav>
+      <a href="#">Главная</a>
+      <a href="#">Фильмы</a>
+      <a href="#">Сериалы</a>
+      <a href="#">Мультфильмы</a>
+      <a href="#">Избранное</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>Добро пожаловать в мою кинотеку</h1>
+    <p>Фильмы, сериалы и мультфильмы в одном месте</p>
+  </section>
+
+  <div class="categories">
+    <div class="category">🎬 Фильмы</div>
+    <div class="category">📺 Сериалы</div>
+    <div class="category">🎨 Мультфильмы</div>
+    <div class="category">❤️ Избранное</div>
+    <div class="category">⏰ Посмотреть позже</div>
+  </div>
+
+  <main class="content">
+    <h2>Моя коллекция</h2>
+
+    <div class="movies">
+
+      <div class="movie">
+        <div class="poster">Постер</div>
+        <div class="movie-info">
+          <div class="movie-title">Пример фильма</div>
+          <div class="rating">⭐ 8.5 / 10</div>
+        </div>
+      </div>
+
+      <div class="movie">
+        <div class="poster">Постер</div>
+        <div class="movie-info">
+          <div class="movie-title">Пример сериала</div>
+          <div class="rating">⭐ 9.0 / 10</div>
+        </div>
+      </div>
+
+      <div class="movie">
+        <div class="poster">Постер</div>
+        <div class="movie-info">
+          <div class="movie-title">Пример мультфильма</div>
+          <div class="rating">⭐ 8.8 / 10</div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    Моя Кинотека © 2026
+  </footer>
+
+</body>
+</html>
