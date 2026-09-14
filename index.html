@@ -414,134 +414,119 @@
 </footer>
 
 <!-- Окно поддержки -->
-<div id="supportModal" style="
-  display:none;
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.7);
-  align-items:center;
-  justify-content:center;
-  z-index:99999;
-">
-  <div style="
-    width:500px;
-    max-width:90%;
-    background:#242832;
-    padding:20px;
-    border-radius:12px;
-    box-sizing:border-box;
-  ">
+const supportBtn = document.getElementById("supportBtn");
+const supportModal = document.getElementById("supportModal");
+const closeSupport = document.getElementById("closeSupport");
+const sendSupportMessage = document.getElementById("sendSupportMessage");
+const supportInput = document.getElementById("supportInput");
+const supportMessages = document.getElementById("supportMessages");
 
-    <h2 style="margin-top:0;">Поддержка</h2>
+async function loadSupportMessages() {
+  const { data: sessionData } = await supabaseClient.auth.getSession();
 
-    <div id="supportMessages" style="
-      height:300px;
-      overflow-y:auto;
-      border:1px solid #3a3f4a;
-      border-radius:8px;
-      padding:10px;
-      margin-bottom:15px;
-      background:#1b1e24;
-      box-sizing:border-box;
-    "></div>
+  if (!sessionData.session) {
+    return;
+  }
 
-    <textarea id="supportInput" placeholder="Напишите сообщение..." style="
-      width:100%;
-      height:80px;
-      resize:none;
-      padding:10px;
-      box-sizing:border-box;
-      border-radius:8px;
-      border:1px solid #3a3f4a;
-      background:#1b1e24;
-      color:white;
-      margin-bottom:10px;
-    "></textarea>
+  const userId = sessionData.session.user.id;
 
-      <button id="closeSupport" style="
-      padding:8px 15px;
-      border:none;
-      border-radius:6px;
-      cursor:pointer;
-    ">Закрыть</button>
+  const { data, error } = await supabaseClient
+    .from("support_messages")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: true });
 
-  </div>
-</div>
+  if (error) {
+    console.error("Ошибка загрузки сообщений:", error);
+    return;
+  }
 
-<!-- Админ-панель поддержки -->
-<div id="adminSupportModal" style="
-  display:none;
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.7);
-  align-items:center;
-  justify-content:center;
-  z-index:99999;
-">
-  <div style="
-    width:700px;
-    max-width:90%;
-    max-height:90%;
-    background:#242832;
-    padding:20px;
-    border-radius:12px;
-    box-sizing:border-box;
-    overflow-y:auto;
-  ">
+  if (!supportMessages) {
+    return;
+  }
 
-    <h2 style="margin-top:0;">Админ-панель поддержки</h2>
+  supportMessages.innerHTML = "";
 
-    <div id="adminSupportUsers" style="
-      margin-bottom:15px;
-    "></div>
+  data.forEach((msg) => {
+    const message = document.createElement("div");
 
-    <div id="adminSupportChat" style="
-      height:300px;
-      overflow-y:auto;
-      border:1px solid #3a3f4a;
-      border-radius:8px;
-      padding:10px;
-      margin-bottom:15px;
-      background:#1b1e24;
-      box-sizing:border-box;
-    "></div>
+    message.style.marginBottom = "10px";
+    message.style.padding = "8px 10px";
+    message.style.borderRadius = "8px";
+    message.style.maxWidth = "80%";
+    message.style.wordBreak = "break-word";
 
-    <textarea id="adminSupportInput" placeholder="Ответ пользователю..." style="
-      width:100%;
-      height:80px;
-      resize:none;
-      padding:10px;
-      box-sizing:border-box;
-      border-radius:8px;
-      border:1px solid #3a3f4a;
-      background:#1b1e24;
-      color:white;
-      margin-bottom:10px;
-    "></textarea>
+    if (msg.is_admin) {
+      message.style.background = "#3a3f4a";
+      message.style.marginRight = "auto";
+      message.innerHTML = `<b>Моя Кинотека:</b><br>${msg.message}`;
+    } else {
+      message.style.background = "#4a6cf7";
+      message.style.marginLeft = "auto";
+      message.innerHTML = `<b>Вы:</b><br>${msg.message}`;
+    }
 
-    <button id="adminSendSupport" style="
-      padding:8px 15px;
-      border:none;
-      border-radius:6px;
-      cursor:pointer;
-      margin-right:5px;
-    ">Ответить</button>
+    supportMessages.appendChild(message);
+  });
 
-    <button id="closeAdminSupport" style="
-      padding:8px 15px;
-      border:none;
-      border-radius:6px;
-      cursor:pointer;
-    ">Закрыть</button>
+  supportMessages.scrollTop = supportMessages.scrollHeight;
+}
 
-  </div>
-</div>
+if (supportBtn && supportModal) {
+  supportBtn.addEventListener("click", async (event) => {
+    event.preventDefault();
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js"></script>
+    const { data } = await supabaseClient.auth.getSession();
+
+    if (!data.session) {
+      alert("Сначала войдите в аккаунт.");
+      return;
+    }
+
+    supportModal.style.display = "flex";
+
+    await loadSupportMessages();
+  });
+}
+
+if (closeSupport && supportModal) {
+  closeSupport.addEventListener("click", () => {
+    supportModal.style.display = "none";
+  });
+}
+
+if (sendSupportMessage && supportInput) {
+  sendSupportMessage.addEventListener("click", async () => {
+    const text = supportInput.value.trim();
+
+    if (!text) {
+      return;
+    }
+
+    const { data } = await supabaseClient.auth.getSession();
+
+    if (!data.session) {
+      alert("Сначала войдите в аккаунт.");
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from("support_messages")
+      .insert({
+        user_id: data.session.user.id,
+        message: text,
+        is_admin: false,
+        is_read: false
+      });
+
+    if (error) {
+      console.error("Ошибка отправки сообщения:", error);
+      alert("Не удалось отправить сообщение.");
+      return;
+    }
+
+    supportInput.value = "";
+
+    await loadSupportMessages();
+  });
+}
