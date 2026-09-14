@@ -174,4 +174,6 @@ supabaseClient.auth.onAuthStateChange(() => {
     updateAuthUI();
   }, 0);
 });
+
+// Проверяем состояние при загрузке сайта
 updateAuthUI();
