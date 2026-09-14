@@ -177,3 +177,85 @@ supabaseClient.auth.onAuthStateChange(() => {
 
 // Проверяем состояние при загрузке сайта
 updateAuthUI();
+// Профиль пользователя
+
+const profileBtn = document.getElementById("profileBtn");
+const profileModal = document.getElementById("profileModal");
+const profileEmail = document.getElementById("profileEmail");
+const profileUsername = document.getElementById("profileUsername");
+const saveProfile = document.getElementById("saveProfile");
+const profileMessage = document.getElementById("profileMessage");
+const closeProfile = document.getElementById("closeProfile");
+
+profileBtn.addEventListener("click", async (event) => {
+  event.preventDefault();
+
+  const {
+    data: { session }
+  } = await supabaseClient.auth.getSession();
+
+  if (!session) {
+    return;
+  }
+
+  profileEmail.textContent = session.user.email;
+
+  const { data, error } = await supabaseClient
+    .from("profiles")
+    .select("username")
+    .eq("id", session.user.id)
+    .maybeSingle();
+
+  if (error) {
+    profileMessage.textContent = "Ошибка загрузки профиля.";
+    console.error(error);
+    return;
+  }
+
+  profileUsername.value = data?.username || "";
+  profileMessage.textContent = "";
+
+  profileModal.style.display = "flex";
+});
+
+closeProfile.addEventListener("click", () => {
+  profileModal.style.display = "none";
+});
+
+saveProfile.addEventListener("click", async () => {
+  const {
+    data: { session }
+  } = await supabaseClient.auth.getSession();
+
+  if (!session) {
+    return;
+  }
+
+  const username = profileUsername.value.trim();
+
+  if (!username) {
+    profileMessage.textContent = "Введите имя пользователя.";
+    return;
+  }
+
+  profileMessage.textContent = "Сохраняем...";
+
+  const { error } = await supabaseClient
+    .from("profiles")
+    .upsert({
+      id: session.user.id,
+      username: username
+    });
+
+  if (error) {
+    profileMessage.textContent = "Ошибка: " + error.message;
+    console.error(error);
+    return;
+  }
+
+  profileMessage.textContent = "Профиль сохранён!";
+
+  setTimeout(() => {
+    profileModal.style.display = "none";
+  }, 1000);
+});
