@@ -858,3 +858,4 @@ if (closeAdminSupport && adminSupportModal) {
     adminSupportModal.style.display = "none";
   });
 }
+console.log("АДМИН-КОД ЗАПУСТИЛСЯ");
