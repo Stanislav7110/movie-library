@@ -784,10 +784,12 @@ if (sendSupportMessage && supportInput) {
       return;
     }
 
+    const userId = data.session.user.id;
+
     const { error } = await supabaseClient
       .from("support_messages")
       .insert({
-        user_id: data.session.user.id,
+        user_id: userId,
         message: text,
         is_admin: false,
         is_read: false
@@ -799,25 +801,58 @@ if (sendSupportMessage && supportInput) {
       return;
     }
 
+    const telegramMessage =
+      `📩 Новое сообщение в поддержке\n\n` +
+      `Пользователь: ${userId.slice(0, 8)}\n\n` +
+      text;
+
+    const { error: telegramError } =
+      await supabaseClient.functions.invoke(
+        "telegram-support",
+        {
+          body: {
+            message: telegramMessage
+          }
+        }
+      );
+
+    if (telegramError) {
+      console.error(
+        "Ошибка отправки уведомления в Telegram:",
+        telegramError
+      );
+    }
+
     supportInput.value = "";
 
     await loadSupportMessages();
   });
 }
-const adminSupportBtn = document.getElementById("adminSupportBtn");
-const adminSupportModal = document.getElementById("adminSupportModal");
-const closeAdminSupport = document.getElementById("closeAdminSupport");
+
+const adminSupportBtn =
+  document.getElementById("adminSupportBtn");
+
+const adminSupportModal =
+  document.getElementById("adminSupportModal");
+
+const closeAdminSupport =
+  document.getElementById("closeAdminSupport");
 
 async function updateAdminButton() {
-  const { data } = await supabaseClient.auth.getSession();
+  const { data } =
+    await supabaseClient.auth.getSession();
 
   if (!data.session) {
     return;
   }
 
-  const userId = data.session.user.id;
+  const userId =
+    data.session.user.id;
 
- if (userId === "0346597c-f4a1-42ce-9e50-b87b202ae90a") {
+  if (
+    userId ===
+    "0346597c-f4a1-42ce-9e50-b87b202ae90a"
+  ) {
     if (adminSupportBtn) {
       adminSupportBtn.style.display = "inline";
     }
@@ -831,24 +866,28 @@ supabaseClient.auth.onAuthStateChange(() => {
 });
 
 if (adminSupportBtn && adminSupportModal) {
-  adminSupportBtn.addEventListener("click", (event) => {
-    event.preventDefault();
+  adminSupportBtn.addEventListener(
+    "click",
+    (event) => {
+      event.preventDefault();
 
-    adminSupportModal.style.display = "flex";
+      adminSupportModal.style.display = "flex";
 
-    loadAdminSupportUsers();
-  });
+      loadAdminSupportUsers();
+    }
+  );
 }
 
 if (closeAdminSupport && adminSupportModal) {
-  closeAdminSupport.addEventListener("click", () => {
-    adminSupportModal.style.display = "none";
-  });
+  closeAdminSupport.addEventListener(
+    "click",
+    () => {
+      adminSupportModal.style.display = "none";
+    }
+  );
 }
 
-
 async function loadAdminSupportUsers() {
-
   const adminSupportUsers =
     document.getElementById("adminSupportUsers");
 
@@ -856,14 +895,20 @@ async function loadAdminSupportUsers() {
     return;
   }
 
-  const { data, error } = await supabaseClient
-    .from("support_messages")
-    .select("user_id, created_at")
-    .eq("is_admin", false)
-    .order("created_at", { ascending: false });
+  const { data, error } =
+    await supabaseClient
+      .from("support_messages")
+      .select("user_id, created_at")
+      .eq("is_admin", false)
+      .order("created_at", {
+        ascending: false
+      });
 
   if (error) {
-    console.error("Ошибка загрузки пользователей:", error);
+    console.error(
+      "Ошибка загрузки пользователей:",
+      error
+    );
 
     adminSupportUsers.innerHTML =
       "Не удалось загрузить обращения.";
@@ -874,17 +919,14 @@ async function loadAdminSupportUsers() {
   const uniqueUsers = [];
 
   data.forEach((message) => {
-
     if (!uniqueUsers.includes(message.user_id)) {
       uniqueUsers.push(message.user_id);
     }
-
   });
 
   adminSupportUsers.innerHTML = "";
 
   if (uniqueUsers.length === 0) {
-
     adminSupportUsers.textContent =
       "Пока никто не писал в поддержку.";
 
@@ -892,11 +934,12 @@ async function loadAdminSupportUsers() {
   }
 
   uniqueUsers.forEach((userId) => {
-
-    const button = document.createElement("button");
+    const button =
+      document.createElement("button");
 
     button.textContent =
-      "Пользователь " + userId.slice(0, 8);
+      "Пользователь " +
+      userId.slice(0, 8);
 
     button.style.display = "block";
     button.style.width = "100%";
@@ -905,37 +948,45 @@ async function loadAdminSupportUsers() {
     button.style.cursor = "pointer";
     button.style.textAlign = "left";
 
-    button.addEventListener("click", () => {
-      loadAdminSupportChat(userId);
-    });
+    button.addEventListener(
+      "click",
+      () => {
+        loadAdminSupportChat(userId);
+      }
+    );
 
     adminSupportUsers.appendChild(button);
-
   });
 }
 
 let selectedSupportUserId = null;
 
-
 async function loadAdminSupportChat(userId) {
-
   selectedSupportUserId = userId;
 
   const adminSupportChat =
-    document.getElementById("adminSupportChat");
+    document.getElementById(
+      "adminSupportChat"
+    );
 
   if (!adminSupportChat) {
     return;
   }
 
-  const { data, error } = await supabaseClient
-    .from("support_messages")
-    .select("*")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: true });
+  const { data, error } =
+    await supabaseClient
+      .from("support_messages")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", {
+        ascending: true
+      });
 
   if (error) {
-    console.error("Ошибка загрузки переписки:", error);
+    console.error(
+      "Ошибка загрузки переписки:",
+      error
+    );
 
     adminSupportChat.innerHTML =
       "Не удалось загрузить переписку.";
@@ -946,8 +997,8 @@ async function loadAdminSupportChat(userId) {
   adminSupportChat.innerHTML = "";
 
   data.forEach((msg) => {
-
-    const message = document.createElement("div");
+    const message =
+      document.createElement("div");
 
     message.style.marginBottom = "10px";
     message.style.padding = "8px 10px";
@@ -956,92 +1007,106 @@ async function loadAdminSupportChat(userId) {
     message.style.wordBreak = "break-word";
 
     if (msg.is_admin) {
+      message.style.background =
+        "#3a3f4a";
 
-      message.style.background = "#3a3f4a";
-      message.style.marginRight = "auto";
+      message.style.marginRight =
+        "auto";
 
       message.innerHTML =
         `<b>Моя Кинотека:</b><br>${msg.message}`;
-
     } else {
+      message.style.background =
+        "#4a6cf7";
 
-      message.style.background = "#4a6cf7";
-      message.style.marginLeft = "auto";
+      message.style.marginLeft =
+        "auto";
 
       message.innerHTML =
         `<b>Пользователь:</b><br>${msg.message}`;
-
     }
 
-    adminSupportChat.appendChild(message);
-
+    adminSupportChat.appendChild(
+      message
+    );
   });
 
   adminSupportChat.scrollTop =
     adminSupportChat.scrollHeight;
 }
+
 const adminSendSupport =
-  document.getElementById("adminSendSupport");
+  document.getElementById(
+    "adminSendSupport"
+  );
 
 const adminSupportInput =
-  document.getElementById("adminSupportInput");
+  document.getElementById(
+    "adminSupportInput"
+  );
 
+if (
+  adminSendSupport &&
+  adminSupportInput
+) {
+  adminSendSupport.addEventListener(
+    "click",
+    async () => {
+      const text =
+        adminSupportInput.value.trim();
 
-if (adminSendSupport && adminSupportInput) {
+      if (!text) {
+        return;
+      }
 
-  adminSendSupport.addEventListener("click", async () => {
+      if (!selectedSupportUserId) {
+        alert(
+          "Сначала выберите пользователя."
+        );
 
-    const text =
-      adminSupportInput.value.trim();
+        return;
+      }
 
-    if (!text) {
-      return;
-    }
+      const { data: sessionData } =
+        await supabaseClient.auth.getSession();
 
-    if (!selectedSupportUserId) {
-      alert("Сначала выберите пользователя.");
-      return;
-    }
+      if (!sessionData.session) {
+        alert(
+          "Сначала войдите в аккаунт."
+        );
 
-    const { data: sessionData } =
-      await supabaseClient.auth.getSession();
+        return;
+      }
 
-    if (!sessionData.session) {
-      alert("Сначала войдите в аккаунт.");
-      return;
-    }
+      const { error } =
+        await supabaseClient
+          .from("support_messages")
+          .insert({
+            user_id:
+              selectedSupportUserId,
+            message: text,
+            is_admin: true,
+            is_read: false
+          });
 
-    const adminUserId =
-      sessionData.session.user.id;
+      if (error) {
+        console.error(
+          "Ошибка отправки ответа:",
+          error
+        );
 
-    const { error } =
-      await supabaseClient
-        .from("support_messages")
-        .insert({
-          user_id: selectedSupportUserId,
-          message: text,
-          is_admin: true,
-          is_read: false
-        });
+        alert(
+          "Не удалось отправить ответ."
+        );
 
-    if (error) {
+        return;
+      }
 
-      console.error(
-        "Ошибка отправки ответа:",
-        error
+      adminSupportInput.value = "";
+
+      await loadAdminSupportChat(
+        selectedSupportUserId
       );
-
-      alert("Не удалось отправить ответ.");
-
-      return;
     }
-
-    adminSupportInput.value = "";
-
-    await loadAdminSupportChat(
-      selectedSupportUserId
-    );
-
-  });
-
+  );
 }
