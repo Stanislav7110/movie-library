@@ -174,17 +174,54 @@
   ">
     <h2>Мой профиль</h2>
 
-    <div style="
-      width:90px;
-      height:90px;
-      margin:20px auto;
-      border-radius:50%;
-      background:#292e39;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:40px;
-    ">
+   <div style="
+  width:90px;
+  height:90px;
+  margin:20px auto 10px;
+  border-radius:50%;
+  background:#292e39;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  position:relative;
+">
+  <img
+    id="profileAvatar"
+    src=""
+    alt="Фото профиля"
+    style="
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:none;
+    "
+  >
+  <span id="profileAvatarPlaceholder" style="
+    font-size:40px;
+  ">👤</span>
+</div>
+
+<input
+  type="file"
+  id="profileAvatarInput"
+  accept="image/*"
+  style="display:none;"
+>
+
+<button
+  id="changeProfileAvatar"
+  type="button"
+  style="
+    margin-bottom:15px;
+    padding:8px 14px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+  "
+>
+  Изменить фото
+</button>
       👤
     </div>
 
