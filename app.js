@@ -3,7 +3,7 @@ const SUPABASE_URL = "https://kfhlvfymyyqgtsamgcra.supabase.co";
 const SUPABASE_URL = "https://kfhlvfymyyqgtsamgcra.supabase.co";
 
 // Твой Publishable key из Supabase
-const SUPABASE_KEY = "ТВОЙ_ТЕКУЩИЙ_PUBLISHABLE_KEY";
+const SUPABASE_KEY = "sb_publishable_GKFUCUwNTj4m-FRGL2Pm2g_i1DI1xkk";
 
 const { createClient } = supabase;
 
