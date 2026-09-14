@@ -919,6 +919,8 @@ let selectedSupportUserId = null;
 
 async function loadAdminSupportChat(userId) {
 
+  selectedSupportUserId = userId;
+
   const adminSupportChat =
     document.getElementById("adminSupportChat");
 
