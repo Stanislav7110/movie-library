@@ -804,38 +804,3 @@ if (sendSupportMessage && supportInput) {
     await loadSupportMessages();
   });
 }
-const adminSupportBtn = document.getElementById("adminSupportBtn");
-const adminSupportModal = document.getElementById("adminSupportModal");
-const closeAdminSupport = document.getElementById("closeAdminSupport");
-
-async function checkAdmin() {
-  const { data } = await supabaseClient.auth.getSession();
-
-  if (!data.session) {
-    return;
-  }
-
-  const userId = data.session.user.id;
-
-  if (userId === "ffbc93d4-d70a-4e19-b5dc-bfb0fea78b99") {
-    if (adminSupportBtn) {
-      adminSupportBtn.style.display = "inline";
-    }
-  }
-}
-
-checkAdmin();
-
-if (adminSupportBtn && adminSupportModal) {
-  adminSupportBtn.addEventListener("click", (event) => {
-    event.preventDefault();
-
-    adminSupportModal.style.display = "flex";
-  });
-}
-
-if (closeAdminSupport && adminSupportModal) {
-  closeAdminSupport.addEventListener("click", () => {
-    adminSupportModal.style.display = "none";
-  });
-}
