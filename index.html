@@ -154,6 +154,59 @@
     </nav>
   </header>
 
+  <div id="authModal" style="
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.75);
+  z-index:1000;
+  align-items:center;
+  justify-content:center;
+">
+  <div style="
+    background:#1b1e26;
+    padding:30px;
+    border-radius:15px;
+    width:90%;
+    max-width:400px;
+  ">
+    <h2 id="authTitle">Регистрация</h2>
+
+    <input
+      id="authEmail"
+      type="email"
+      placeholder="Email"
+      style="width:100%;padding:12px;margin:8px 0;"
+    >
+
+    <input
+      id="authPassword"
+      type="password"
+      placeholder="Пароль"
+      style="width:100%;padding:12px;margin:8px 0;"
+    >
+
+    <button id="authSubmit" style="
+      width:100%;
+      padding:12px;
+      margin-top:10px;
+      cursor:pointer;
+    ">
+      Зарегистрироваться
+    </button>
+
+    <p id="authMessage"></p>
+
+    <button id="closeAuth" style="
+      width:100%;
+      padding:10px;
+      margin-top:10px;
+      cursor:pointer;
+    ">
+      Закрыть
+    </button>
+  </div>
+</div>
   <section class="hero">
     <h1>Добро пожаловать в мою кинотеку</h1>
     <p>Фильмы, сериалы и мультфильмы в одном месте</p>
