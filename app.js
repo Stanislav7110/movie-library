@@ -687,30 +687,7 @@ if (languageSelect) {
 }
 
 applyLanguage(savedLanguage);
-const supportBtn = document.getElementById("supportBtn");
-const supportModal = document.getElementById("supportModal");
-const closeSupport = document.getElementById("closeSupport");
 
-if (supportBtn) {
-  supportBtn.addEventListener("click", async (event) => {
-    event.preventDefault();
-
-    const { data } = await supabaseClient.auth.getSession();
-
-    if (!data.session) {
-      alert("Сначала войдите в аккаунт.");
-      return;
-    }
-
-    supportModal.style.display = "flex";
-    await loadSupportMessages();
-  });
-}
-if (closeSupport) {
-  closeSupport.addEventListener("click", () => {
-    supportModal.style.display = "none";
-  });
-}
 const supportBtn = document.getElementById("supportBtn");
 const supportModal = document.getElementById("supportModal");
 const closeSupport = document.getElementById("closeSupport");
@@ -721,7 +698,9 @@ const supportMessages = document.getElementById("supportMessages");
 async function loadSupportMessages() {
   const { data: sessionData } = await supabaseClient.auth.getSession();
 
-  if (!sessionData.session) return;
+  if (!sessionData.session) {
+    return;
+  }
 
   const userId = sessionData.session.user.id;
 
@@ -736,7 +715,9 @@ async function loadSupportMessages() {
     return;
   }
 
-  if (!supportMessages) return;
+  if (!supportMessages) {
+    return;
+  }
 
   supportMessages.innerHTML = "";
 
@@ -765,7 +746,7 @@ async function loadSupportMessages() {
   supportMessages.scrollTop = supportMessages.scrollHeight;
 }
 
-if (supportBtn) {
+if (supportBtn && supportModal) {
   supportBtn.addEventListener("click", async (event) => {
     event.preventDefault();
 
@@ -782,17 +763,19 @@ if (supportBtn) {
   });
 }
 
-if (closeSupport) {
+if (closeSupport && supportModal) {
   closeSupport.addEventListener("click", () => {
     supportModal.style.display = "none";
   });
 }
 
-if (sendSupportMessage) {
+if (sendSupportMessage && supportInput) {
   sendSupportMessage.addEventListener("click", async () => {
     const text = supportInput.value.trim();
 
-    if (!text) return;
+    if (!text) {
+      return;
+    }
 
     const { data } = await supabaseClient.auth.getSession();
 
