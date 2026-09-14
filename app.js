@@ -147,54 +147,57 @@ const profileAvatarPlaceholder = document.getElementById("profileAvatarPlacehold
 const profileAvatarInput = document.getElementById("profileAvatarInput");
 const changeProfileAvatar = document.getElementById("changeProfileAvatar");
 
-profileAvatarInput.addEventListener("change", async () => {
-  const file = profileAvatarInput.files[0];
+if (profileAvatarInput) {
+  profileAvatarInput.addEventListener("change", async () => {
+    const file = profileAvatarInput.files[0];
 
-  if (!file) {
-    return;
-  }
+    if (!file) {
+      return;
+    }
 
-  const {
-    data: { session }
-  } = await supabaseClient.auth.getSession();
+    const {
+      data: { session }
+    } = await supabaseClient.auth.getSession();
 
-  if (!session) {
-    return;
-  }
+    if (!session) {
+      return;
+    }
 
-  profileMessage.textContent = "Загружаем фото...";
+    profileMessage.textContent = "Загружаем фото...";
 
-  const fileExt = file.name.split(".").pop();
-  const filePath = `${session.user.id}.${fileExt}`;
+    const fileExt = file.name.split(".").pop();
+    const filePath = `${session.user.id}.${fileExt}`;
 
-  const { error: uploadError } = await supabaseClient
-    .storage
-    .from("avatars")
-    .upload(filePath, file, {
-      upsert: true
-    });
+    const { error: uploadError } = await supabaseClient
+      .storage
+      .from("avatars")
+      .upload(filePath, file, {
+        upsert: true
+      });
 
-  if (uploadError) {
-    profileMessage.textContent = "Ошибка загрузки фото.";
-    console.error(uploadError);
-    return;
-  }
+    if (uploadError) {
+      profileMessage.textContent = "Ошибка загрузки фото.";
+      console.error(uploadError);
+      return;
+    }
 
-  const { data } = supabaseClient
-    .storage
-    .from("avatars")
-    .getPublicUrl(filePath);
+    const { data } = supabaseClient
+      .storage
+      .from("avatars")
+      .getPublicUrl(filePath);
 
-  profileAvatar.src = data.publicUrl;
-  profileAvatar.style.display = "block";
-  profileAvatarPlaceholder.style.display = "none";
+    profileAvatar.src = data.publicUrl;
+    profileAvatar.style.display = "block";
+    profileAvatarPlaceholder.style.display = "none";
 
-  profileMessage.textContent = "Фото загружено!";
-});
-
-changeProfileAvatar.onclick = () => {
-  profileAvatarInput.click();
-};
+    profileMessage.textContent = "Фото загружено!";
+  });
+}
+if (changeProfileAvatar && profileAvatarInput) {
+  changeProfileAvatar.onclick = () => {
+    profileAvatarInput.click();
+  };
+}
 
 // ===============================
 // ОТКРЫТИЕ ПРОФИЛЯ
