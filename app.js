@@ -438,3 +438,252 @@ supabaseClient.auth.onAuthStateChange(() => {
 // ===============================
 
 updateAuthUI();
+// ===============================
+// ЯЗЫК САЙТА
+// ===============================
+
+const languageSelect = document.getElementById("languageSelect");
+
+const translations = {
+  ru: {
+    logo: "🎬 Моя Кинотека",
+    home: "Главная",
+    movies: "Фильмы",
+    series: "Сериалы",
+    cartoons: "Мультфильмы",
+    favorites: "Избранное",
+    login: "Войти",
+    register: "Регистрация",
+    profile: "Профиль",
+    logout: "Выйти",
+
+    welcome: "Добро пожаловать в мою кинотеку",
+    subtitle: "Фильмы, сериалы и мультфильмы в одном месте",
+
+    categoryMovies: "🎬 Фильмы",
+    categorySeries: "📺 Сериалы",
+    categoryCartoons: "🎨 Мультфильмы",
+    categoryFavorites: "❤️ Избранное",
+    watchLater: "⏰ Посмотреть позже",
+
+    collection: "Моя коллекция",
+    poster: "Постер",
+    exampleMovie: "Пример фильма",
+    exampleSeries: "Пример сериала",
+    exampleCartoon: "Пример мультфильма",
+
+    profileTitle: "Мой профиль",
+    changePhoto: "Изменить фото",
+    saveProfile: "Сохранить профиль",
+    close: "Закрыть",
+
+    authRegister: "Регистрация",
+    authLogin: "Вход",
+    email: "Email",
+    password: "Пароль",
+    registerButton: "Зарегистрироваться",
+    loginButton: "Войти",
+
+    footer: "Моя Кинотека © 2026"
+  },
+
+  uk: {
+    logo: "🎬 Моя Кінотека",
+    home: "Головна",
+    movies: "Фільми",
+    series: "Серіали",
+    cartoons: "Мультфільми",
+    favorites: "Обране",
+    login: "Увійти",
+    register: "Реєстрація",
+    profile: "Профіль",
+    logout: "Вийти",
+
+    welcome: "Ласкаво просимо до моєї кінотеки",
+    subtitle: "Фільми, серіали та мультфільми в одному місці",
+
+    categoryMovies: "🎬 Фільми",
+    categorySeries: "📺 Серіали",
+    categoryCartoons: "🎨 Мультфільми",
+    categoryFavorites: "❤️ Обране",
+    watchLater: "⏰ Переглянути пізніше",
+
+    collection: "Моя колекція",
+    poster: "Постер",
+    exampleMovie: "Приклад фільму",
+    exampleSeries: "Приклад серіалу",
+    exampleCartoon: "Приклад мультфільму",
+
+    profileTitle: "Мій профіль",
+    changePhoto: "Змінити фото",
+    saveProfile: "Зберегти профіль",
+    close: "Закрити",
+
+    authRegister: "Реєстрація",
+    authLogin: "Вхід",
+    email: "Email",
+    password: "Пароль",
+    registerButton: "Зареєструватися",
+    loginButton: "Увійти",
+
+    footer: "Моя Кінотека © 2026"
+  },
+
+  en: {
+    logo: "🎬 My Movie Library",
+    home: "Home",
+    movies: "Movies",
+    series: "Series",
+    cartoons: "Cartoons",
+    favorites: "Favorites",
+    login: "Log in",
+    register: "Sign up",
+    profile: "Profile",
+    logout: "Log out",
+
+    welcome: "Welcome to my movie library",
+    subtitle: "Movies, series and cartoons in one place",
+
+    categoryMovies: "🎬 Movies",
+    categorySeries: "📺 Series",
+    categoryCartoons: "🎨 Cartoons",
+    categoryFavorites: "❤️ Favorites",
+    watchLater: "⏰ Watch later",
+
+    collection: "My collection",
+    poster: "Poster",
+    exampleMovie: "Example movie",
+    exampleSeries: "Example series",
+    exampleCartoon: "Example cartoon",
+
+    profileTitle: "My profile",
+    changePhoto: "Change photo",
+    saveProfile: "Save profile",
+    close: "Close",
+
+    authRegister: "Sign up",
+    authLogin: "Log in",
+    email: "Email",
+    password: "Password",
+    registerButton: "Sign up",
+    loginButton: "Log in",
+
+    footer: "My Movie Library © 2026"
+  }
+};
+
+
+function applyLanguage(language) {
+
+  const t = translations[language];
+
+  if (!t) {
+    return;
+  }
+
+  // Логотип
+  document.querySelector(".logo").textContent = t.logo;
+
+  // Меню
+  const navLinks = document.querySelectorAll("nav a");
+
+  navLinks[0].textContent = t.home;
+  navLinks[1].textContent = t.movies;
+  navLinks[2].textContent = t.series;
+  navLinks[3].textContent = t.cartoons;
+  navLinks[4].textContent = t.favorites;
+
+  // Авторизация
+  if (supabaseClient) {
+    supabaseClient.auth.getSession().then(({ data }) => {
+
+      if (data.session) {
+        loginBtn.textContent = t.profile;
+        registerBtn.textContent = t.logout;
+      } else {
+        loginBtn.textContent = t.login;
+        registerBtn.textContent = t.register;
+      }
+
+    });
+  }
+
+  // Главный экран
+  document.querySelector(".hero h1").textContent = t.welcome;
+  document.querySelector(".hero p").textContent = t.subtitle;
+
+  // Категории
+  const categories = document.querySelectorAll(".category");
+
+  categories[0].textContent = t.categoryMovies;
+  categories[1].textContent = t.categorySeries;
+  categories[2].textContent = t.categoryCartoons;
+  categories[3].textContent = t.categoryFavorites;
+  categories[4].textContent = t.watchLater;
+
+  // Коллекция
+  document.querySelector(".content h2").textContent = t.collection;
+
+  // Карточки
+  const movies = document.querySelectorAll(".movie");
+
+  if (movies[0]) {
+    movies[0].querySelector(".poster").textContent = t.poster;
+    movies[0].querySelector(".movie-title").textContent = t.exampleMovie;
+  }
+
+  if (movies[1]) {
+    movies[1].querySelector(".poster").textContent = t.poster;
+    movies[1].querySelector(".movie-title").textContent = t.exampleSeries;
+  }
+
+  if (movies[2]) {
+    movies[2].querySelector(".poster").textContent = t.poster;
+    movies[2].querySelector(".movie-title").textContent = t.exampleCartoon;
+  }
+
+  // Профиль
+  document.querySelector("#profileModal h2").textContent = t.profileTitle;
+  changeProfileAvatar.textContent = t.changePhoto;
+  saveProfile.textContent = t.saveProfile;
+  closeProfile.textContent = t.close;
+
+  // Авторизация
+  authEmail.placeholder = t.email;
+  authPassword.placeholder = t.password;
+
+  if (authMode === "register") {
+    authTitle.textContent = t.authRegister;
+    authSubmit.textContent = t.registerButton;
+  } else {
+    authTitle.textContent = t.authLogin;
+    authSubmit.textContent = t.loginButton;
+  }
+
+  // Футер
+  document.querySelector("footer").textContent = t.footer;
+
+  // Запоминаем язык
+  localStorage.setItem("siteLanguage", language);
+}
+
+
+// Смена языка
+if (languageSelect) {
+
+  languageSelect.addEventListener("change", () => {
+    applyLanguage(languageSelect.value);
+  });
+
+}
+
+
+// Загружаем сохранённый язык
+const savedLanguage =
+  localStorage.getItem("siteLanguage") || "ru";
+
+if (languageSelect) {
+  languageSelect.value = savedLanguage;
+}
+
+applyLanguage(savedLanguage);
