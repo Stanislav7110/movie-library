@@ -812,30 +812,14 @@ async function updateAdminButton() {
   const { data } = await supabaseClient.auth.getSession();
 
   if (!data.session) {
-    if (adminSupportBtn) {
-      adminSupportBtn.style.display = "none";
-    }
     return;
   }
 
-  const { data: profile, error } = await supabaseClient
-    .from("profiles")
-    .select("is_admin")
-    .eq("id", data.session.user.id)
-    .single();
+  const userId = data.session.user.id;
 
-  if (error) {
-    console.error("Ошибка проверки администратора:", error);
-    return;
-  }
-
-  if (profile && profile.is_admin === true) {
+  if (userId === "ffbc93d4-d70a-4e19-b5dc-bfb0fea78b99") {
     if (adminSupportBtn) {
       adminSupportBtn.style.display = "inline";
-    }
-  } else {
-    if (adminSupportBtn) {
-      adminSupportBtn.style.display = "none";
     }
   }
 }
