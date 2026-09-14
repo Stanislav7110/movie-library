@@ -692,10 +692,12 @@ const supportModal = document.getElementById("supportModal");
 const closeSupport = document.getElementById("closeSupport");
 
 if (supportBtn) {
-  supportBtn.addEventListener("click", (event) => {
+  supportBtn.addEventListener("click", async (event) => {
     event.preventDefault();
 
-    if (!currentUser) {
+    const { data } = await supabaseClient.auth.getSession();
+
+    if (!data.session) {
       alert("Сначала войдите в аккаунт.");
       return;
     }
@@ -703,7 +705,6 @@ if (supportBtn) {
     supportModal.style.display = "flex";
   });
 }
-
 if (closeSupport) {
   closeSupport.addEventListener("click", () => {
     supportModal.style.display = "none";
