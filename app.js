@@ -804,3 +804,57 @@ if (sendSupportMessage && supportInput) {
     await loadSupportMessages();
   });
 }
+const adminSupportBtn = document.getElementById("adminSupportBtn");
+const adminSupportModal = document.getElementById("adminSupportModal");
+const closeAdminSupport = document.getElementById("closeAdminSupport");
+
+async function updateAdminButton() {
+  const { data } = await supabaseClient.auth.getSession();
+
+  if (!data.session) {
+    if (adminSupportBtn) {
+      adminSupportBtn.style.display = "none";
+    }
+    return;
+  }
+
+  const { data: profile, error } = await supabaseClient
+    .from("profiles")
+    .select("is_admin")
+    .eq("id", data.session.user.id)
+    .single();
+
+  if (error) {
+    console.error("Ошибка проверки администратора:", error);
+    return;
+  }
+
+  if (profile && profile.is_admin === true) {
+    if (adminSupportBtn) {
+      adminSupportBtn.style.display = "inline";
+    }
+  } else {
+    if (adminSupportBtn) {
+      adminSupportBtn.style.display = "none";
+    }
+  }
+}
+
+updateAdminButton();
+
+supabaseClient.auth.onAuthStateChange(() => {
+  updateAdminButton();
+});
+
+if (adminSupportBtn && adminSupportModal) {
+  adminSupportBtn.addEventListener("click", (event) => {
+    event.preventDefault();
+    adminSupportModal.style.display = "flex";
+  });
+}
+
+if (closeAdminSupport && adminSupportModal) {
+  closeAdminSupport.addEventListener("click", () => {
+    adminSupportModal.style.display = "none";
+  });
+}
