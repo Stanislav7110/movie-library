@@ -831,14 +831,69 @@ supabaseClient.auth.onAuthStateChange(() => {
 });
 
 if (adminSupportBtn && adminSupportModal) {
-  adminSupportBtn.addEventListener("click", (event) => {
-    event.preventDefault();
-    adminSupportModal.style.display = "flex";
-  });
-}
+ adminSupportBtn.addEventListener("click", (event) => {
+  event.preventDefault();
+  adminSupportModal.style.display = "flex";
 
-if (closeAdminSupport && adminSupportModal) {
+  loadAdminSupportUsers();
+});
+
+  if (closeAdminSupport && adminSupportModal) {
   closeAdminSupport.addEventListener("click", () => {
     adminSupportModal.style.display = "none";
+  });
+}
+async function loadAdminSupportUsers() {
+
+  const adminSupportUsers =
+    document.getElementById("adminSupportUsers");
+
+  if (!adminSupportUsers) {
+    return;
+  }
+
+  const { data, error } = await supabaseClient
+    .from("support_messages")
+    .select("user_id, created_at")
+    .eq("is_admin", false)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Ошибка загрузки пользователей:", error);
+    adminSupportUsers.innerHTML =
+      "Не удалось загрузить обращения.";
+    return;
+  }
+
+  const uniqueUsers = [];
+
+  data.forEach((message) => {
+    if (!uniqueUsers.includes(message.user_id)) {
+      uniqueUsers.push(message.user_id);
+    }
+  });
+
+  adminSupportUsers.innerHTML = "";
+
+  if (uniqueUsers.length === 0) {
+    adminSupportUsers.textContent =
+      "Пока никто не писал в поддержку.";
+    return;
+  }
+
+  uniqueUsers.forEach((userId) => {
+
+    const button = document.createElement("button");
+
+    button.textContent = "Пользователь " + userId.slice(0, 8);
+
+    button.style.display = "block";
+    button.style.width = "100%";
+    button.style.padding = "10px";
+    button.style.marginBottom = "8px";
+    button.style.cursor = "pointer";
+    button.style.textAlign = "left";
+
+    adminSupportUsers.appendChild(button);
   });
 }
