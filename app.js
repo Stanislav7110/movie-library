@@ -53,20 +53,34 @@ function openLogin() {
   authModal.style.display = "flex";
 }
 
-// Вход
-loginBtn.addEventListener("click", (event) => {
+loginBtn.addEventListener("click", async (event) => {
   event.preventDefault();
 
-  openLogin();
+  const {
+    data: { session }
+  } = await supabaseClient.auth.getSession();
+
+  if (session) {
+    alert("Вы вошли в аккаунт: " + session.user.email);
+  } else {
+    openLogin();
+  }
 });
 
-// Регистрация
-registerBtn.addEventListener("click", (event) => {
+registerBtn.addEventListener("click", async (event) => {
   event.preventDefault();
 
-  openRegister();
-});
+  const {
+    data: { session }
+  } = await supabaseClient.auth.getSession();
 
+  if (session) {
+    await supabaseClient.auth.signOut();
+    location.reload();
+  } else {
+    openRegister();
+  }
+});
 // Закрытие окна
 closeAuth.addEventListener("click", () => {
   authModal.style.display = "none";
@@ -156,8 +170,7 @@ async function updateAuthUI() {
 
 // Следим за состоянием авторизации
 supabaseClient.auth.onAuthStateChange(() => {
-  updateAuthUI();
+  setTimeout(() => {
+    updateAuthUI();
+  }, 0);
 });
-
-// Проверяем состояние при загрузке сайта
-updateAuthUI();
