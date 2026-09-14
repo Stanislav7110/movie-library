@@ -174,3 +174,4 @@ supabaseClient.auth.onAuthStateChange(() => {
     updateAuthUI();
   }, 0);
 });
+updateAuthUI();
