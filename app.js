@@ -147,11 +147,34 @@ const profileAvatarPlaceholder = document.getElementById("profileAvatarPlacehold
 const profileAvatarInput = document.getElementById("profileAvatarInput");
 const changeProfileAvatar = document.getElementById("changeProfileAvatar");
 
+
+// ===============================
+// ИЗМЕНЕНИЕ ФОТО
+// ===============================
+
+if (changeProfileAvatar && profileAvatarInput) {
+  changeProfileAvatar.addEventListener("click", () => {
+    profileAvatarInput.click();
+  });
+}
+
+
+// ===============================
+// ЗАГРУЗКА ФОТО
+// ===============================
+
 if (profileAvatarInput) {
   profileAvatarInput.addEventListener("change", async () => {
+
     const file = profileAvatarInput.files[0];
 
     if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      profileMessage.textContent = "Выберите изображение.";
+      profileAvatarInput.value = "";
       return;
     }
 
@@ -160,50 +183,109 @@ if (profileAvatarInput) {
     } = await supabaseClient.auth.getSession();
 
     if (!session) {
+      profileMessage.textContent = "Сначала войдите в аккаунт.";
       return;
     }
 
     profileMessage.textContent = "Загружаем фото...";
 
-    const fileExt = file.name.split(".").pop();
-    const filePath = `${session.user.id}.${fileExt}`;
+    /*
+      Используем всегда один и тот же путь.
+      Поэтому новое фото заменяет старое.
+    */
+    const filePath = `${session.user.id}.jpg`;
 
     const { error: uploadError } = await supabaseClient
       .storage
       .from("avatars")
       .upload(filePath, file, {
-        upsert: true
+        upsert: true,
+        contentType: file.type,
+        cacheControl: "3600"
       });
 
     if (uploadError) {
-      profileMessage.textContent = "Ошибка загрузки фото.";
-      console.error(uploadError);
+      console.error("Ошибка загрузки фото:", uploadError);
+      profileMessage.textContent =
+        "Ошибка загрузки: " + uploadError.message;
       return;
     }
 
-    const { data } = supabaseClient
+    const { data: publicUrlData } = supabaseClient
       .storage
       .from("avatars")
       .getPublicUrl(filePath);
 
-    profileAvatar.src = data.publicUrl;
+    if (!publicUrlData || !publicUrlData.publicUrl) {
+      profileMessage.textContent = "Не удалось получить ссылку на фото.";
+      return;
+    }
+
+    /*
+      Добавляем время к ссылке, чтобы браузер
+      не показывал старую фотографию из кэша.
+    */
+    const photoUrl =
+      publicUrlData.publicUrl + "?t=" + Date.now();
+
+    profileAvatar.src = photoUrl;
     profileAvatar.style.display = "block";
+
     profileAvatarPlaceholder.style.display = "none";
 
     profileMessage.textContent = "Фото загружено!";
+
+    profileAvatarInput.value = "";
   });
 }
-if (changeProfileAvatar && profileAvatarInput) {
-  changeProfileAvatar.onclick = () => {
-    profileAvatarInput.click();
+
+
+// ===============================
+// ПОКАЗ ФОТО ПРОФИЛЯ
+// ===============================
+
+function loadProfileAvatar(userId) {
+
+  if (!profileAvatar || !profileAvatarPlaceholder) {
+    return;
+  }
+
+  const filePath = `${userId}.jpg`;
+
+  const { data } = supabaseClient
+    .storage
+    .from("avatars")
+    .getPublicUrl(filePath);
+
+  if (!data || !data.publicUrl) {
+    profileAvatar.style.display = "none";
+    profileAvatarPlaceholder.style.display = "block";
+    return;
+  }
+
+  const photoUrl =
+    data.publicUrl + "?t=" + Date.now();
+
+  profileAvatar.onload = () => {
+    profileAvatar.style.display = "block";
+    profileAvatarPlaceholder.style.display = "none";
   };
+
+  profileAvatar.onerror = () => {
+    profileAvatar.style.display = "none";
+    profileAvatarPlaceholder.style.display = "block";
+  };
+
+  profileAvatar.src = photoUrl;
 }
+
 
 // ===============================
 // ОТКРЫТИЕ ПРОФИЛЯ
 // ===============================
 
 async function openProfile() {
+
   const {
     data: { session }
   } = await supabaseClient.auth.getSession();
@@ -227,7 +309,11 @@ async function openProfile() {
   }
 
   profileUsername.value = data?.username || "";
+
   profileMessage.textContent = "";
+
+  // Загружаем фотографию
+  loadProfileAvatar(session.user.id);
 
   profileModal.style.display = "flex";
 }
@@ -247,6 +333,7 @@ closeProfile.addEventListener("click", () => {
 // ===============================
 
 saveProfile.addEventListener("click", async () => {
+
   const {
     data: { session }
   } = await supabaseClient.auth.getSession();
@@ -258,7 +345,8 @@ saveProfile.addEventListener("click", async () => {
   const username = profileUsername.value.trim();
 
   if (!username) {
-    profileMessage.textContent = "Введите имя пользователя.";
+    profileMessage.textContent =
+      "Введите имя пользователя.";
     return;
   }
 
@@ -272,12 +360,15 @@ saveProfile.addEventListener("click", async () => {
     });
 
   if (error) {
-    profileMessage.textContent = "Ошибка: " + error.message;
+    profileMessage.textContent =
+      "Ошибка: " + error.message;
+
     console.error(error);
     return;
   }
 
-  profileMessage.textContent = "Профиль сохранён!";
+  profileMessage.textContent =
+    "Профиль сохранён!";
 });
 
 
@@ -286,6 +377,7 @@ saveProfile.addEventListener("click", async () => {
 // ===============================
 
 async function updateAuthUI() {
+
   const {
     data: { session }
   } = await supabaseClient.auth.getSession();
