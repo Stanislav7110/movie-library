@@ -687,3 +687,25 @@ if (languageSelect) {
 }
 
 applyLanguage(savedLanguage);
+const supportBtn = document.getElementById("supportBtn");
+const supportModal = document.getElementById("supportModal");
+const closeSupport = document.getElementById("closeSupport");
+
+if (supportBtn) {
+  supportBtn.addEventListener("click", (event) => {
+    event.preventDefault();
+
+    if (!currentUser) {
+      alert("Сначала войдите в аккаунт.");
+      return;
+    }
+
+    supportModal.style.display = "flex";
+  });
+}
+
+if (closeSupport) {
+  closeSupport.addEventListener("click", () => {
+    supportModal.style.display = "none";
+  });
+}
