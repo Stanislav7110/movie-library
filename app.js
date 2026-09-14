@@ -1110,3 +1110,39 @@ if (
     }
   );
 }
+// Переключение вкладок админ-панели
+
+const adminSupportTab =
+  document.getElementById("adminSupportTab");
+
+const adminMoviesTab =
+  document.getElementById("adminMoviesTab");
+
+const adminSupportSection =
+  document.getElementById("adminSupportSection");
+
+const adminMoviesSection =
+  document.getElementById("adminMoviesSection");
+
+if (
+  adminSupportTab &&
+  adminMoviesTab &&
+  adminSupportSection &&
+  adminMoviesSection
+) {
+  adminSupportTab.addEventListener("click", () => {
+    adminSupportSection.style.display = "block";
+    adminMoviesSection.style.display = "none";
+
+    adminSupportTab.style.background = "#4a6cf7";
+    adminMoviesTab.style.background = "#3a3f4a";
+  });
+
+  adminMoviesTab.addEventListener("click", () => {
+    adminSupportSection.style.display = "none";
+    adminMoviesSection.style.display = "block";
+
+    adminSupportTab.style.background = "#3a3f4a";
+    adminMoviesTab.style.background = "#4a6cf7";
+  });
+}
