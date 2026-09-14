@@ -914,6 +914,8 @@ async function loadAdminSupportUsers() {
   });
 }
 
+let selectedSupportUserId = null;
+
 
 async function loadAdminSupportChat(userId) {
 
