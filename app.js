@@ -1314,6 +1314,35 @@ if (
 const movieGrid =
   document.getElementById("movieGrid");
 
+const movieModal =
+  document.getElementById("movieModal");
+
+const movieModalPoster =
+  document.getElementById("movieModalPoster");
+
+const movieModalTitle =
+  document.getElementById("movieModalTitle");
+
+const movieModalInfo =
+  document.getElementById("movieModalInfo");
+
+const movieModalDescription =
+  document.getElementById("movieModalDescription");
+
+const movieModalTrailer =
+  document.getElementById("movieModalTrailer");
+
+const closeMovieModal =
+  document.getElementById("closeMovieModal");
+
+const addToLibraryBtn =
+  document.getElementById("addToLibraryBtn");
+
+const libraryAddStatus =
+  document.getElementById("libraryAddStatus");
+
+let selectedMovieId = null;
+
 async function loadMovies() {
   if (!movieGrid) {
     return;
@@ -1352,6 +1381,7 @@ async function loadMovies() {
   }
 
   data.forEach((movie) => {
+
     const card =
       document.createElement("div");
 
@@ -1391,8 +1421,76 @@ async function loadMovies() {
       </div>
     `;
 
+    card.addEventListener("click", () => {
+      openMovieModal(movie);
+    });
+
     movieGrid.appendChild(card);
   });
+}
+
+function openMovieModal(movie) {
+
+  selectedMovieId = movie.id;
+
+  movieModalPoster.src =
+    movie.poster_url || "";
+
+  movieModalPoster.alt =
+    movie.title;
+
+  movieModalTitle.textContent =
+    movie.title;
+
+  movieModalInfo.textContent =
+    `${movie.year} · ${movie.type}`;
+
+  movieModalDescription.textContent =
+    movie.description ||
+    "Описание отсутствует.";
+
+  libraryAddStatus.textContent = "";
+
+  if (movie.trailer_url) {
+
+    movieModalTrailer.href =
+      movie.trailer_url;
+
+    movieModalTrailer.style.display =
+      "inline-block";
+
+  } else {
+
+    movieModalTrailer.style.display =
+      "none";
+  }
+
+  movieModal.style.display =
+    "flex";
+}
+
+if (closeMovieModal) {
+  closeMovieModal.addEventListener(
+    "click",
+    () => {
+      movieModal.style.display =
+        "none";
+    }
+  );
+}
+
+if (movieModal) {
+  movieModal.addEventListener(
+    "click",
+    (event) => {
+
+      if (event.target === movieModal) {
+        movieModal.style.display =
+          "none";
+      }
+
+    }
+  );
 }
 
 loadMovies();
