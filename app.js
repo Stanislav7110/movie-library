@@ -1421,10 +1421,10 @@ async function loadMovies() {
       </div>
     `;
 
-    card.addEventListener("click", () => {
-      openMovieModal(movie);
-    });
-
+  card.addEventListener("click", () => {
+  window.location.href =
+    `movie.html?id=${movie.id}`;
+});
     movieGrid.appendChild(card);
   });
 }
