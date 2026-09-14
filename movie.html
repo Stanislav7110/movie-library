@@ -503,5 +503,70 @@
 
   </main>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL =
+    "https://kfhlvfymyyqgtsamgcra.supabase.co";
+
+  const SUPABASE_KEY =
+    "sb_publishable_GKFUCUwNTj4m-FRGL2Pm2g_i1DI1xkk";
+
+  const supabaseClient =
+    supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+  async function loadMovie() {
+
+    const params =
+      new URLSearchParams(window.location.search);
+
+    const movieId =
+      params.get("id");
+
+    if (!movieId) {
+      return;
+    }
+
+    const { data: movie, error } =
+      await supabaseClient
+        .from("movies")
+        .select("*")
+        .eq("id", movieId)
+        .single();
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    document.title =
+      movie.title + " — Моя Кинотека";
+
+    document.querySelector(".movie-meta").textContent =
+      `${movie.year} · ${movie.type}`;
+
+    document.querySelector(".movie-title").textContent =
+      movie.title;
+
+    document.querySelector(".movie-description").textContent =
+      movie.description || "Описание отсутствует.";
+
+    document.querySelector(".poster").src =
+      movie.poster_url || "";
+
+    document.querySelector(".poster").alt =
+      movie.title;
+
+    if (movie.trailer_url) {
+      document.querySelector(".movie-links a").href =
+        movie.trailer_url;
+    }
+  }
+
+  loadMovie();
+</script>
+  
 </body>
 </html>
