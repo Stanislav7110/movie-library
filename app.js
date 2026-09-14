@@ -142,6 +142,10 @@ const saveProfile = document.getElementById("saveProfile");
 const profileMessage = document.getElementById("profileMessage");
 const closeProfile = document.getElementById("closeProfile");
 
+const profileAvatar = document.getElementById("profileAvatar");
+const profileAvatarPlaceholder = document.getElementById("profileAvatarPlaceholder");
+const profileAvatarInput = document.getElementById("profileAvatarInput");
+const changeProfileAvatar = document.getElementById("changeProfileAvatar");
 
 // ===============================
 // ОТКРЫТИЕ ПРОФИЛЯ
