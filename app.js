@@ -817,7 +817,7 @@ async function updateAdminButton() {
 
   const userId = data.session.user.id;
 
-  if (userId === "ffbc93d4-d70a-4e19-b5dc-bfb0fea78b99") {
+ if (userId === "0346597c-f4a1-42ce-9e50-b87b202ae90a") {
     if (adminSupportBtn) {
       adminSupportBtn.style.display = "inline";
     }
