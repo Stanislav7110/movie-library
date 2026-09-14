@@ -1309,3 +1309,90 @@ if (
     moviePoster.value = "";
   });
 }
+// Загрузка каталога фильмов
+
+const movieGrid =
+  document.getElementById("movieGrid");
+
+async function loadMovies() {
+  if (!movieGrid) {
+    return;
+  }
+
+  movieGrid.innerHTML =
+    "Загрузка фильмов...";
+
+  const { data, error } =
+    await supabaseClient
+      .from("movies")
+      .select("*")
+      .order("created_at", {
+        ascending: false
+      });
+
+  if (error) {
+    console.error(
+      "Ошибка загрузки фильмов:",
+      error
+    );
+
+    movieGrid.innerHTML =
+      "Не удалось загрузить фильмы.";
+
+    return;
+  }
+
+  movieGrid.innerHTML = "";
+
+  if (!data || data.length === 0) {
+    movieGrid.innerHTML =
+      "Фильмов пока нет.";
+
+    return;
+  }
+
+  data.forEach((movie) => {
+    const card =
+      document.createElement("div");
+
+    card.style.background = "#242832";
+    card.style.borderRadius = "10px";
+    card.style.overflow = "hidden";
+    card.style.cursor = "pointer";
+
+    card.innerHTML = `
+      <img
+        src="${movie.poster_url || ""}"
+        alt="${movie.title}"
+        style="
+          width:100%;
+          height:270px;
+          object-fit:cover;
+          display:block;
+        "
+      >
+
+      <div style="padding:12px;">
+
+        <h3 style="
+          margin:0 0 6px 0;
+          font-size:18px;
+        ">
+          ${movie.title}
+        </h3>
+
+        <div style="
+          color:#aaa;
+          font-size:14px;
+        ">
+          ${movie.year} · ${movie.type}
+        </div>
+
+      </div>
+    `;
+
+    movieGrid.appendChild(card);
+  });
+}
+
+loadMovies();
