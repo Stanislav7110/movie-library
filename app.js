@@ -741,7 +741,55 @@ if (sendSupportMessage) {
       return;
     }
 
-    supportInput.value = "";
-    alert("Сообщение отправлено.");
+   supportInput.value = "";
+await loadSupportMessages();
   });
+}
+async function loadSupportMessages() {
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+
+  if (!sessionData.session) return;
+
+  const userId = sessionData.session.user.id;
+
+  const { data, error } = await supabaseClient
+    .from("support_messages")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("Ошибка загрузки сообщений:", error);
+    return;
+  }
+
+  const messagesContainer = document.getElementById("supportMessages");
+
+  if (!messagesContainer) return;
+
+  messagesContainer.innerHTML = "";
+
+  data.forEach((msg) => {
+    const message = document.createElement("div");
+
+    message.style.marginBottom = "10px";
+    message.style.padding = "8px 10px";
+    message.style.borderRadius = "8px";
+    message.style.maxWidth = "80%";
+    message.style.wordBreak = "break-word";
+
+    if (msg.is_admin) {
+      message.style.background = "#3a3f4a";
+      message.style.marginRight = "auto";
+      message.innerHTML = `<b>Моя Кинотека:</b><br>${msg.message}`;
+    } else {
+      message.style.background = "#4a6cf7";
+      message.style.marginLeft = "auto";
+      message.innerHTML = `<b>Вы:</b><br>${msg.message}`;
+    }
+
+    messagesContainer.appendChild(message);
+  });
+
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
