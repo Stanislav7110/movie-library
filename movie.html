@@ -34,8 +34,10 @@
     .page-background {
       position: fixed;
       inset: 0;
+
       pointer-events: none;
-      z-index: -2;
+
+      z-index: 0;
 
       background:
         radial-gradient(
@@ -55,17 +57,22 @@
         );
     }
 
-    /* Верхняя зона под будущий трейлер */
+    /* Фоновый трейлер */
 
     .trailer-background {
       position: fixed;
+
       top: 0;
       left: 0;
 
       width: 100%;
       height: 58vh;
 
-      z-index: -3;
+      z-index: 1;
+
+      pointer-events: none;
+
+      overflow: hidden;
 
       background:
         radial-gradient(
@@ -76,15 +83,40 @@
         );
     }
 
+    /* Само видео */
+
+    .trailer-video {
+      position: absolute;
+
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+
+      opacity: 0.45;
+
+      filter: brightness(0.55);
+
+      z-index: 0;
+    }
+
+    /* Затемнение видео */
+
     .trailer-overlay {
       position: absolute;
+
       inset: 0;
+
+      z-index: 1;
 
       background:
         linear-gradient(
           to bottom,
-          rgba(5, 7, 10, 0.10) 0%,
-          rgba(5, 7, 10, 0.35) 45%,
+          rgba(5, 7, 10, 0.15) 0%,
+          rgba(5, 7, 10, 0.40) 45%,
           #080a0e 100%
         );
     }
@@ -92,6 +124,10 @@
     /* Основная страница */
 
     .movie-page {
+      position: relative;
+
+      z-index: 2;
+
       width: 100%;
       min-height: 100vh;
 
@@ -132,7 +168,9 @@
 
     .movie-meta {
       color: #8f96a3;
+
       font-size: 15px;
+
       margin-bottom: 14px;
     }
 
@@ -140,7 +178,9 @@
       margin: 0 0 25px;
 
       font-size: 48px;
+
       line-height: 1.05;
+
       font-weight: 700;
     }
 
@@ -148,6 +188,7 @@
       color: #c2c6ce;
 
       font-size: 17px;
+
       line-height: 1.7;
 
       max-width: 700px;
@@ -157,12 +198,15 @@
 
     .movie-rating {
       margin-top: 30px;
+
       font-size: 18px;
     }
 
     .stars {
       color: #c5c9d0;
+
       letter-spacing: 3px;
+
       margin-right: 8px;
     }
 
@@ -170,8 +214,11 @@
 
     .movie-actions {
       display: flex;
+
       gap: 12px;
+
       flex-wrap: wrap;
+
       margin-top: 25px;
     }
 
@@ -179,11 +226,13 @@
       padding: 11px 18px;
 
       border-radius: 8px;
+
       border: none;
 
       cursor: pointer;
 
       color: white;
+
       background: #4a6cf7;
     }
 
@@ -191,12 +240,15 @@
 
     .movie-links {
       display: flex;
+
       gap: 20px;
+
       margin-top: 18px;
     }
 
     .movie-links a {
       color: #bfc5cf;
+
       text-decoration: none;
     }
 
@@ -212,6 +264,7 @@
       display: flex;
 
       justify-content: center;
+
       align-items: center;
 
       min-height: 640px;
@@ -223,9 +276,11 @@
       position: absolute;
 
       width: 150%;
+
       height: 105%;
 
       top: -2%;
+
       left: -25%;
 
       background:
@@ -248,10 +303,13 @@
 
     .poster {
       position: relative;
-      z-index: 1;
+
+      z-index: 2;
 
       width: 100%;
+
       max-width: 430px;
+
       height: 640px;
 
       object-fit: cover;
@@ -268,9 +326,11 @@
       position: absolute;
 
       width: 125%;
+
       height: 160px;
 
       left: -12.5%;
+
       bottom: -65px;
 
       background:
@@ -294,13 +354,17 @@
 
       .movie-page {
         width: 100%;
+
         margin: 0;
+
         padding: 30px 20px;
       }
 
       .movie-layout {
         grid-template-columns: 1fr;
+
         gap: 35px;
+
         min-height: auto;
       }
 
@@ -314,6 +378,7 @@
 
       .poster {
         max-width: 320px;
+
         height: 480px;
       }
 
@@ -326,21 +391,39 @@
 
 <body>
 
-  <!-- Верхняя область под будущий трейлер -->
+  <!-- Фоновый трейлер -->
 
   <div class="trailer-background">
+
+    <video
+      class="trailer-video"
+      autoplay
+      muted
+      loop
+      playsinline
+    >
+      <source
+        src=""
+        type="video/mp4"
+      >
+    </video>
+
     <div class="trailer-overlay"></div>
+
   </div>
+
 
   <!-- Общий фон -->
 
   <div class="page-background"></div>
+
 
   <!-- Страница фильма -->
 
   <main class="movie-page">
 
     <div class="movie-layout">
+
 
       <!-- Информация о фильме -->
 
@@ -361,6 +444,7 @@
           для человечества.
         </p>
 
+
         <div class="movie-rating">
 
           <span class="stars">
@@ -373,6 +457,7 @@
 
         </div>
 
+
         <div class="movie-actions">
 
           <button>
@@ -380,6 +465,7 @@
           </button>
 
         </div>
+
 
         <div class="movie-links">
 
@@ -394,6 +480,7 @@
         </div>
 
       </section>
+
 
       <!-- Постер -->
 
@@ -410,6 +497,7 @@
         <div class="poster-reflection"></div>
 
       </section>
+
 
     </div>
 
