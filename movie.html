@@ -73,13 +73,14 @@
   backdrop-filter: blur(4px);
 }
 
-    .movie-layout {
-      display: grid;
-      grid-template-columns: 1fr 360px;
-      gap: 55px;
-      align-items: start;
-    }
+  .movie-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 430px;
+  gap: 70px;
+  align-items: center;
 
+  min-height: calc(100vh - 140px);
+}
     .poster-area {
       position: relative;
       display: flex;
