@@ -11,3 +11,82 @@ const supabaseClient = createClient(
 );
 
 console.log("Supabase подключён");
+const authModal = document.getElementById("authModal");
+const authTitle = document.getElementById("authTitle");
+const authEmail = document.getElementById("authEmail");
+const authPassword = document.getElementById("authPassword");
+const authSubmit = document.getElementById("authSubmit");
+const authMessage = document.getElementById("authMessage");
+const closeAuth = document.getElementById("closeAuth");
+
+let authMode = "register";
+
+document.getElementById("registerBtn").addEventListener("click", (event) => {
+  event.preventDefault();
+
+  authMode = "register";
+  authTitle.textContent = "Регистрация";
+  authSubmit.textContent = "Зарегистрироваться";
+  authMessage.textContent = "";
+
+  authModal.style.display = "flex";
+});
+
+document.getElementById("loginBtn").addEventListener("click", (event) => {
+  event.preventDefault();
+
+  authMode = "login";
+  authTitle.textContent = "Вход";
+  authSubmit.textContent = "Войти";
+  authMessage.textContent = "";
+
+  authModal.style.display = "flex";
+});
+
+closeAuth.addEventListener("click", () => {
+  authModal.style.display = "none";
+});
+
+authSubmit.addEventListener("click", async () => {
+  const email = authEmail.value.trim();
+  const password = authPassword.value;
+
+  if (!email || !password) {
+    authMessage.textContent = "Заполни email и пароль.";
+    return;
+  }
+
+  authMessage.textContent = "Подождите...";
+
+  if (authMode === "register") {
+    const { data, error } = await supabaseClient.auth.signUp({
+      email: email,
+      password: password
+    });
+
+    if (error) {
+      authMessage.textContent = "Ошибка: " + error.message;
+      return;
+    }
+
+    if (data.session) {
+      authMessage.textContent = "Регистрация прошла успешно!";
+    } else {
+      authMessage.textContent =
+        "Регистрация создана. Проверь почту для подтверждения.";
+    }
+
+  } else {
+    const { error } = await supabaseClient.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
+
+    if (error) {
+      authMessage.textContent = "Ошибка: " + error.message;
+      return;
+    }
+
+    authMessage.textContent = "Вы успешно вошли!";
+  }
+});
