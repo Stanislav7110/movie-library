@@ -90,3 +90,33 @@ authSubmit.addEventListener("click", async () => {
     authMessage.textContent = "Вы успешно вошли!";
   }
 });
+async function updateAuthUI() {
+  const {
+    data: { session }
+  } = await supabaseClient.auth.getSession();
+
+  const loginBtn = document.getElementById("loginBtn");
+  const registerBtn = document.getElementById("registerBtn");
+
+  if (session) {
+    loginBtn.textContent = "Вы вошли";
+    registerBtn.textContent = "Выйти";
+
+    registerBtn.onclick = async (event) => {
+      event.preventDefault();
+
+      await supabaseClient.auth.signOut();
+
+      location.reload();
+    };
+  } else {
+    loginBtn.textContent = "Войти";
+    registerBtn.textContent = "Регистрация";
+  }
+}
+
+updateAuthUI();
+
+supabaseClient.auth.onAuthStateChange(() => {
+  updateAuthUI();
+});
