@@ -891,21 +891,85 @@ async function loadAdminSupportUsers() {
     return;
   }
 
-  uniqueUsers.forEach((userId) => {
+uniqueUsers.forEach((userId) => {
 
-    const button = document.createElement("button");
+  const button = document.createElement("button");
 
-    button.textContent =
-      "Пользователь " + userId.slice(0, 8);
+  button.textContent =
+    "Пользователь " + userId.slice(0, 8);
 
-    button.style.display = "block";
-    button.style.width = "100%";
-    button.style.padding = "10px";
-    button.style.marginBottom = "8px";
-    button.style.cursor = "pointer";
-    button.style.textAlign = "left";
+  button.style.display = "block";
+  button.style.width = "100%";
+  button.style.padding = "10px";
+  button.style.marginBottom = "8px";
+  button.style.cursor = "pointer";
+  button.style.textAlign = "left";
 
-    adminSupportUsers.appendChild(button);
+  button.addEventListener("click", () => {
+    loadAdminSupportChat(userId);
+  });
+
+  adminSupportUsers.appendChild(button);
+
+});
+  async function loadAdminSupportChat(userId) {
+
+  const adminSupportChat =
+    document.getElementById("adminSupportChat");
+
+  if (!adminSupportChat) {
+    return;
+  }
+
+  const { data, error } = await supabaseClient
+    .from("support_messages")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("Ошибка загрузки переписки:", error);
+
+    adminSupportChat.innerHTML =
+      "Не удалось загрузить переписку.";
+
+    return;
+  }
+
+  adminSupportChat.innerHTML = "";
+
+  data.forEach((msg) => {
+
+    const message = document.createElement("div");
+
+    message.style.marginBottom = "10px";
+    message.style.padding = "8px 10px";
+    message.style.borderRadius = "8px";
+    message.style.maxWidth = "80%";
+    message.style.wordBreak = "break-word";
+
+    if (msg.is_admin) {
+
+      message.style.background = "#3a3f4a";
+      message.style.marginRight = "auto";
+
+      message.innerHTML =
+        `<b>Моя Кинотека:</b><br>${msg.message}`;
+
+    } else {
+
+      message.style.background = "#4a6cf7";
+      message.style.marginLeft = "auto";
+
+      message.innerHTML =
+        `<b>Пользователь:</b><br>${msg.message}`;
+
+    }
+
+    adminSupportChat.appendChild(message);
 
   });
+
+  adminSupportChat.scrollTop =
+    adminSupportChat.scrollHeight;
 }
