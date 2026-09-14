@@ -980,3 +980,68 @@ async function loadAdminSupportChat(userId) {
   adminSupportChat.scrollTop =
     adminSupportChat.scrollHeight;
 }
+const adminSendSupport =
+  document.getElementById("adminSendSupport");
+
+const adminSupportInput =
+  document.getElementById("adminSupportInput");
+
+
+if (adminSendSupport && adminSupportInput) {
+
+  adminSendSupport.addEventListener("click", async () => {
+
+    const text =
+      adminSupportInput.value.trim();
+
+    if (!text) {
+      return;
+    }
+
+    if (!selectedSupportUserId) {
+      alert("Сначала выберите пользователя.");
+      return;
+    }
+
+    const { data: sessionData } =
+      await supabaseClient.auth.getSession();
+
+    if (!sessionData.session) {
+      alert("Сначала войдите в аккаунт.");
+      return;
+    }
+
+    const adminUserId =
+      sessionData.session.user.id;
+
+    const { error } =
+      await supabaseClient
+        .from("support_messages")
+        .insert({
+          user_id: selectedSupportUserId,
+          message: text,
+          is_admin: true,
+          is_read: false
+        });
+
+    if (error) {
+
+      console.error(
+        "Ошибка отправки ответа:",
+        error
+      );
+
+      alert("Не удалось отправить ответ.");
+
+      return;
+    }
+
+    adminSupportInput.value = "";
+
+    await loadAdminSupportChat(
+      selectedSupportUserId
+    );
+
+  });
+
+}
