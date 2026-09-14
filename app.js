@@ -147,6 +147,10 @@ const profileAvatarPlaceholder = document.getElementById("profileAvatarPlacehold
 const profileAvatarInput = document.getElementById("profileAvatarInput");
 const changeProfileAvatar = document.getElementById("changeProfileAvatar");
 
+changeProfileAvatar.addEventListener("click", () => {
+  profileAvatarInput.click();
+});
+
 // ===============================
 // ОТКРЫТИЕ ПРОФИЛЯ
 // ===============================
