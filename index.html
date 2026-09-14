@@ -409,12 +409,32 @@
   </main>
 
   <footer>
-   Моя Кинотека © 2026
+  Моя Кинотека © 2026
 </footer>
 
-<div id="supportModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <h2>Поддержка</h2>
+<!-- Окно поддержки -->
+<div id="supportModal" style="
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.7);
+  align-items:center;
+  justify-content:center;
+  z-index:99999;
+">
+  <div style="
+    width:500px;
+    max-width:90%;
+    background:#242832;
+    padding:20px;
+    border-radius:12px;
+    box-sizing:border-box;
+  ">
+
+    <h2 style="margin-top:0;">Поддержка</h2>
 
     <div id="supportMessages" style="
       height:300px;
@@ -424,6 +444,7 @@
       padding:10px;
       margin-bottom:15px;
       background:#1b1e24;
+      box-sizing:border-box;
     "></div>
 
     <textarea id="supportInput" placeholder="Напишите сообщение..." style="
@@ -434,13 +455,26 @@
       box-sizing:border-box;
       border-radius:8px;
       border:1px solid #3a3f4a;
-      background:#242832;
+      background:#1b1e24;
       color:white;
       margin-bottom:10px;
     "></textarea>
 
-    <button id="sendSupportMessage">Отправить</button>
-    <button id="closeSupport">Закрыть</button>
+    <button id="sendSupportMessage" style="
+      padding:8px 15px;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+      margin-right:5px;
+    ">Отправить</button>
+
+    <button id="closeSupport" style="
+      padding:8px 15px;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+    ">Закрыть</button>
+
   </div>
 </div>
 
