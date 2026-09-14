@@ -703,6 +703,7 @@ if (supportBtn) {
     }
 
     supportModal.style.display = "flex";
+    await loadSupportMessages();
   });
 }
 if (closeSupport) {
