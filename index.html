@@ -676,6 +676,7 @@
         "
       >
 
+    ```html
       <button
         id="addMovieBtn"
         style="
@@ -706,8 +707,26 @@
   </div>
 </div>
 
+<!-- Каталог фильмов -->
+<section id="movieCatalog" style="
+  padding:30px;
+  max-width:1200px;
+  margin:0 auto;
+">
+
+  <h2>Фильмы</h2>
+
+  <div id="movieGrid" style="
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));
+    gap:20px;
+  "></div>
+
+</section>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 
 </body>
 </html>
+```
