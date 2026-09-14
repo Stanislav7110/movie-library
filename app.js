@@ -891,28 +891,31 @@ async function loadAdminSupportUsers() {
     return;
   }
 
-uniqueUsers.forEach((userId) => {
+  uniqueUsers.forEach((userId) => {
 
-  const button = document.createElement("button");
+    const button = document.createElement("button");
 
-  button.textContent =
-    "Пользователь " + userId.slice(0, 8);
+    button.textContent =
+      "Пользователь " + userId.slice(0, 8);
 
-  button.style.display = "block";
-  button.style.width = "100%";
-  button.style.padding = "10px";
-  button.style.marginBottom = "8px";
-  button.style.cursor = "pointer";
-  button.style.textAlign = "left";
+    button.style.display = "block";
+    button.style.width = "100%";
+    button.style.padding = "10px";
+    button.style.marginBottom = "8px";
+    button.style.cursor = "pointer";
+    button.style.textAlign = "left";
 
-  button.addEventListener("click", () => {
-    loadAdminSupportChat(userId);
+    button.addEventListener("click", () => {
+      loadAdminSupportChat(userId);
+    });
+
+    adminSupportUsers.appendChild(button);
+
   });
+}
 
-  adminSupportUsers.appendChild(button);
 
-});
-  async function loadAdminSupportChat(userId) {
+async function loadAdminSupportChat(userId) {
 
   const adminSupportChat =
     document.getElementById("adminSupportChat");
