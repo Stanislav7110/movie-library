@@ -711,8 +711,82 @@ if (closeSupport) {
     supportModal.style.display = "none";
   });
 }
+const supportBtn = document.getElementById("supportBtn");
+const supportModal = document.getElementById("supportModal");
+const closeSupport = document.getElementById("closeSupport");
 const sendSupportMessage = document.getElementById("sendSupportMessage");
 const supportInput = document.getElementById("supportInput");
+const supportMessages = document.getElementById("supportMessages");
+
+async function loadSupportMessages() {
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+
+  if (!sessionData.session) return;
+
+  const userId = sessionData.session.user.id;
+
+  const { data, error } = await supabaseClient
+    .from("support_messages")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("Ошибка загрузки сообщений:", error);
+    return;
+  }
+
+  if (!supportMessages) return;
+
+  supportMessages.innerHTML = "";
+
+  data.forEach((msg) => {
+    const message = document.createElement("div");
+
+    message.style.marginBottom = "10px";
+    message.style.padding = "8px 10px";
+    message.style.borderRadius = "8px";
+    message.style.maxWidth = "80%";
+    message.style.wordBreak = "break-word";
+
+    if (msg.is_admin) {
+      message.style.background = "#3a3f4a";
+      message.style.marginRight = "auto";
+      message.innerHTML = `<b>Моя Кинотека:</b><br>${msg.message}`;
+    } else {
+      message.style.background = "#4a6cf7";
+      message.style.marginLeft = "auto";
+      message.innerHTML = `<b>Вы:</b><br>${msg.message}`;
+    }
+
+    supportMessages.appendChild(message);
+  });
+
+  supportMessages.scrollTop = supportMessages.scrollHeight;
+}
+
+if (supportBtn) {
+  supportBtn.addEventListener("click", async (event) => {
+    event.preventDefault();
+
+    const { data } = await supabaseClient.auth.getSession();
+
+    if (!data.session) {
+      alert("Сначала войдите в аккаунт.");
+      return;
+    }
+
+    supportModal.style.display = "flex";
+
+    await loadSupportMessages();
+  });
+}
+
+if (closeSupport) {
+  closeSupport.addEventListener("click", () => {
+    supportModal.style.display = "none";
+  });
+}
 
 if (sendSupportMessage) {
   sendSupportMessage.addEventListener("click", async () => {
@@ -737,60 +811,13 @@ if (sendSupportMessage) {
       });
 
     if (error) {
-      console.error(error);
+      console.error("Ошибка отправки сообщения:", error);
       alert("Не удалось отправить сообщение.");
       return;
     }
 
-   supportInput.value = "";
-await loadSupportMessages();
+    supportInput.value = "";
+
+    await loadSupportMessages();
   });
-}
-async function loadSupportMessages() {
-  const { data: sessionData } = await supabaseClient.auth.getSession();
-
-  if (!sessionData.session) return;
-
-  const userId = sessionData.session.user.id;
-
-  const { data, error } = await supabaseClient
-    .from("support_messages")
-    .select("*")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: true });
-
-  if (error) {
-    console.error("Ошибка загрузки сообщений:", error);
-    return;
-  }
-
-  const messagesContainer = document.getElementById("supportMessages");
-
-  if (!messagesContainer) return;
-
-  messagesContainer.innerHTML = "";
-
-  data.forEach((msg) => {
-    const message = document.createElement("div");
-
-    message.style.marginBottom = "10px";
-    message.style.padding = "8px 10px";
-    message.style.borderRadius = "8px";
-    message.style.maxWidth = "80%";
-    message.style.wordBreak = "break-word";
-
-    if (msg.is_admin) {
-      message.style.background = "#3a3f4a";
-      message.style.marginRight = "auto";
-      message.innerHTML = `<b>Моя Кинотека:</b><br>${msg.message}`;
-    } else {
-      message.style.background = "#4a6cf7";
-      message.style.marginLeft = "auto";
-      message.innerHTML = `<b>Вы:</b><br>${msg.message}`;
-    }
-
-    messagesContainer.appendChild(message);
-  });
-
-  messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
