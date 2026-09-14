@@ -12,6 +12,11 @@ const supabaseClient = createClient(
 
 console.log("Supabase подключён");
 
+
+// ===============================
+// ЭЛЕМЕНТЫ АВТОРИЗАЦИИ
+// ===============================
+
 const authModal = document.getElementById("authModal");
 const authTitle = document.getElementById("authTitle");
 const authEmail = document.getElementById("authEmail");
@@ -25,7 +30,11 @@ const registerBtn = document.getElementById("registerBtn");
 
 let authMode = "register";
 
-// Открытие окна регистрации
+
+// ===============================
+// ОКНО РЕГИСТРАЦИИ
+// ===============================
+
 function openRegister() {
   authMode = "register";
 
@@ -39,7 +48,11 @@ function openRegister() {
   authModal.style.display = "flex";
 }
 
-// Открытие окна входа
+
+// ===============================
+// ОКНО ВХОДА
+// ===============================
+
 function openLogin() {
   authMode = "login";
 
@@ -53,45 +66,20 @@ function openLogin() {
   authModal.style.display = "flex";
 }
 
-loginBtn.addEventListener("click", async (event) => {
-  event.preventDefault();
 
-  const {
-    data: { session }
-  } = await supabaseClient.auth.getSession();
+// ===============================
+// ЗАКРЫТИЕ АВТОРИЗАЦИИ
+// ===============================
 
-  if (session) {
-    loginBtn.onclick = (event) => {
-  event.preventDefault();
-
-  profileBtn.style.display = "inline";
-  profileBtn.click();
-};
-  } else {
-    openLogin();
-  }
-});
-
-registerBtn.addEventListener("click", async (event) => {
-  event.preventDefault();
-
-  const {
-    data: { session }
-  } = await supabaseClient.auth.getSession();
-
-  if (session) {
-    await supabaseClient.auth.signOut();
-    location.reload();
-  } else {
-    openRegister();
-  }
-});
-// Закрытие окна
 closeAuth.addEventListener("click", () => {
   authModal.style.display = "none";
 });
 
-// Регистрация / вход
+
+// ===============================
+// ВХОД / РЕГИСТРАЦИЯ
+// ===============================
+
 authSubmit.addEventListener("click", async () => {
   const email = authEmail.value.trim();
   const password = authPassword.value;
@@ -141,48 +129,10 @@ authSubmit.addEventListener("click", async () => {
   }, 1000);
 });
 
-// Обновляем меню сайта
-async function updateAuthUI() {
-  const {
-    data: { session }
-  } = await supabaseClient.auth.getSession();
 
-  if (session) {
-    loginBtn.textContent = "Мой профиль";
-    registerBtn.textContent = "Выйти";
-
-    loginBtn.onclick = (event) => {
-      event.preventDefault();
-      alert("Вы вошли в аккаунт: " + session.user.email);
-    };
-
-    registerBtn.onclick = async (event) => {
-      event.preventDefault();
-
-      await supabaseClient.auth.signOut();
-
-      location.reload();
-    };
-
-  } else {
-    loginBtn.textContent = "Войти";
-    registerBtn.textContent = "Регистрация";
-
-    loginBtn.onclick = null;
-    registerBtn.onclick = null;
-  }
-}
-
-// Следим за состоянием авторизации
-supabaseClient.auth.onAuthStateChange(() => {
-  setTimeout(() => {
-    updateAuthUI();
-  }, 0);
-});
-
-// Проверяем состояние при загрузке сайта
-updateAuthUI();
-// Профиль пользователя
+// ===============================
+// ЭЛЕМЕНТЫ ПРОФИЛЯ
+// ===============================
 
 const profileBtn = document.getElementById("profileBtn");
 const profileModal = document.getElementById("profileModal");
@@ -192,9 +142,12 @@ const saveProfile = document.getElementById("saveProfile");
 const profileMessage = document.getElementById("profileMessage");
 const closeProfile = document.getElementById("closeProfile");
 
-profileBtn.addEventListener("click", async (event) => {
-  event.preventDefault();
 
+// ===============================
+// ОТКРЫТИЕ ПРОФИЛЯ
+// ===============================
+
+async function openProfile() {
   const {
     data: { session }
   } = await supabaseClient.auth.getSession();
@@ -221,11 +174,21 @@ profileBtn.addEventListener("click", async (event) => {
   profileMessage.textContent = "";
 
   profileModal.style.display = "flex";
-});
+}
+
+
+// ===============================
+// ЗАКРЫТИЕ ПРОФИЛЯ
+// ===============================
 
 closeProfile.addEventListener("click", () => {
   profileModal.style.display = "none";
 });
+
+
+// ===============================
+// СОХРАНЕНИЕ ПРОФИЛЯ
+// ===============================
 
 saveProfile.addEventListener("click", async () => {
   const {
@@ -259,8 +222,71 @@ saveProfile.addEventListener("click", async () => {
   }
 
   profileMessage.textContent = "Профиль сохранён!";
-
-  setTimeout(() => {
-    profileModal.style.display = "none";
-  }, 1000);
 });
+
+
+// ===============================
+// ОБНОВЛЕНИЕ МЕНЮ
+// ===============================
+
+async function updateAuthUI() {
+  const {
+    data: { session }
+  } = await supabaseClient.auth.getSession();
+
+  if (session) {
+
+    loginBtn.textContent = "Мой профиль";
+    registerBtn.textContent = "Выйти";
+
+    loginBtn.onclick = (event) => {
+      event.preventDefault();
+      openProfile();
+    };
+
+    registerBtn.onclick = async (event) => {
+      event.preventDefault();
+
+      await supabaseClient.auth.signOut();
+
+      location.reload();
+    };
+
+    profileBtn.style.display = "none";
+
+  } else {
+
+    loginBtn.textContent = "Войти";
+    registerBtn.textContent = "Регистрация";
+
+    loginBtn.onclick = (event) => {
+      event.preventDefault();
+      openLogin();
+    };
+
+    registerBtn.onclick = (event) => {
+      event.preventDefault();
+      openRegister();
+    };
+
+    profileBtn.style.display = "none";
+  }
+}
+
+
+// ===============================
+// СЛЕДИМ ЗА АВТОРИЗАЦИЕЙ
+// ===============================
+
+supabaseClient.auth.onAuthStateChange(() => {
+  setTimeout(() => {
+    updateAuthUI();
+  }, 0);
+});
+
+
+// ===============================
+// ЗАПУСК
+// ===============================
+
+updateAuthUI();
