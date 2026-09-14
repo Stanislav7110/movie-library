@@ -858,4 +858,10 @@ if (closeAdminSupport && adminSupportModal) {
     adminSupportModal.style.display = "none";
   });
 }
-console.log("АДМИН-КОД ЗАПУСТИЛСЯ");
+console.log("ПЕРЕД АДМИН-КОДОМ");
+
+const adminSupportBtn = document.getElementById("adminSupportBtn");
+
+// ...весь наш админский код...
+
+console.log("ПОСЛЕ АДМИН-КОДА");
