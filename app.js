@@ -61,7 +61,12 @@ loginBtn.addEventListener("click", async (event) => {
   } = await supabaseClient.auth.getSession();
 
   if (session) {
-    alert("Вы вошли в аккаунт: " + session.user.email);
+    loginBtn.onclick = (event) => {
+  event.preventDefault();
+
+  profileBtn.style.display = "inline";
+  profileBtn.click();
+};
   } else {
     openLogin();
   }
