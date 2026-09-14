@@ -1146,3 +1146,166 @@ if (
     adminMoviesTab.style.background = "#4a6cf7";
   });
 }
+// Добавление фильма администратором
+
+const addMovieBtn =
+  document.getElementById("addMovieBtn");
+
+const movieTitle =
+  document.getElementById("movieTitle");
+
+const movieYear =
+  document.getElementById("movieYear");
+
+const movieType =
+  document.getElementById("movieType");
+
+const movieDescription =
+  document.getElementById("movieDescription");
+
+const moviePoster =
+  document.getElementById("moviePoster");
+
+const movieTrailer =
+  document.getElementById("movieTrailer");
+
+const movieAddStatus =
+  document.getElementById("movieAddStatus");
+
+if (
+  addMovieBtn &&
+  movieTitle &&
+  movieYear &&
+  movieType &&
+  movieDescription &&
+  moviePoster &&
+  movieTrailer &&
+  movieAddStatus
+) {
+  addMovieBtn.addEventListener("click", async () => {
+
+    const title = movieTitle.value.trim();
+    const year = movieYear.value.trim();
+    const type = movieType.value;
+    const description =
+      movieDescription.value.trim();
+    const trailer =
+      movieTrailer.value.trim();
+    const posterFile =
+      moviePoster.files[0];
+
+    if (!title) {
+      movieAddStatus.textContent =
+        "Введите название фильма.";
+      return;
+    }
+
+    if (!year) {
+      movieAddStatus.textContent =
+        "Введите год.";
+      return;
+    }
+
+    if (!posterFile) {
+      movieAddStatus.textContent =
+        "Выберите постер.";
+      return;
+    }
+
+    movieAddStatus.textContent =
+      "Загрузка...";
+
+    const {
+      data: sessionData
+    } = await supabaseClient.auth.getSession();
+
+    if (!sessionData.session) {
+      movieAddStatus.textContent =
+        "Сначала войдите в аккаунт.";
+      return;
+    }
+
+    const userId =
+      sessionData.session.user.id;
+
+    if (
+      userId !==
+      "0346597c-f4a1-42ce-9e50-b87b202ae90a"
+    ) {
+      movieAddStatus.textContent =
+        "Недостаточно прав.";
+      return;
+    }
+
+    const fileExtension =
+      posterFile.name.split(".").pop();
+
+    const fileName =
+      `${crypto.randomUUID()}.${fileExtension}`;
+
+    const {
+      error: uploadError
+    } = await supabaseClient.storage
+      .from("movie-posters")
+      .upload(fileName, posterFile, {
+        cacheControl: "3600",
+        upsert: false
+      });
+
+    if (uploadError) {
+      console.error(
+        "Ошибка загрузки постера:",
+        uploadError
+      );
+
+      movieAddStatus.textContent =
+        "Не удалось загрузить постер.";
+
+      return;
+    }
+
+    const {
+      data: posterData
+    } = supabaseClient.storage
+      .from("movie-posters")
+      .getPublicUrl(fileName);
+
+    const posterUrl =
+      posterData.publicUrl;
+
+    const {
+      error: movieError
+    } = await supabaseClient
+      .from("movies")
+      .insert({
+        title: title,
+        year: Number(year),
+        type: type,
+        description: description,
+        trailer_url: trailer || null,
+        poster_url: posterUrl,
+        created_by: userId
+      });
+
+    if (movieError) {
+      console.error(
+        "Ошибка добавления фильма:",
+        movieError
+      );
+
+      movieAddStatus.textContent =
+        "Постер загрузился, но фильм сохранить не удалось.";
+
+      return;
+    }
+
+    movieAddStatus.textContent =
+      "Фильм успешно добавлен!";
+
+    movieTitle.value = "";
+    movieYear.value = "";
+    movieDescription.value = "";
+    movieTrailer.value = "";
+    moviePoster.value = "";
+  });
+}
