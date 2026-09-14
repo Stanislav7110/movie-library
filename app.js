@@ -710,3 +710,38 @@ if (closeSupport) {
     supportModal.style.display = "none";
   });
 }
+const sendSupportMessage = document.getElementById("sendSupportMessage");
+const supportInput = document.getElementById("supportInput");
+
+if (sendSupportMessage) {
+  sendSupportMessage.addEventListener("click", async () => {
+    const text = supportInput.value.trim();
+
+    if (!text) return;
+
+    const { data } = await supabaseClient.auth.getSession();
+
+    if (!data.session) {
+      alert("Сначала войдите в аккаунт.");
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from("support_messages")
+      .insert({
+        user_id: data.session.user.id,
+        message: text,
+        is_admin: false,
+        is_read: false
+      });
+
+    if (error) {
+      console.error(error);
+      alert("Не удалось отправить сообщение.");
+      return;
+    }
+
+    supportInput.value = "";
+    alert("Сообщение отправлено.");
+  });
+}
