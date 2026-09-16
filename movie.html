@@ -591,88 +591,162 @@
 
     /* Загрузка фильма */
 
-    async function loadMovie() {
+  async function loadMovie() {
 
-      const params =
-        new URLSearchParams(
-          window.location.search
-        );
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
+  const movieId =
+    params.get("id");
+
+  if (!movieId) {
+    return;
+  }
+
+  const { data: movie, error } =
+    await supabaseClient
+      .from("movies")
+      .select("*")
+      .eq("id", movieId)
+      .single();
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  document.title =
+    movie.title + " — Моя Кинотека";
+
+  document.querySelector(
+    ".movie-meta"
+  ).textContent =
+    `${movie.year} · ${movie.type}`;
+
+  document.querySelector(
+    ".movie-title"
+  ).textContent =
+    movie.title;
+
+  document.querySelector(
+    ".movie-description"
+  ).textContent =
+    movie.description ||
+    "Описание отсутствует.";
+
+  const poster =
+    document.querySelector(".poster");
+
+  poster.src =
+    movie.poster_url || "";
+
+  poster.alt =
+    movie.title;
 
 
-      const movieId =
-        params.get("id");
+  /* Цвет свечения из постера */
 
+  poster.addEventListener("load", () => {
 
-      if (!movieId) {
-        return;
+    const canvas =
+      document.createElement("canvas");
+
+    const ctx =
+      canvas.getContext("2d");
+
+    canvas.width = 50;
+    canvas.height = 50;
+
+    ctx.drawImage(
+      poster,
+      0,
+      0,
+      50,
+      50
+    );
+
+    const imageData =
+      ctx.getImageData(
+        0,
+        0,
+        50,
+        50
+      ).data;
+
+    let r = 0;
+    let g = 0;
+    let b = 0;
+    let count = 0;
+
+    for (
+      let i = 0;
+      i < imageData.length;
+      i += 4
+    ) {
+
+      const red =
+        imageData[i];
+
+      const green =
+        imageData[i + 1];
+
+      const blue =
+        imageData[i + 2];
+
+      const brightness =
+        (red + green + blue) / 3;
+
+      if (brightness > 25) {
+
+        r += red;
+        g += green;
+        b += blue;
+
+        count++;
       }
-
-
-      const { data: movie, error } =
-        await supabaseClient
-          .from("movies")
-          .select("*")
-          .eq("id", movieId)
-          .single();
-
-
-      if (error) {
-
-        console.error(error);
-
-        return;
-      }
-
-
-      document.title =
-        movie.title + " — Моя Кинотека";
-
-
-      document.querySelector(
-        ".movie-meta"
-      ).textContent =
-        `${movie.year} · ${movie.type}`;
-
-
-      document.querySelector(
-        ".movie-title"
-      ).textContent =
-        movie.title;
-
-
-      document.querySelector(
-        ".movie-description"
-      ).textContent =
-        movie.description ||
-        "Описание отсутствует.";
-
-
-      const poster =
-        document.querySelector(".poster");
-
-
-      poster.src =
-        movie.poster_url || "";
-
-
-      poster.alt =
-        movie.title;
-
-
-      if (movie.trailer_url) {
-
-        document.querySelector(
-          ".movie-links a"
-        ).href =
-          movie.trailer_url;
-
-      }
-
     }
 
+    if (!count) {
+      return;
+    }
 
-    loadMovie();
+    r = Math.round(r / count);
+    g = Math.round(g / count);
+    b = Math.round(b / count);
 
+    document.documentElement.style.setProperty(
+      "--poster-r",
+      r
+    );
+
+    document.documentElement.style.setProperty(
+      "--poster-g",
+      g
+    );
+
+    document.documentElement.style.setProperty(
+      "--poster-b",
+      b
+    );
+
+  });
+
+
+  if (movie.trailer_url) {
+
+    document.querySelector(
+      ".movie-links a"
+    ).href =
+      movie.trailer_url;
+
+  }
+
+}
+
+
+loadMovie();
 
     /* Добавление фильма в картотеку */
 
