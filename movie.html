@@ -339,13 +339,23 @@
 
       pointer-events: none;
 
-      background:
-        radial-gradient(
-          ellipse at center,
-          rgba(80, 90, 190, 0.48) 0%,
-          rgba(65, 75, 165, 0.24) 35%,
-          transparent 72%
-        );
+     background:
+  radial-gradient(
+    ellipse at center,
+    rgba(
+      var(--poster-r),
+      var(--poster-g),
+      var(--poster-b),
+      0.48
+    ) 0%,
+    rgba(
+      var(--poster-r),
+      var(--poster-g),
+      var(--poster-b),
+      0.24
+    ) 35%,
+    transparent 72%
+  );
 
       filter: blur(32px);
 
