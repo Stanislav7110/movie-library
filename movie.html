@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -17,9 +18,11 @@
   <title>Фильм — Моя Кинотека</title>
 
   <style>
+
     * {
       box-sizing: border-box;
     }
+
 
     html,
     body {
@@ -27,11 +30,16 @@
       min-height: 100%;
     }
 
+
     body {
       min-height: 100vh;
+
       color: #f2f3f5;
+
       font-family: Arial, sans-serif;
+
       background: #080a0e;
+
       overflow-x: hidden;
     }
 
@@ -62,6 +70,7 @@
         );
     }
 
+
     /* Само видео */
 
     .trailer-video {
@@ -82,6 +91,7 @@
       z-index: 0;
     }
 
+
     /* Затемнение видео */
 
     .trailer-overlay {
@@ -100,6 +110,7 @@
         );
     }
 
+
     /* Основная страница */
 
     .movie-page {
@@ -111,17 +122,20 @@
       min-height: 100vh;
 
       margin: 0;
+
       padding: 70px 7%;
 
       background: rgba(8, 10, 14, 0.28);
 
       border: none;
+
       border-radius: 0;
 
       box-shadow: none;
 
       backdrop-filter: blur(3px);
     }
+
 
     /* Основная компоновка */
 
@@ -139,11 +153,13 @@
       min-height: calc(100vh - 140px);
     }
 
+
     /* Информация */
 
     .movie-info {
       padding-top: 10px;
     }
+
 
     .movie-meta {
       color: #8f96a3;
@@ -152,6 +168,7 @@
 
       margin-bottom: 14px;
     }
+
 
     .movie-title {
       margin: 0 0 25px;
@@ -163,6 +180,7 @@
       font-weight: 700;
     }
 
+
     .movie-description {
       color: #c2c6ce;
 
@@ -173,6 +191,7 @@
       max-width: 700px;
     }
 
+
     /* Рейтинг */
 
     .movie-rating {
@@ -181,6 +200,7 @@
       font-size: 18px;
     }
 
+
     .stars {
       color: #c5c9d0;
 
@@ -188,6 +208,7 @@
 
       margin-right: 8px;
     }
+
 
     /* Кнопка */
 
@@ -200,6 +221,7 @@
 
       margin-top: 25px;
     }
+
 
     .movie-actions button {
       padding: 11px 18px;
@@ -215,6 +237,7 @@
       background: #4a6cf7;
     }
 
+
     /* Ссылки */
 
     .movie-links {
@@ -225,15 +248,18 @@
       margin-top: 18px;
     }
 
+
     .movie-links a {
       color: #bfc5cf;
 
       text-decoration: none;
     }
 
+
     .movie-links a:hover {
       color: white;
     }
+
 
     /* Область постера */
 
@@ -249,61 +275,114 @@
       min-height: 640px;
     }
 
-    /* Большое тёмное цветное свечение */
 
-   .poster-glow {
-  position: absolute;
-  width: 108%;
-  height: 108%;
-  top: -4%;
-  left: -4%;
-  z-index: 0;
-  pointer-events: none;
+    /*
+      Мягкий свет, который выходит
+      из-за нижней и боковых частей постера.
+    */
 
-  background:
-    radial-gradient(
-      ellipse at 50% 98%,
-      rgba(80, 100, 180, 0.75) 0%,
-      rgba(70, 90, 160, 0.42) 12%,
-      rgba(50, 65, 120, 0.18) 28%,
-      transparent 48%
-    ),
-    radial-gradient(
-      ellipse at 2% 50%,
-      rgba(70, 90, 160, 0.55) 0%,
-      rgba(50, 65, 120, 0.18) 15%,
-      transparent 32%
-    ),
-    radial-gradient(
-      ellipse at 98% 50%,
-      rgba(70, 90, 160, 0.55) 0%,
-      rgba(50, 65, 120, 0.18) 15%,
-      transparent 32%
-    );
+    .poster-glow {
+      position: absolute;
 
-  filter: blur(28px);
-}
+      width: 108%;
+      height: 108%;
 
-.poster-reflection {
-  position: absolute;
-  width: 115%;
-  height: 110px;
-  left: -7.5%;
-  bottom: -35px;
-  z-index: 0;
-  pointer-events: none;
+      top: -4%;
+      left: -4%;
 
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(80, 100, 180, 0.55) 0%,
-      rgba(65, 85, 155, 0.32) 22%,
-      rgba(45, 60, 110, 0.14) 48%,
-      transparent 75%
-    );
+      z-index: 0;
 
-  filter: blur(25px);
-}
+      pointer-events: none;
+
+      background:
+        radial-gradient(
+          ellipse at 50% 98%,
+          rgba(80, 100, 180, 0.75) 0%,
+          rgba(70, 90, 160, 0.42) 12%,
+          rgba(50, 65, 120, 0.18) 28%,
+          transparent 48%
+        ),
+
+        radial-gradient(
+          ellipse at 2% 50%,
+          rgba(70, 90, 160, 0.55) 0%,
+          rgba(50, 65, 120, 0.18) 15%,
+          transparent 32%
+        ),
+
+        radial-gradient(
+          ellipse at 98% 50%,
+          rgba(70, 90, 160, 0.55) 0%,
+          rgba(50, 65, 120, 0.18) 15%,
+          transparent 32%
+        );
+
+      filter: blur(28px);
+    }
+
+
+    /*
+      Дополнительный свет непосредственно
+      за краями постера.
+    */
+
+    .poster-area::after {
+      content: "";
+
+      position: absolute;
+
+      width: 101%;
+      height: 101%;
+
+      top: -0.5%;
+      left: -0.5%;
+
+      z-index: 0;
+
+      pointer-events: none;
+
+      border-radius: 13px;
+
+      box-shadow:
+        0 12px 22px rgba(80, 90, 210, 0.75),
+        0 25px 45px rgba(65, 75, 180, 0.48),
+        -10px 4px 24px rgba(75, 85, 195, 0.42),
+        10px 4px 24px rgba(75, 85, 195, 0.42);
+
+      filter: blur(7px);
+    }
+
+
+    /*
+      Свет от постера на поверхность снизу.
+    */
+
+    .poster-reflection {
+      position: absolute;
+
+      width: 110%;
+      height: 120px;
+
+      left: -5%;
+      bottom: -45px;
+
+      z-index: 0;
+
+      pointer-events: none;
+
+      background:
+        radial-gradient(
+          ellipse at center,
+          rgba(80, 90, 190, 0.48) 0%,
+          rgba(65, 75, 165, 0.24) 35%,
+          transparent 72%
+        );
+
+      filter: blur(32px);
+
+      border-radius: 50%;
+    }
+
 
     /* Сам постер */
 
@@ -326,74 +405,9 @@
         0 25px 65px rgba(0, 0, 0, 0.55);
     }
 
-       /* Светодиодная подсветка за постером */
-
-    .poster-reflection {
-      position: absolute;
-
-      width: 110%;
-      height: 120px;
-
-      left: -5%;
-      bottom: -45px;
-
-      pointer-events: none;
-
-     background:
-  radial-gradient(
-    ellipse at center,
-    rgba(
-      var(--poster-r),
-      var(--poster-g),
-      var(--poster-b),
-      0.48
-    ) 0%,
-    rgba(
-      var(--poster-r),
-      var(--poster-g),
-      var(--poster-b),
-      0.24
-    ) 35%,
-    transparent 72%
-  );
-
-      filter: blur(32px);
-
-      border-radius: 50%;
-
-      z-index: 0;
-    }
-
-
-    /* Свет от ленты выходит из-за краёв постера */
-
-    .p    .poster-area::after {
-      content: "";
-
-      position: absolute;
-
-      width: 101%;
-      height: 101%;
-
-      top: -0.5%;
-      left: -0.5%;
-
-      pointer-events: none;
-
-      border-radius: 13px;
-
-      box-shadow:
-        0 12px 22px rgba(80, 90, 210, 0.75),
-        0 25px 45px rgba(65, 75, 180, 0.48),
-        -10px 4px 24px rgba(75, 85, 195, 0.42),
-        10px 4px 24px rgba(75, 85, 195, 0.42);
-
-      filter: blur(7px);
-
-      z-index: 0;
-    }
 
     /* Телефон */
+
     @media (max-width: 800px) {
 
       .movie-page {
@@ -404,6 +418,7 @@
         padding: 30px 20px;
       }
 
+
       .movie-layout {
         grid-template-columns: 1fr;
 
@@ -412,13 +427,16 @@
         min-height: auto;
       }
 
+
       .movie-title {
         font-size: 36px;
       }
 
+
       .poster-area {
         min-height: 500px;
       }
+
 
       .poster {
         max-width: 320px;
@@ -426,14 +444,20 @@
         height: 480px;
       }
 
+
       .trailer-background {
         height: 55vh;
       }
+
     }
+
   </style>
+
 </head>
 
+
 <body>
+
 
   <!-- Фоновый трейлер -->
 
@@ -446,11 +470,14 @@
       loop
       playsinline
     >
+
       <source
         src=""
         type="video/mp4"
       >
+
     </video>
+
 
     <div class="trailer-overlay"></div>
 
@@ -475,9 +502,11 @@
 
         <div class="movie-meta"></div>
 
-<h1 class="movie-title"></h1>
 
-<p class="movie-description"></p>
+        <h1 class="movie-title"></h1>
+
+
+        <p class="movie-description"></p>
 
 
         <div class="movie-rating">
@@ -523,11 +552,13 @@
 
         <div class="poster-glow"></div>
 
+
         <img
           class="poster"
-         src=""
+          src=""
           alt="Постер фильма"
         >
+
 
         <div class="poster-reflection"></div>
 
@@ -538,127 +569,200 @@
 
   </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const SUPABASE_URL =
-    "https://kfhlvfymyyqgtsamgcra.supabase.co";
 
-  const SUPABASE_KEY =
-    "sb_publishable_GKFUCUwNTj4m-FRGL2Pm2g_i1DI1xkk";
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  const supabaseClient =
-    supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
 
-  async function loadMovie() {
+  <script>
 
-    const params =
-      new URLSearchParams(window.location.search);
+    const SUPABASE_URL =
+      "https://kfhlvfymyyqgtsamgcra.supabase.co";
 
-    const movieId =
-      params.get("id");
 
-    if (!movieId) {
-      return;
-    }
+    const SUPABASE_KEY =
+      "sb_publishable_GKFUCUwNTj4m-FRGL2Pm2g_i1DI1xkk";
 
-    const { data: movie, error } =
-      await supabaseClient
-        .from("movies")
-        .select("*")
-        .eq("id", movieId)
-        .single();
 
-    if (error) {
-      console.error(error);
-      return;
-    }
+    const supabaseClient =
+      supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
 
-    document.title =
-      movie.title + " — Моя Кинотека";
 
-    document.querySelector(".movie-meta").textContent =
-      `${movie.year} · ${movie.type}`;
+    /* Загрузка фильма */
 
-    document.querySelector(".movie-title").textContent =
-      movie.title;
-
-    document.querySelector(".movie-description").textContent =
-      movie.description || "Описание отсутствует.";
-
-    document.querySelector(".poster").src =
-      movie.poster_url || "";
-
-    document.querySelector(".poster").alt =
-      movie.title;
-
-const poster =
-  document.querySelector(".poster");
-
-    
-    if (movie.trailer_url) {
-      document.querySelector(".movie-links a").href =
-        movie.trailer_url;
-    }
-  }
-
-   loadMovie();
-
-  const addToLibraryBtn =
-    document.querySelector(".movie-actions button");
-
-  if (addToLibraryBtn) {
-    addToLibraryBtn.addEventListener("click", async () => {
-
-      const { data: sessionData } =
-        await supabaseClient.auth.getSession();
-
-      if (!sessionData.session) {
-        alert("Сначала войдите в аккаунт.");
-        return;
-      }
-
-      const userId =
-        sessionData.session.user.id;
+    async function loadMovie() {
 
       const params =
-        new URLSearchParams(window.location.search);
+        new URLSearchParams(
+          window.location.search
+        );
+
 
       const movieId =
         params.get("id");
+
 
       if (!movieId) {
         return;
       }
 
-      const { error } =
+
+      const { data: movie, error } =
         await supabaseClient
-          .from("user_movies")
-          .insert({
-            user_id: userId,
-            movie_id: Number(movieId)
-          });
+          .from("movies")
+          .select("*")
+          .eq("id", movieId)
+          .single();
+
 
       if (error) {
 
-        if (error.code === "23505") {
-          addToLibraryBtn.textContent =
-            "Уже в моей картотеке";
-        } else {
-          console.error(error);
-          alert("Не удалось добавить фильм.");
-        }
+        console.error(error);
 
         return;
       }
 
-      addToLibraryBtn.textContent =
-        "Добавлено в картотеку";
-    });
-  }
-</script>
+
+      document.title =
+        movie.title + " — Моя Кинотека";
+
+
+      document.querySelector(
+        ".movie-meta"
+      ).textContent =
+        `${movie.year} · ${movie.type}`;
+
+
+      document.querySelector(
+        ".movie-title"
+      ).textContent =
+        movie.title;
+
+
+      document.querySelector(
+        ".movie-description"
+      ).textContent =
+        movie.description ||
+        "Описание отсутствует.";
+
+
+      const poster =
+        document.querySelector(".poster");
+
+
+      poster.src =
+        movie.poster_url || "";
+
+
+      poster.alt =
+        movie.title;
+
+
+      if (movie.trailer_url) {
+
+        document.querySelector(
+          ".movie-links a"
+        ).href =
+          movie.trailer_url;
+
+      }
+
+    }
+
+
+    loadMovie();
+
+
+    /* Добавление фильма в картотеку */
+
+    const addToLibraryBtn =
+      document.querySelector(
+        ".movie-actions button"
+      );
+
+
+    if (addToLibraryBtn) {
+
+      addToLibraryBtn.addEventListener(
+        "click",
+        async () => {
+
+          const { data: sessionData } =
+            await supabaseClient.auth.getSession();
+
+
+          if (!sessionData.session) {
+
+            alert(
+              "Сначала войдите в аккаунт."
+            );
+
+            return;
+          }
+
+
+          const userId =
+            sessionData.session.user.id;
+
+
+          const params =
+            new URLSearchParams(
+              window.location.search
+            );
+
+
+          const movieId =
+            params.get("id");
+
+
+          if (!movieId) {
+            return;
+          }
+
+
+          const { error } =
+            await supabaseClient
+              .from("user_movies")
+              .insert({
+                user_id: userId,
+                movie_id: Number(movieId)
+              });
+
+
+          if (error) {
+
+            if (error.code === "23505") {
+
+              addToLibraryBtn.textContent =
+                "Уже в моей картотеке";
+
+            } else {
+
+              console.error(error);
+
+              alert(
+                "Не удалось добавить фильм."
+              );
+
+            }
+
+            return;
+          }
+
+
+          addToLibraryBtn.textContent =
+            "Добавлено в картотеку";
+
+        }
+      );
+
+    }
+
+  </script>
+
 
 </body>
 </html>
+```
