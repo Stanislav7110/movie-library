@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Профиль — Моя Кинотека</title>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+
+      background: #080a0e;
+
+      color: #f2f3f5;
+
+      font-family: Arial, sans-serif;
+
+      overflow-x: hidden;
+    }
+
+    .profile-page {
+      width: 100%;
+
+      max-width: 1200px;
+
+      margin: 0 auto;
+
+      padding: 60px 30px;
+    }
+
+    /* Шапка профиля */
+
+    .profile-header {
+      display: flex;
+
+      align-items: center;
+
+      gap: 35px;
+
+      padding-bottom: 40px;
+
+      border-bottom: 1px solid #252932;
+    }
+
+    .profile-avatar {
+      width: 140px;
+
+      height: 140px;
+
+      border-radius: 50%;
+
+      object-fit: cover;
+
+      background: #242832;
+
+      border: 2px solid #30343d;
+    }
+
+    .profile-name {
+      margin: 0 0 15px;
+
+      font-size: 32px;
+    }
+
+    .profile-count {
+      color: #9da3af;
+
+      font-size: 16px;
+    }
+
+    /* Разделы */
+
+    .profile-tabs {
+      display: flex;
+
+      justify-content: center;
+
+      gap: 40px;
+
+      margin: 30px 0;
+    }
+
+    .profile-tab {
+      padding: 12px 5px;
+
+      border: none;
+
+      background: none;
+
+      color: #8f96a3;
+
+      font-size: 15px;
+
+      cursor: pointer;
+
+      border-bottom: 2px solid transparent;
+    }
+
+    .profile-tab.active {
+      color: #ffffff;
+
+      border-bottom-color: #4a6cf7;
+    }
+
+    /* Картотека */
+
+    .library-grid {
+      display: grid;
+
+      grid-template-columns:
+        repeat(auto-fill, minmax(180px, 1fr));
+
+      gap: 20px;
+    }
+
+    .empty-library {
+      color: #8f96a3;
+
+      text-align: center;
+
+      padding: 50px 20px;
+    }
+
+    .movie-card {
+      background: #15181f;
+
+      border-radius: 10px;
+
+      overflow: hidden;
+
+      cursor: pointer;
+
+      transition: transform 0.2s;
+    }
+
+    .movie-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .movie-card img {
+      width: 100%;
+
+      height: 270px;
+
+      object-fit: cover;
+
+      display: block;
+    }
+
+    .movie-card-info {
+      padding: 12px;
+    }
+
+    .movie-card-title {
+      margin: 0 0 6px;
+
+      font-size: 16px;
+    }
+
+    .movie-card-meta {
+      color: #8f96a3;
+
+      font-size: 13px;
+    }
+
+    @media (max-width: 600px) {
+
+      .profile-page {
+        padding: 35px 20px;
+      }
+
+      .profile-header {
+        gap: 20px;
+      }
+
+      .profile-avatar {
+        width: 90px;
+
+        height: 90px;
+      }
+
+      .profile-name {
+        font-size: 24px;
+      }
+
+      .profile-tabs {
+        gap: 18px;
+
+        justify-content: space-between;
+      }
+
+      .profile-tab {
+        font-size: 13px;
+      }
+
+      .library-grid {
+        grid-template-columns:
+          repeat(2, 1fr);
+
+        gap: 12px;
+      }
+
+      .movie-card img {
+        height: 230px;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <main class="profile-page">
+
+    <!-- Шапка -->
+
+    <section class="profile-header">
+
+      <img
+        id="profileAvatar"
+        class="profile-avatar"
+        src=""
+        alt="Аватар"
+      >
+
+      <div>
+
+        <h1
+          id="profileName"
+          class="profile-name"
+        >
+          Загрузка...
+        </h1>
+
+        <div
+          id="profileCount"
+          class="profile-count"
+        >
+          0 фильмов
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- Разделы -->
+
+    <nav class="profile-tabs">
+
+      <button
+        class="profile-tab active"
+        data-type="all"
+      >
+        Библиотека
+      </button>
+
+      <button
+        class="profile-tab"
+        data-type="Фильм"
+      >
+        Фильмы
+      </button>
+
+      <button
+        class="profile-tab"
+        data-type="Сериал"
+      >
+        Сериалы
+      </button>
+
+      <button
+        class="profile-tab"
+        data-type="Мультфильм"
+      >
+        Мультфильмы
+      </button>
+
+    </nav>
+
+
+    <!-- Фильмы -->
+
+    <section>
+
+      <div
+        id="libraryGrid"
+        class="library-grid"
+      ></div>
+
+    </section>
+
+  </main>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+
+    const SUPABASE_URL =
+      "https://kfhlvfymyyqgtsamgcra.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_GKFUCUwNTj4m-FRGL2Pm2g_i1DI1xkk";
+
+    const supabaseClient =
+      supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
+
+
+    let libraryMovies = [];
+
+    let currentType = "all";
+
+
+    async function loadProfile() {
+
+      const {
+        data: sessionData
+      } =
+        await supabaseClient.auth.getSession();
+
+      if (!sessionData.session) {
+
+        document.getElementById(
+          "profileName"
+        ).textContent =
+          "Войдите в аккаунт";
+
+        return;
+
+      }
+
+      const userId =
+        sessionData.session.user.id;
+
+
+      const {
+        data: profile,
+        error: profileError
+      } =
+        await supabaseClient
+          .from("profiles")
+          .select("username, avatar_url")
+          .eq("id", userId)
+          .single();
+
+
+      if (profileError) {
+
+        console.error(profileError);
+
+        return;
+
+      }
+
+
+      document.getElementById(
+        "profileName"
+      ).textContent =
+        profile.username || "Пользователь";
+
+
+      if (profile.avatar_url) {
+
+        document.getElementById(
+          "profileAvatar"
+        ).src =
+          profile.avatar_url;
+
+      }
+
+
+      const {
+        data: userMovies,
+        error: moviesError
+      } =
+        await supabaseClient
+          .from("user_movies")
+          .select(`
+            movie_id,
+            movies (
+              id,
+              title,
+              type,
+              year,
+              poster_url
+            )
+          `)
+          .eq("user_id", userId);
+
+
+      if (moviesError) {
+
+        console.error(moviesError);
+
+        return;
+
+      }
+
+
+      libraryMovies =
+        (userMovies || [])
+          .map(item => item.movies)
+          .filter(movie => movie);
+
+
+      updateCount();
+
+      renderLibrary();
+
+    }
+
+
+    function updateCount() {
+
+      document.getElementById(
+        "profileCount"
+      ).textContent =
+        `${libraryMovies.length} фильмов`;
+
+    }
+
+
+    function renderLibrary() {
+
+      const grid =
+        document.getElementById(
+          "libraryGrid"
+        );
+
+
+      const movies =
+        currentType === "all"
+          ? libraryMovies
+          : libraryMovies.filter(
+              movie =>
+                movie.type === currentType
+            );
+
+
+      grid.innerHTML = "";
+
+
+      if (movies.length === 0) {
+
+        grid.innerHTML =
+          `<div class="empty-library">
+            В этом разделе пока ничего нет.
+          </div>`;
+
+        return;
+
+      }
+
+
+      movies.forEach(movie => {
+
+        const card =
+          document.createElement("div");
+
+        card.className =
+          "movie-card";
+
+
+        card.innerHTML = `
+
+          <img
+            src="${movie.poster_url || ""}"
+            alt="${movie.title}"
+          >
+
+          <div class="movie-card-info">
+
+            <h3 class="movie-card-title">
+              ${movie.title}
+            </h3>
+
+            <div class="movie-card-meta">
+              ${movie.year} · ${movie.type}
+            </div>
+
+          </div>
+
+        `;
+
+
+        card.addEventListener(
+          "click",
+          () => {
+
+            window.location.href =
+              `movie.html?id=${movie.id}`;
+
+          }
+        );
+
+
+        grid.appendChild(card);
+
+      });
+
+    }
+
+
+    document
+      .querySelectorAll(".profile-tab")
+      .forEach(tab => {
+
+        tab.addEventListener(
+          "click",
+          () => {
+
+            document
+              .querySelectorAll(
+                ".profile-tab"
+              )
+              .forEach(item => {
+                item.classList.remove(
+                  "active"
+                );
+              });
+
+
+            tab.classList.add("active");
+
+
+            currentType =
+              tab.dataset.type;
+
+
+            renderLibrary();
+
+          }
+        );
+
+      });
+
+
+    loadProfile();
+
+  </script>
+
+</body>
+
+</html>
