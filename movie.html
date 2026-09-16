@@ -367,7 +367,7 @@
 
     /* Свет от ленты выходит из-за краёв постера */
 
-    .poster-area::after {
+    .p    .poster-area::after {
       content: "";
 
       position: absolute;
@@ -383,30 +383,10 @@
       border-radius: 13px;
 
       box-shadow:
-  0 12px 22px rgba(
-    var(--poster-r),
-    var(--poster-g),
-    var(--poster-b),
-    0.75
-  ),
-  0 25px 45px rgba(
-    var(--poster-r),
-    var(--poster-g),
-    var(--poster-b),
-    0.48
-  ),
-  -10px 4px 24px rgba(
-    var(--poster-r),
-    var(--poster-g),
-    var(--poster-b),
-    0.42
-  ),
-  10px 4px 24px rgba(
-    var(--poster-r),
-    var(--poster-g),
-    var(--poster-b),
-    0.42
-  );
+        0 12px 22px rgba(80, 90, 210, 0.75),
+        0 25px 45px rgba(65, 75, 180, 0.48),
+        -10px 4px 24px rgba(75, 85, 195, 0.42),
+        10px 4px 24px rgba(75, 85, 195, 0.42);
 
       filter: blur(7px);
 
