@@ -326,36 +326,64 @@
         0 25px 65px rgba(0, 0, 0, 0.55);
     }
 
-    /* Рассеянное свечение под постером */
+       /* Светодиодная подсветка за постером */
 
     .poster-reflection {
       position: absolute;
 
-      width: 125%;
+      width: 110%;
+      height: 120px;
 
-      height: 160px;
+      left: -5%;
+      bottom: -45px;
 
-      left: -12.5%;
-
-      bottom: -65px;
+      pointer-events: none;
 
       background:
         radial-gradient(
-          ellipse,
-          rgba(40, 60, 95, 0.42),
-          rgba(20, 30, 48, 0.18) 45%,
+          ellipse at center,
+          rgba(80, 90, 190, 0.48) 0%,
+          rgba(65, 75, 165, 0.24) 35%,
           transparent 72%
         );
 
-      filter: blur(75px);
+      filter: blur(32px);
 
       border-radius: 50%;
 
       z-index: 0;
     }
 
-    /* Телефон */
 
+    /* Свет от ленты выходит из-за краёв постера */
+
+    .poster-area::after {
+      content: "";
+
+      position: absolute;
+
+      width: 101%;
+      height: 101%;
+
+      top: -0.5%;
+      left: -0.5%;
+
+      pointer-events: none;
+
+      border-radius: 13px;
+
+      box-shadow:
+        0 12px 22px rgba(80, 90, 210, 0.75),
+        0 25px 45px rgba(65, 75, 180, 0.48),
+        -10px 4px 24px rgba(75, 85, 195, 0.42),
+        10px 4px 24px rgba(75, 85, 195, 0.42);
+
+      filter: blur(7px);
+
+      z-index: 0;
+    }
+
+    /* Телефон */
     @media (max-width: 800px) {
 
       .movie-page {
