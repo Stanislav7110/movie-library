@@ -11,6 +11,7 @@ body {
   overflow-x: hidden;
 }
 
+
 /* Единый фон «Моей Кинотеки» */
 
 body::before {
@@ -43,7 +44,8 @@ body::before {
 
   filter: blur(80px);
 
-  animation: auroraMove 22s ease-in-out infinite alternate;
+  animation:
+    auroraMove 22s ease-in-out infinite alternate;
 }
 
 
@@ -75,19 +77,19 @@ body::after {
 
   0% {
     transform:
-      translate3d(-3%, -2%, 0)
+      translate3d(-8%, -5%, 0)
       scale(1);
   }
 
   50% {
     transform:
-      translate3d(3%, 2%, 0)
+      translate3d(8%, 5%, 0)
       scale(1.08);
   }
 
   100% {
     transform:
-      translate3d(-1%, 4%, 0)
+      translate3d(-5%, 8%, 0)
       scale(1.04);
   }
 
