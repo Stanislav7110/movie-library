@@ -617,42 +617,6 @@
 const poster =
   document.querySelector(".poster");
 
-poster.addEventListener("load", () => {
-
-  const canvas =
-    document.createElement("canvas");
-
-  const ctx =
-    canvas.getContext("2d");
-
-  canvas.width = 1;
-  canvas.height = 1;
-
-  ctx.drawImage(poster, 0, 0, 1, 1);
-
-  const pixel =
-    ctx.getImageData(0, 0, 1, 1).data;
-
-  const r = pixel[0];
-  const g = pixel[1];
-  const b = pixel[2];
-
-  document.documentElement.style.setProperty(
-    "--poster-r",
-    r
-  );
-
-  document.documentElement.style.setProperty(
-    "--poster-g",
-    g
-  );
-
-  document.documentElement.style.setProperty(
-    "--poster-b",
-    b
-  );
-
-});
     
     if (movie.trailer_url) {
       document.querySelector(".movie-links a").href =
