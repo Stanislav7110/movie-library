@@ -1383,11 +1383,37 @@ async function loadMovies(filterType = null) {
   let movies = data;
 
   if (filterType) {
-    movies =
-      data.filter(
-        (movie) =>
-          movie.type === filterType
-      );
+
+    movies = data.filter((movie) => {
+
+      const movieType =
+        String(movie.type || "")
+          .trim()
+          .toLowerCase();
+
+      if (filterType === "film") {
+        return (
+          movieType === "фильм" ||
+          movieType === "фильмы"
+        );
+      }
+
+      if (filterType === "series") {
+        return (
+          movieType === "сериал" ||
+          movieType === "сериалы"
+        );
+      }
+
+      if (filterType === "cartoon") {
+        return (
+          movieType === "мультфильм" ||
+          movieType === "мультфильмы"
+        );
+      }
+
+      return true;
+    });
   }
 
   if (movies.length === 0) {
@@ -1550,12 +1576,16 @@ categoryButtons.forEach(
         const type =
           category.dataset.type;
 
-        if (
-          type === "Фильм" ||
-          type === "Сериал" ||
-          type === "Мультфильм"
-        ) {
-          loadMovies(type);
+        if (type === "Фильм") {
+          loadMovies("film");
+        }
+
+        if (type === "Сериал") {
+          loadMovies("series");
+        }
+
+        if (type === "Мультфильм") {
+          loadMovies("cartoon");
         }
 
       }
