@@ -280,44 +280,86 @@
       из-за нижней и боковых частей постера.
     */
 
-    .poster-glow {
-      position: absolute;
+   .poster-glow {
+  position: absolute;
 
-      width: 108%;
-      height: 108%;
+  width: 108%;
+  height: 108%;
 
-      top: -4%;
-      left: -4%;
+  top: -4%;
+  left: -4%;
 
-      z-index: 0;
+  z-index: 0;
 
-      pointer-events: none;
+  pointer-events: none;
 
-      background:
-        radial-gradient(
-          ellipse at 50% 98%,
-          rgba(80, 100, 180, 0.75) 0%,
-          rgba(70, 90, 160, 0.42) 12%,
-          rgba(50, 65, 120, 0.18) 28%,
-          transparent 48%
-        ),
+  background:
+    radial-gradient(
+      ellipse at 50% 98%,
+      rgba(
+        var(--poster-r, 80),
+        var(--poster-g, 100),
+        var(--poster-b, 180),
+        0.75
+      ) 0%,
 
-        radial-gradient(
-          ellipse at 2% 50%,
-          rgba(70, 90, 160, 0.55) 0%,
-          rgba(50, 65, 120, 0.18) 15%,
-          transparent 32%
-        ),
+      rgba(
+        var(--poster-r, 80),
+        var(--poster-g, 100),
+        var(--poster-b, 180),
+        0.42
+      ) 12%,
 
-        radial-gradient(
-          ellipse at 98% 50%,
-          rgba(70, 90, 160, 0.55) 0%,
-          rgba(50, 65, 120, 0.18) 15%,
-          transparent 32%
-        );
+      rgba(
+        var(--poster-r, 80),
+        var(--poster-g, 100),
+        var(--poster-b, 180),
+        0.18
+      ) 28%,
 
-      filter: blur(28px);
-    }
+      transparent 48%
+    ),
+
+    radial-gradient(
+      ellipse at 2% 50%,
+      rgba(
+        var(--poster-r, 80),
+        var(--poster-g, 100),
+        var(--poster-b, 180),
+        0.55
+      ) 0%,
+
+      rgba(
+        var(--poster-r, 80),
+        var(--poster-g, 100),
+        var(--poster-b, 180),
+        0.18
+      ) 15%,
+
+      transparent 32%
+    ),
+
+    radial-gradient(
+      ellipse at 98% 50%,
+      rgba(
+        var(--poster-r, 80),
+        var(--poster-g, 100),
+        var(--poster-b, 180),
+        0.55
+      ) 0%,
+
+      rgba(
+        var(--poster-r, 80),
+        var(--poster-g, 100),
+        var(--poster-b, 180),
+        0.18
+      ) 15%,
+
+      transparent 32%
+    );
+
+  filter: blur(28px);
+}
 
 
     /*
