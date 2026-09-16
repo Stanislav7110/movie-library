@@ -556,8 +556,61 @@
     }
   }
 
-  loadMovie();
+   loadMovie();
+
+  const addToLibraryBtn =
+    document.querySelector(".movie-actions button");
+
+  if (addToLibraryBtn) {
+    addToLibraryBtn.addEventListener("click", async () => {
+
+      const { data: sessionData } =
+        await supabaseClient.auth.getSession();
+
+      if (!sessionData.session) {
+        alert("Сначала войдите в аккаунт.");
+        return;
+      }
+
+      const userId =
+        sessionData.session.user.id;
+
+      const params =
+        new URLSearchParams(window.location.search);
+
+      const movieId =
+        params.get("id");
+
+      if (!movieId) {
+        return;
+      }
+
+      const { error } =
+        await supabaseClient
+          .from("user_movies")
+          .insert({
+            user_id: userId,
+            movie_id: Number(movieId)
+          });
+
+      if (error) {
+
+        if (error.code === "23505") {
+          addToLibraryBtn.textContent =
+            "Уже в моей картотеке";
+        } else {
+          console.error(error);
+          alert("Не удалось добавить фильм.");
+        }
+
+        return;
+      }
+
+      addToLibraryBtn.textContent =
+        "Добавлено в картотеку";
+    });
+  }
 </script>
-  
+
 </body>
 </html>
