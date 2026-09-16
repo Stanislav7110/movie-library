@@ -1343,7 +1343,7 @@ const libraryAddStatus =
 
 let selectedMovieId = null;
 
-async function loadMovies() {
+async function loadMovies(filterType = null) {
   if (!movieGrid) {
     return;
   }
@@ -1380,15 +1380,39 @@ async function loadMovies() {
     return;
   }
 
-  data.forEach((movie) => {
+  let movies = data;
+
+  if (filterType) {
+    movies =
+      data.filter(
+        (movie) =>
+          movie.type === filterType
+      );
+  }
+
+  if (movies.length === 0) {
+    movieGrid.innerHTML =
+      "В этой категории пока ничего нет.";
+
+    return;
+  }
+
+  movies.forEach((movie) => {
 
     const card =
       document.createElement("div");
 
-    card.style.background = "#242832";
-    card.style.borderRadius = "10px";
-    card.style.overflow = "hidden";
-    card.style.cursor = "pointer";
+    card.style.background =
+      "#242832";
+
+    card.style.borderRadius =
+      "10px";
+
+    card.style.overflow =
+      "hidden";
+
+    card.style.cursor =
+      "pointer";
 
     card.innerHTML = `
       <img
@@ -1402,7 +1426,9 @@ async function loadMovies() {
         "
       >
 
-      <div style="padding:12px;">
+      <div style="
+        padding:12px;
+      ">
 
         <h3 style="
           margin:0 0 6px 0;
@@ -1421,17 +1447,23 @@ async function loadMovies() {
       </div>
     `;
 
-  card.addEventListener("click", () => {
-  window.location.href =
-    `movie.html?id=${movie.id}`;
-});
+    card.addEventListener(
+      "click",
+      () => {
+        window.location.href =
+          `movie.html?id=${movie.id}`;
+      }
+    );
+
     movieGrid.appendChild(card);
   });
 }
 
+
 function openMovieModal(movie) {
 
-  selectedMovieId = movie.id;
+  selectedMovieId =
+    movie.id;
 
   movieModalPoster.src =
     movie.poster_url || "";
@@ -1449,7 +1481,8 @@ function openMovieModal(movie) {
     movie.description ||
     "Описание отсутствует.";
 
-  libraryAddStatus.textContent = "";
+  libraryAddStatus.textContent =
+    "";
 
   if (movie.trailer_url) {
 
@@ -1469,7 +1502,9 @@ function openMovieModal(movie) {
     "flex";
 }
 
+
 if (closeMovieModal) {
+
   closeMovieModal.addEventListener(
     "click",
     () => {
@@ -1479,12 +1514,16 @@ if (closeMovieModal) {
   );
 }
 
+
 if (movieModal) {
+
   movieModal.addEventListener(
     "click",
     (event) => {
 
-      if (event.target === movieModal) {
+      if (
+        event.target === movieModal
+      ) {
         movieModal.style.display =
           "none";
       }
@@ -1492,5 +1531,38 @@ if (movieModal) {
     }
   );
 }
+
+
+/* Категории */
+
+const categoryButtons =
+  document.querySelectorAll(
+    ".category"
+  );
+
+categoryButtons.forEach(
+  (category) => {
+
+    category.addEventListener(
+      "click",
+      () => {
+
+        const type =
+          category.dataset.type;
+
+        if (
+          type === "Фильм" ||
+          type === "Сериал" ||
+          type === "Мультфильм"
+        ) {
+          loadMovies(type);
+        }
+
+      }
+    );
+
+  }
+);
+
 
 loadMovies();
