@@ -1071,158 +1071,180 @@
       }
 
 
-      /* =================================
-         СМОТРЕТЬ ФИЛЬМ
-         ================================= */
+   /* =================================
+СМОТРЕТЬ ФИЛЬМ
+================================= */
 
-      if (watchLink) {
+if (watchLink) {
 
-        const watchUrl =
-          movie.watch_url ||
-          movie.watch_auto_url;
+const watchUrl =
+movie.watch_url ||
+movie.watch_auto_url;
+
+if (watchUrl) {
+
+```
+watchLink.href =
+  watchUrl;
+
+watchLink.target =
+  "_blank";
+
+watchLink.rel =
+  "noopener noreferrer";
+
+watchLink.style.display =
+  "inline";
+```
+
+} else if (movie.id) {
+
+```
+watchLink.href =
+  `https://www.themoviedb.org/movie/${movie.id}/watch`;
+
+watchLink.target =
+  "_blank";
+
+watchLink.rel =
+  "noopener noreferrer";
+
+watchLink.textContent =
+  "Смотреть фильм";
+
+watchLink.style.display =
+  "inline";
+```
+
+} else {
+
+```
+watchLink.style.display =
+  "none";
+```
+
+}
+
+}
+
+/* =================================
+ЗАПУСК ЗАГРУЗКИ
+================================= */
+
+loadMovie();
+
+/* =================================
+ДОБАВЛЕНИЕ В МОЮ КАРТОТЕКУ
+================================= */
+
+const addToLibraryBtn =
+document.querySelector(
+".movie-actions button"
+);
+
+if (addToLibraryBtn) {
+
+addToLibraryBtn.addEventListener(
+"click",
+async () => {
+
+```
+  const {
+    data: sessionData
+  } =
+    await supabaseClient.auth.getSession();
 
 
-        if (watchUrl) {
+  if (
+    !sessionData ||
+    !sessionData.session
+  ) {
 
-          watchLink.href =
-            watchUrl;
+    alert(
+      "Сначала войдите в аккаунт."
+    );
 
-          watchLink.target =
-            "_blank";
+    return;
+  }
 
-          watchLink.style.display =
-            "inline";
 
-        } else {
+  const userId =
+    sessionData.session.user.id;
 
-          watchLink.style.display =
-            "none";
 
-        }
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
 
-      }
 
+  const movieId =
+    params.get("id");
+
+
+  if (!movieId) {
+
+    alert(
+      "Сначала добавьте фильм в нашу Кинотеку."
+    );
+
+    return;
+  }
+
+
+  const {
+    error
+  } =
+    await supabaseClient
+      .from("user_movies")
+      .insert({
+        user_id:
+          userId,
+
+        movie_id:
+          Number(movieId)
+      });
+
+
+  if (error) {
+
+    if (
+      error.code ===
+      "23505"
+    ) {
+
+      addToLibraryBtn.textContent =
+        "Уже в моей картотеке";
+
+      return;
     }
 
 
-    /* =================================
-       ЗАПУСК ЗАГРУЗКИ
-       ================================= */
-
-    loadMovie();
-
-
-    /* =================================
-       ДОБАВЛЕНИЕ В МОЮ КАРТОТЕКУ
-       ================================= */
-
-    const addToLibraryBtn =
-      document.querySelector(
-        ".movie-actions button"
-      );
+    console.error(
+      "Ошибка добавления:",
+      error
+    );
 
 
-    if (addToLibraryBtn) {
+    alert(
+      "Не удалось добавить фильм."
+    );
 
-      addToLibraryBtn.addEventListener(
-        "click",
-        async () => {
-
-          const {
-            data: sessionData
-          } =
-            await supabaseClient.auth.getSession();
+    return;
+  }
 
 
-          if (
-            !sessionData ||
-            !sessionData.session
-          ) {
+  addToLibraryBtn.textContent =
+    "Добавлено в картотеку";
 
-            alert(
-              "Сначала войдите в аккаунт."
-            );
+}
+```
 
-            return;
-          }
+);
 
+}
 
-          const userId =
-            sessionData.session.user.id;
-
-
-          const params =
-            new URLSearchParams(
-              window.location.search
-            );
-
-
-          const movieId =
-            params.get("id");
-
-
-          if (!movieId) {
-
-            alert(
-              "Сначала добавьте фильм в нашу Кинотеку."
-            );
-
-            return;
-          }
-
-
-          const {
-            error
-          } =
-            await supabaseClient
-              .from("user_movies")
-              .insert({
-                user_id:
-                  userId,
-
-                movie_id:
-                  Number(movieId)
-              });
-
-
-          if (error) {
-
-            if (
-              error.code ===
-              "23505"
-            ) {
-
-              addToLibraryBtn.textContent =
-                "Уже в моей картотеке";
-
-              return;
-            }
-
-
-            console.error(
-              "Ошибка добавления:",
-              error
-            );
-
-
-            alert(
-              "Не удалось добавить фильм."
-            );
-
-            return;
-          }
-
-
-          addToLibraryBtn.textContent =
-            "Добавлено в картотеку";
-
-        }
-      );
-
-    }
-
-  </script>
+</script>
 
 </body>
 </html>
-```
