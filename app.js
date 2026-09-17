@@ -1964,15 +1964,11 @@ async function searchMovies() {
           </div>
         `;
 
-        result.addEventListener(
-          "click",
-          () => {
-            alert(
-              `Вы выбрали: ${movie.title}`
-            );
-          }
-        );
-
+       result.onclick = function () {
+  alert(
+    `Вы выбрали: ${movie.title}`
+  );
+};
         searchResults.appendChild(
           result
         );
