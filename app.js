@@ -1357,7 +1357,9 @@ if (
     moviePoster.value = "";
   });
 }
-// Загрузка каталога фильмов
+// ===============================
+// ЗАГРУЗКА КАТАЛОГА
+// ===============================
 
 const movieGrid =
   document.getElementById("movieGrid");
@@ -1391,15 +1393,278 @@ const libraryAddStatus =
 
 let selectedMovieId = null;
 
+
+// ===============================
+// СОЗДАНИЕ КАРТОЧКИ
+// ===============================
+
+function createMovieCard(movie, isTMDB = false, tmdbType = "movie") {
+
+  const card =
+    document.createElement("div");
+
+  card.style.background =
+    "#242832";
+
+  card.style.borderRadius =
+    "10px";
+
+  card.style.overflow =
+    "hidden";
+
+  card.style.cursor =
+    "pointer";
+
+
+  let title = "";
+  let year = "";
+  let poster = "";
+  let type = "";
+
+
+  // ===============================
+  // НАША БАЗА
+  // ===============================
+
+  if (!isTMDB) {
+
+    title =
+      movie.title || "Без названия";
+
+    year =
+      movie.year || "";
+
+    poster =
+      movie.poster_url || "";
+
+    type =
+      movie.type || "";
+
+  }
+
+
+  // ===============================
+  // TMDB
+  // ===============================
+
+  else {
+
+    title =
+      movie.title ||
+      movie.name ||
+      "Без названия";
+
+    year =
+      movie.release_date
+        ? movie.release_date.substring(0, 4)
+        : movie.first_air_date
+        ? movie.first_air_date.substring(0, 4)
+        : "";
+
+    poster =
+      movie.poster_path
+        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+        : "";
+
+
+    if (tmdbType === "tv") {
+
+      type = "Сериал";
+
+    } else if (tmdbType === "cartoon") {
+
+      type = "Мультфильм";
+
+    } else {
+
+      type = "Фильм";
+
+    }
+
+  }
+
+
+  card.innerHTML = `
+    <img
+      src="${poster}"
+      alt="${title}"
+      style="
+        width:100%;
+        height:270px;
+        object-fit:cover;
+        display:block;
+      "
+    >
+
+    <div style="
+      padding:12px;
+    ">
+
+      <h3 style="
+        margin:0 0 6px 0;
+        font-size:18px;
+      ">
+        ${title}
+      </h3>
+
+      <div style="
+        color:#aaa;
+        font-size:14px;
+      ">
+        ${year} · ${type}
+      </div>
+
+    </div>
+  `;
+
+
+  // ===============================
+  // НАШ ФИЛЬМ
+  // ===============================
+
+  if (!isTMDB) {
+
+    card.addEventListener(
+      "click",
+      () => {
+
+        window.location.href =
+          `movie.html?id=${movie.id}`;
+
+      }
+    );
+
+  }
+
+
+  // ===============================
+  // TMDB ФИЛЬМ
+  // ===============================
+
+  else {
+
+    card.addEventListener(
+      "click",
+      () => {
+
+        const tmdbMovie =
+          encodeURIComponent(
+            JSON.stringify({
+
+              id:
+                movie.id,
+
+              title:
+                movie.title ||
+                movie.name ||
+                "",
+
+              year:
+                movie.release_date
+                  ? movie.release_date.substring(0, 4)
+                  : movie.first_air_date
+                  ? movie.first_air_date.substring(0, 4)
+                  : "",
+
+              description:
+                movie.overview || "",
+
+              poster_url:
+                movie.poster_path
+                  ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+                  : "",
+
+              type:
+                type
+
+            })
+          );
+
+
+        window.location.href =
+          `movie.html?tmdb=${tmdbMovie}`;
+
+      }
+    );
+
+  }
+
+
+  return card;
+}
+
+
+// ===============================
+// ЗАГРУЗКА TMDB КАТАЛОГА
+// ===============================
+
+async function loadTMDBCatalog(type) {
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient.functions.invoke(
+      "tmdb-search",
+      {
+        body: {
+          mode: "catalog",
+          type: type,
+          page: 1
+        }
+      }
+    );
+
+
+  if (error) {
+
+    console.error(
+      "Ошибка загрузки каталога TMDB:",
+      error
+    );
+
+    return [];
+
+  }
+
+
+  if (
+    !data ||
+    !data.results
+  ) {
+
+    return [];
+
+  }
+
+
+  return data.results;
+}
+
+
+// ===============================
+// ЗАГРУЗКА КАТАЛОГА
+// ===============================
+
 async function loadMovies(filterType = null) {
+
   if (!movieGrid) {
     return;
   }
 
+
   movieGrid.innerHTML =
     "Загрузка фильмов...";
 
-  const { data, error } =
+
+  // ===============================
+  // НАША КИНОТЕКА
+  // ===============================
+
+  const {
+    data: localMovies,
+    error: localError
+  } =
     await supabaseClient
       .from("movies")
       .select("*")
@@ -1407,156 +1672,209 @@ async function loadMovies(filterType = null) {
         ascending: false
       });
 
-  if (error) {
+
+  if (localError) {
+
     console.error(
       "Ошибка загрузки фильмов:",
-      error
+      localError
     );
 
-    movieGrid.innerHTML =
-      "Не удалось загрузить фильмы.";
-
-    return;
   }
 
-  movieGrid.innerHTML = "";
 
-  if (!data || data.length === 0) {
-    movieGrid.innerHTML =
-      "Фильмов пока нет.";
+  let localFiltered =
+    localMovies || [];
 
-    return;
-  }
 
-  let movies = data;
+  // ===============================
+  // ФИЛЬТРАЦИЯ НАШЕЙ КИНОТЕКИ
+  // ===============================
 
   if (filterType) {
 
-    movies = data.filter((movie) => {
+    localFiltered =
+      localFiltered.filter(
+        (movie) => {
 
-      const movieType =
-        String(movie.type || "")
-          .trim()
-          .toLowerCase();
+          const movieType =
+            String(
+              movie.type || ""
+            )
+              .trim()
+              .toLowerCase();
 
-      if (filterType === "film") {
-        return (
-          movieType === "фильм" ||
-          movieType === "фильмы"
-        );
-      }
 
-      if (filterType === "series") {
-        return (
-          movieType === "сериал" ||
-          movieType === "сериалы"
-        );
-      }
+          if (
+            filterType === "film"
+          ) {
 
-      if (filterType === "cartoon") {
-        return (
-          movieType === "мультфильм" ||
-          movieType === "мультфильмы"
-        );
-      }
+            return (
+              movieType === "фильм" ||
+              movieType === "фильмы"
+            );
 
-      return true;
-    });
+          }
+
+
+          if (
+            filterType === "series"
+          ) {
+
+            return (
+              movieType === "сериал" ||
+              movieType === "сериалы"
+            );
+
+          }
+
+
+          if (
+            filterType === "cartoon"
+          ) {
+
+            return (
+              movieType === "мультфильм" ||
+              movieType === "мультфильмы"
+            );
+
+          }
+
+
+          return true;
+
+        }
+      );
+
   }
 
-  if (movies.length === 0) {
+
+  movieGrid.innerHTML = "";
+
+
+  // ===============================
+  // СНАЧАЛА НАША КИНОТЕКА
+  // ===============================
+
+  localFiltered.forEach(
+    (movie) => {
+
+      movieGrid.appendChild(
+        createMovieCard(
+          movie,
+          false
+        )
+      );
+
+    }
+  );
+
+
+  // ===============================
+  // ОПРЕДЕЛЯЕМ ТИП TMDB
+  // ===============================
+
+  let tmdbType = "movie";
+
+
+  if (
+    filterType === "series"
+  ) {
+
+    tmdbType = "tv";
+
+  }
+
+
+  if (
+    filterType === "cartoon"
+  ) {
+
+    tmdbType = "cartoon";
+
+  }
+
+
+  // ===============================
+  // ЗАГРУЖАЕМ TMDB
+  // ===============================
+
+  const tmdbMovies =
+    await loadTMDBCatalog(
+      tmdbType
+    );
+
+
+  // ===============================
+  // ПОТОМ TMDB
+  // ===============================
+
+  tmdbMovies.forEach(
+    (movie) => {
+
+      movieGrid.appendChild(
+        createMovieCard(
+          movie,
+          true,
+          tmdbType
+        )
+      );
+
+    }
+  );
+
+
+  // ===============================
+  // НИЧЕГО НЕ НАЙДЕНО
+  // ===============================
+
+  if (
+    localFiltered.length === 0 &&
+    tmdbMovies.length === 0
+  ) {
+
     movieGrid.innerHTML =
       "В этой категории пока ничего нет.";
 
-    return;
   }
 
-  movies.forEach((movie) => {
-
-    const card =
-      document.createElement("div");
-
-    card.style.background =
-      "#242832";
-
-    card.style.borderRadius =
-      "10px";
-
-    card.style.overflow =
-      "hidden";
-
-    card.style.cursor =
-      "pointer";
-
-    card.innerHTML = `
-      <img
-        src="${movie.poster_url || ""}"
-        alt="${movie.title}"
-        style="
-          width:100%;
-          height:270px;
-          object-fit:cover;
-          display:block;
-        "
-      >
-
-      <div style="
-        padding:12px;
-      ">
-
-        <h3 style="
-          margin:0 0 6px 0;
-          font-size:18px;
-        ">
-          ${movie.title}
-        </h3>
-
-        <div style="
-          color:#aaa;
-          font-size:14px;
-        ">
-          ${movie.year} · ${movie.type}
-        </div>
-
-      </div>
-    `;
-
-    card.addEventListener(
-      "click",
-      () => {
-        window.location.href =
-          `movie.html?id=${movie.id}`;
-      }
-    );
-
-    movieGrid.appendChild(card);
-  });
 }
 
+
+// ===============================
+// ОКНО ФИЛЬМА
+// ===============================
 
 function openMovieModal(movie) {
 
   selectedMovieId =
     movie.id;
 
+
   movieModalPoster.src =
     movie.poster_url || "";
+
 
   movieModalPoster.alt =
     movie.title;
 
+
   movieModalTitle.textContent =
     movie.title;
 
+
   movieModalInfo.textContent =
     `${movie.year} · ${movie.type}`;
+
 
   movieModalDescription.textContent =
     movie.description ||
     "Описание отсутствует.";
 
+
   libraryAddStatus.textContent =
     "";
+
 
   if (movie.trailer_url) {
 
@@ -1570,22 +1888,32 @@ function openMovieModal(movie) {
 
     movieModalTrailer.style.display =
       "none";
+
   }
+
 
   movieModal.style.display =
     "flex";
+
 }
 
+
+// ===============================
+// ЗАКРЫТИЕ ОКНА ФИЛЬМА
+// ===============================
 
 if (closeMovieModal) {
 
   closeMovieModal.addEventListener(
     "click",
     () => {
+
       movieModal.style.display =
         "none";
+
     }
   );
+
 }
 
 
@@ -1598,21 +1926,27 @@ if (movieModal) {
       if (
         event.target === movieModal
       ) {
+
         movieModal.style.display =
           "none";
+
       }
 
     }
   );
+
 }
 
 
-/* Категории */
+// ===============================
+// КАТЕГОРИИ
+// ===============================
 
 const categoryButtons =
   document.querySelectorAll(
     ".category"
   );
+
 
 categoryButtons.forEach(
   (category) => {
@@ -1624,26 +1958,42 @@ categoryButtons.forEach(
         const type =
           category.dataset.type;
 
-        if (type === "Фильм") {
+
+        if (
+          type === "Фильм"
+        ) {
+
           loadMovies("film");
+
         }
 
-        if (type === "Сериал") {
+
+        if (
+          type === "Сериал"
+        ) {
+
           loadMovies("series");
+
         }
 
-     if (type === "Мультфильм") {
-  loadMovies("cartoon");
-}
+
+        if (
+          type === "Мультфильм"
+        ) {
+
+          loadMovies("cartoon");
+
+        }
 
       }
     );
+
   }
 );
 
 
 // ===============================
-// ЗАГРУЗКА ФИЛЬМОВ
+// ЗАПУСК КАТАЛОГА
 // ===============================
 
 loadMovies();
@@ -1677,19 +2027,26 @@ const closeSearchModal =
 // ===============================
 
 if (searchBtn && searchModal) {
+
   searchBtn.addEventListener(
     "click",
     (event) => {
+
       event.preventDefault();
 
       searchModal.style.display =
         "flex";
 
+
       if (searchInput) {
+
         searchInput.focus();
+
       }
+
     }
   );
+
 }
 
 
@@ -1697,14 +2054,21 @@ if (searchBtn && searchModal) {
 // ЗАКРЫТИЕ ПОИСКА
 // ===============================
 
-if (closeSearchModal && searchModal) {
+if (
+  closeSearchModal &&
+  searchModal
+) {
+
   closeSearchModal.addEventListener(
     "click",
     () => {
+
       searchModal.style.display =
         "none";
+
     }
   );
+
 }
 
 
@@ -1713,15 +2077,23 @@ if (closeSearchModal && searchModal) {
 // ===============================
 
 if (searchModal) {
+
   searchModal.addEventListener(
     "click",
     (event) => {
-      if (event.target === searchModal) {
+
+      if (
+        event.target === searchModal
+      ) {
+
         searchModal.style.display =
           "none";
+
       }
+
     }
   );
+
 }
 
 
@@ -1730,18 +2102,24 @@ if (searchModal) {
 // ===============================
 
 async function searchMovies() {
+
   const query =
     searchInput.value.trim();
 
+
   if (!query) {
+
     searchResults.innerHTML =
       "Введите название фильма.";
 
     return;
+
   }
+
 
   searchResults.innerHTML =
     "Поиск...";
+
 
   // ===============================
   // ПОИСК В НАШЕЙ КИНОТЕКЕ
@@ -1750,160 +2128,67 @@ async function searchMovies() {
   const {
     data: localMovies,
     error: localError
-  } = await supabaseClient
-    .from("movies")
-    .select("*")
-    .ilike(
-      "title",
-      `%${query}%`
-    )
-    .order(
-      "year",
-      {
-        ascending: false
-      }
-    );
+  } =
+    await supabaseClient
+      .from("movies")
+      .select("*")
+      .ilike(
+        "title",
+        `%${query}%`
+      )
+      .order(
+        "year",
+        {
+          ascending: false
+        }
+      );
+
 
   if (localError) {
+
     console.error(
       "Ошибка поиска в кинотеке:",
       localError
     );
+
   }
+
 
   searchResults.innerHTML = "";
 
-   // ===============================
-  // РЕЗУЛЬТАТЫ ИЗ НАШЕЙ КИНОТЕКИ
+
+  // ===============================
+  // РЕЗУЛЬТАТЫ НАШЕЙ КИНОТЕКИ
   // ===============================
 
-  if (localMovies && localMovies.length > 0) {
+  if (
+    localMovies &&
+    localMovies.length > 0
+  ) {
+
     const localTitle =
       document.createElement("h3");
+
 
     localTitle.textContent =
       "В моей Кинотеке";
 
+
     localTitle.style.margin =
       "0 0 15px 0";
+
 
     searchResults.appendChild(
       localTitle
     );
 
-    localMovies.forEach((movie) => {
-      const result =
-        document.createElement("div");
 
-      result.style.display =
-        "flex";
+    localMovies.forEach(
+      (movie) => {
 
-      result.style.gap =
-        "15px";
-
-      result.style.padding =
-        "10px";
-
-      result.style.marginBottom =
-        "10px";
-
-      result.style.background =
-        "#1d2027";
-
-      result.style.borderRadius =
-        "8px";
-
-      result.style.cursor =
-        "pointer";
-
-      result.innerHTML = `
-        <img
-          src="${movie.poster_url || ""}"
-          alt="${movie.title}"
-          style="
-            width:70px;
-            height:100px;
-            object-fit:cover;
-            border-radius:6px;
-          "
-        >
-
-        <div>
-          <h3 style="
-            margin:0 0 8px 0;
-          ">
-            ${movie.title}
-          </h3>
-
-          <div style="
-            color:#aaa;
-            font-size:14px;
-          ">
-            ${movie.year || ""} · ${movie.type || ""}
-          </div>
-        </div>
-      `;
-
-      result.addEventListener(
-        "click",
-        () => {
-          window.location.href =
-            `movie.html?id=${movie.id}`;
-        }
-      );
-
-      searchResults.appendChild(
-        result
-      );
-    });
-  }
-
-  // ===============================
-  // ПОИСК В TMDB
-  // ===============================
-
-  const {
-    data: tmdbData,
-    error: tmdbError
-  } = await supabaseClient.functions.invoke(
-    "tmdb-search",
-    {
-      body: {
-        query: query
-      }
-    }
-  );
-
-  if (tmdbError) {
-    console.error(
-      "Ошибка поиска TMDB:",
-      tmdbError
-    );
-  }
-
-  if (
-    tmdbData &&
-    tmdbData.results &&
-    tmdbData.results.length > 0
-  ) {
-    const tmdbTitle =
-      document.createElement("h3");
-
-    tmdbTitle.textContent =
-      "Найдено в мировой базе";
-
-    tmdbTitle.style.margin =
-      "20px 0 15px 0";
-
-    searchResults.appendChild(
-      tmdbTitle
-    );
-
-    tmdbData.results
-      .slice(0, 10)
-      .forEach((movie) => {
         const result =
           document.createElement("div");
+
 
         result.style.display =
           "flex";
@@ -1926,20 +2211,11 @@ async function searchMovies() {
         result.style.cursor =
           "pointer";
 
-        const poster =
-          movie.poster_path
-            ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-            : "";
-
-        const year =
-          movie.release_date
-            ? movie.release_date.substring(0, 4)
-            : "";
 
         result.innerHTML = `
           <img
-            src="${poster}"
-            alt="${movie.title || ""}"
+            src="${movie.poster_url || ""}"
+            alt="${movie.title}"
             style="
               width:70px;
               height:100px;
@@ -1949,47 +2225,221 @@ async function searchMovies() {
           >
 
           <div>
+
             <h3 style="
               margin:0 0 8px 0;
             ">
-              ${movie.title || "Без названия"}
+              ${movie.title}
             </h3>
 
             <div style="
               color:#aaa;
               font-size:14px;
             ">
-              ${year}
+              ${movie.year || ""} · ${movie.type || ""}
             </div>
+
           </div>
         `;
 
-  result.onclick = function () {
-  const tmdbMovie =
-    encodeURIComponent(
-      JSON.stringify({
-        id: movie.id,
-        title: movie.title || "",
-        year: movie.release_date
-          ? movie.release_date.substring(0, 4)
-          : "",
-        description:
-          movie.overview || "",
-        poster_url:
-          movie.poster_path
-            ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-            : ""
-      })
-    );
 
-  window.location.href =
-    `movie.html?tmdb=${tmdbMovie}`;
-};
+        result.addEventListener(
+          "click",
+          () => {
+
+            window.location.href =
+              `movie.html?id=${movie.id}`;
+
+          }
+        );
+
+
         searchResults.appendChild(
           result
         );
-      });
+
+      }
+    );
+
   }
+
+
+  // ===============================
+  // ПОИСК В TMDB
+  // ===============================
+
+  const {
+    data: tmdbData,
+    error: tmdbError
+  } =
+    await supabaseClient.functions.invoke(
+      "tmdb-search",
+      {
+        body: {
+          query: query
+        }
+      }
+    );
+
+
+  if (tmdbError) {
+
+    console.error(
+      "Ошибка поиска TMDB:",
+      tmdbError
+    );
+
+  }
+
+
+  // ===============================
+  // РЕЗУЛЬТАТЫ TMDB
+  // ===============================
+
+  if (
+    tmdbData &&
+    tmdbData.results &&
+    tmdbData.results.length > 0
+  ) {
+
+    const tmdbTitle =
+      document.createElement("h3");
+
+
+    tmdbTitle.textContent =
+      "Найдено в мировой базе";
+
+
+    tmdbTitle.style.margin =
+      "20px 0 15px 0";
+
+
+    searchResults.appendChild(
+      tmdbTitle
+    );
+
+
+    tmdbData.results
+      .slice(0, 10)
+      .forEach(
+        (movie) => {
+
+          const result =
+            document.createElement("div");
+
+
+          result.style.display =
+            "flex";
+
+          result.style.gap =
+            "15px";
+
+          result.style.padding =
+            "10px";
+
+          result.style.marginBottom =
+            "10px";
+
+          result.style.background =
+            "#1d2027";
+
+          result.style.borderRadius =
+            "8px";
+
+          result.style.cursor =
+            "pointer";
+
+
+          const poster =
+            movie.poster_path
+              ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+              : "";
+
+
+          const year =
+            movie.release_date
+              ? movie.release_date.substring(0, 4)
+              : "";
+
+
+          result.innerHTML = `
+            <img
+              src="${poster}"
+              alt="${movie.title || ""}"
+              style="
+                width:70px;
+                height:100px;
+                object-fit:cover;
+                border-radius:6px;
+              "
+            >
+
+            <div>
+
+              <h3 style="
+                margin:0 0 8px 0;
+              ">
+                ${movie.title || "Без названия"}
+              </h3>
+
+              <div style="
+                color:#aaa;
+                font-size:14px;
+              ">
+                ${year}
+              </div>
+
+            </div>
+          `;
+
+
+          result.addEventListener(
+            "click",
+            () => {
+
+              const tmdbMovie =
+                encodeURIComponent(
+                  JSON.stringify({
+
+                    id:
+                      movie.id,
+
+                    title:
+                      movie.title || "",
+
+                    year:
+                      movie.release_date
+                        ? movie.release_date.substring(0, 4)
+                        : "",
+
+                    description:
+                      movie.overview || "",
+
+                    poster_url:
+                      movie.poster_path
+                        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+                        : ""
+
+                  })
+                );
+
+
+              window.location.href =
+                `movie.html?tmdb=${tmdbMovie}`;
+
+            }
+          );
+
+
+          searchResults.appendChild(
+            result
+          );
+
+        }
+      );
+
+  }
+
 
   // ===============================
   // НИЧЕГО НЕ НАЙДЕНО
@@ -2002,9 +2452,12 @@ async function searchMovies() {
       !tmdbData.results ||
       tmdbData.results.length === 0)
   ) {
+
     searchResults.innerHTML =
       "Ничего не найдено.";
+
   }
+
 }
 
 
@@ -2013,10 +2466,12 @@ async function searchMovies() {
 // ===============================
 
 if (searchSubmit) {
+
   searchSubmit.addEventListener(
     "click",
     searchMovies
   );
+
 }
 
 
@@ -2025,12 +2480,18 @@ if (searchSubmit) {
 // ===============================
 
 if (searchInput) {
+
   searchInput.addEventListener(
     "keydown",
     (event) => {
+
       if (event.key === "Enter") {
+
         searchMovies();
+
       }
+
     }
   );
+
 }
