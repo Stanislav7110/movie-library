@@ -631,9 +631,9 @@
       );
 
 
-    /* Загрузка фильма */
+   /* Загрузка фильма */
 
-  async function loadMovie() {
+async function loadMovie() {
 
   const params =
     new URLSearchParams(
@@ -643,34 +643,88 @@
   const movieId =
     params.get("id");
 
-  if (!movieId) {
+  const tmdbData =
+    params.get("tmdb");
+
+  let movie = null;
+
+  /* ===============================
+     ФИЛЬМ ИЗ НАШЕЙ КИНОТЕКИ
+     =============================== */
+
+  if (movieId) {
+
+    const { data, error } =
+      await supabaseClient
+        .from("movies")
+        .select("*")
+        .eq("id", movieId)
+        .single();
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    movie = data;
+  }
+
+
+  /* ===============================
+     ФИЛЬМ ИЗ TMDB
+     =============================== */
+
+  else if (tmdbData) {
+
+    try {
+
+      movie =
+        JSON.parse(
+          decodeURIComponent(tmdbData)
+        );
+
+      movie.type =
+        "Фильм";
+
+      movie.isTMDB = true;
+
+    } catch (error) {
+
+      console.error(
+        "Ошибка загрузки фильма TMDB:",
+        error
+      );
+
+      return;
+    }
+
+  }
+
+
+  if (!movie) {
     return;
   }
 
-  const { data: movie, error } =
-    await supabaseClient
-      .from("movies")
-      .select("*")
-      .eq("id", movieId)
-      .single();
 
-  if (error) {
-    console.error(error);
-    return;
-  }
+  /* ===============================
+     ЗАПОЛНЕНИЕ СТРАНИЦЫ
+     =============================== */
 
   document.title =
     movie.title + " — Моя Кинотека";
 
+
   document.querySelector(
     ".movie-meta"
   ).textContent =
-    `${movie.year} · ${movie.type}`;
+    `${movie.year || ""} · ${movie.type || "Фильм"}`;
+
 
   document.querySelector(
     ".movie-title"
   ).textContent =
-    movie.title;
+    movie.title || "Без названия";
+
 
   document.querySelector(
     ".movie-description"
@@ -678,17 +732,22 @@
     movie.description ||
     "Описание отсутствует.";
 
+
   const poster =
     document.querySelector(".poster");
+
 
   poster.src =
     movie.poster_url || "";
 
+
   poster.alt =
-    movie.title;
+    movie.title || "Постер фильма";
 
 
-  /* Цвет свечения из постера */
+  /* ===============================
+     ЦВЕТ СВЕЧЕНИЯ ИЗ ПОСТЕРА
+     =============================== */
 
   poster.addEventListener("load", () => {
 
@@ -758,6 +817,7 @@
     g = Math.round(g / count);
     b = Math.round(b / count);
 
+
     document.documentElement.style.setProperty(
       "--poster-r",
       r
@@ -775,6 +835,10 @@
 
   });
 
+
+  /* ===============================
+     ТРЕЙЛЕР
+     =============================== */
 
   if (movie.trailer_url) {
 
@@ -880,4 +944,4 @@ loadMovie();
 
 </body>
 </html>
-```
+
