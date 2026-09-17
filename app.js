@@ -1628,15 +1628,246 @@ categoryButtons.forEach(
           loadMovies("series");
         }
 
-        if (type === "Мультфильм") {
-          loadMovies("cartoon");
-        }
+     if (type === "Мультфильм") {
+  loadMovies("cartoon");
+}
 
       }
     );
-
   }
 );
 
 
+// ===============================
+// ЗАГРУЗКА ФИЛЬМОВ
+// ===============================
+
 loadMovies();
+
+
+// ===============================
+// ПОИСК ФИЛЬМОВ
+// ===============================
+
+const searchBtn =
+  document.getElementById("searchBtn");
+
+const searchModal =
+  document.getElementById("searchModal");
+
+const searchInput =
+  document.getElementById("searchInput");
+
+const searchSubmit =
+  document.getElementById("searchSubmit");
+
+const searchResults =
+  document.getElementById("searchResults");
+
+const closeSearchModal =
+  document.getElementById("closeSearchModal");
+
+
+// ===============================
+// ОТКРЫТИЕ ПОИСКА
+// ===============================
+
+if (searchBtn && searchModal) {
+  searchBtn.addEventListener(
+    "click",
+    (event) => {
+      event.preventDefault();
+
+      searchModal.style.display =
+        "flex";
+
+      if (searchInput) {
+        searchInput.focus();
+      }
+    }
+  );
+}
+
+
+// ===============================
+// ЗАКРЫТИЕ ПОИСКА
+// ===============================
+
+if (closeSearchModal && searchModal) {
+  closeSearchModal.addEventListener(
+    "click",
+    () => {
+      searchModal.style.display =
+        "none";
+    }
+  );
+}
+
+
+// ===============================
+// ЗАКРЫТИЕ ПО ФОНУ
+// ===============================
+
+if (searchModal) {
+  searchModal.addEventListener(
+    "click",
+    (event) => {
+      if (event.target === searchModal) {
+        searchModal.style.display =
+          "none";
+      }
+    }
+  );
+}
+
+
+// ===============================
+// ПОИСК
+// ===============================
+
+async function searchMovies() {
+  const query =
+    searchInput.value.trim();
+
+  if (!query) {
+    searchResults.innerHTML =
+      "Введите название фильма.";
+
+    return;
+  }
+
+  searchResults.innerHTML =
+    "Поиск...";
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("movies")
+    .select("*")
+    .ilike(
+      "title",
+      `%${query}%`
+    )
+    .order(
+      "year",
+      {
+        ascending: false
+      }
+    );
+
+  if (error) {
+    console.error(
+      "Ошибка поиска:",
+      error
+    );
+
+    searchResults.innerHTML =
+      "Не удалось выполнить поиск.";
+
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    searchResults.innerHTML =
+      "Ничего не найдено.";
+
+    return;
+  }
+
+  searchResults.innerHTML = "";
+
+  data.forEach((movie) => {
+    const result =
+      document.createElement("div");
+
+    result.style.display =
+      "flex";
+
+    result.style.gap =
+      "15px";
+
+    result.style.padding =
+      "10px";
+
+    result.style.marginBottom =
+      "10px";
+
+    result.style.background =
+      "#1d2027";
+
+    result.style.borderRadius =
+      "8px";
+
+    result.style.cursor =
+      "pointer";
+
+    result.innerHTML = `
+      <img
+        src="${movie.poster_url || ""}"
+        alt="${movie.title}"
+        style="
+          width:70px;
+          height:100px;
+          object-fit:cover;
+          border-radius:6px;
+        "
+      >
+
+      <div>
+        <h3 style="
+          margin:0 0 8px 0;
+        ">
+          ${movie.title}
+        </h3>
+
+        <div style="
+          color:#aaa;
+          font-size:14px;
+        ">
+          ${movie.year} · ${movie.type}
+        </div>
+      </div>
+    `;
+
+    result.addEventListener(
+      "click",
+      () => {
+        window.location.href =
+          `movie.html?id=${movie.id}`;
+      }
+    );
+
+    searchResults.appendChild(
+      result
+    );
+  });
+}
+
+
+// ===============================
+// КНОПКА «НАЙТИ»
+// ===============================
+
+if (searchSubmit) {
+  searchSubmit.addEventListener(
+    "click",
+    searchMovies
+  );
+}
+
+
+// ===============================
+// ПОИСК ПО ENTER
+// ===============================
+
+if (searchInput) {
+  searchInput.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.key === "Enter") {
+        searchMovies();
+      }
+    }
+  );
+}
