@@ -767,7 +767,8 @@
 
 </section>
 
-  <!-- Окно фильма -->
+ ```html
+<!-- Окно фильма -->
 <div id="movieModal" style="
   display:none;
   position:fixed;
@@ -818,7 +819,9 @@
 
         <h2
           id="movieModalTitle"
-          style="margin-top:0;"
+          style="
+            margin-top:0;
+          "
         ></h2>
 
         <div
@@ -840,6 +843,7 @@
           id="movieModalTrailer"
           href="#"
           target="_blank"
+          rel="noopener noreferrer"
           style="
             display:none;
             color:#fff;
@@ -889,7 +893,7 @@
 
   </div>
 </div>
-  
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 
