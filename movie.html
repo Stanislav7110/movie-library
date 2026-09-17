@@ -1125,6 +1125,72 @@
        ТРЕЙЛЕР
        ================================ */
 
+   /* ================================
+   ТРЕЙЛЕР НА ФОНЕ
+   ================================ */
+
+const trailerBackground =
+  document.getElementById(
+    "trailerBackground"
+  );
+
+const trailerUrl =
+  movie.trailer_url ||
+  movie.trailer_auto_url;
+
+if (
+  trailerBackground &&
+  trailerUrl
+) {
+
+  let youtubeId = null;
+
+  try {
+
+    const url =
+      new URL(trailerUrl);
+
+    if (
+      url.hostname.includes(
+        "youtube.com"
+      )
+    ) {
+
+      youtubeId =
+        url.searchParams.get(
+          "v"
+        );
+
+    } else if (
+      url.hostname ===
+      "youtu.be"
+    ) {
+
+      youtubeId =
+        url.pathname.substring(
+          1
+        );
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      "Ошибка ссылки YouTube:",
+      error
+    );
+
+  }
+
+  if (youtubeId) {
+
+    trailerBackground.src =
+      `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&showinfo=0&rel=0`;
+
+  }
+
+}
+    
     if (trailerLink) {
 
       /*
