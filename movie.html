@@ -733,318 +733,260 @@
 
 
     /* =================================
-       ОТОБРАЖЕНИЕ ФИЛЬМА
-       ================================= */
+ОТОБРАЖЕНИЕ ФИЛЬМА
+================================= */
 
-    function showMovie(movie) {
+function showMovie(movie) {
 
-      document.title =
-        (movie.title ||
-          "Фильм") +
-        " — Моя Кинотека";
+document.title =
+(movie.title || "Фильм") +
+" — Моя Кинотека";
+
+const movieMeta =
+document.querySelector(".movie-meta");
+
+if (movieMeta) {
+
+movieMeta.textContent =
+  `${movie.year || ""}${movie.type ? " · " + movie.type : ""}`;
+
+}
+
+const movieTitle =
+document.querySelector(".movie-title");
+
+if (movieTitle) {
+
+movieTitle.textContent =
+  movie.title || "Без названия";
+
+}
+
+const movieDescription =
+document.querySelector(".movie-description");
+
+if (movieDescription) {
+
+movieDescription.textContent =
+  movie.description ||
+  "Описание отсутствует.";
+
+}
+
+const poster =
+document.querySelector(".poster");
+
+if (poster) {
+
+poster.src =
+  movie.poster_url || "";
+
+poster.alt =
+  movie.title || "Постер фильма";
 
 
-      const movieMeta =
-        document.querySelector(
-          ".movie-meta"
-        );
+poster.onload = () => {
+
+  try {
+
+    const canvas =
+      document.createElement("canvas");
+
+    const ctx =
+      canvas.getContext("2d");
+
+    canvas.width = 50;
+    canvas.height = 50;
+
+    ctx.drawImage(
+      poster,
+      0,
+      0,
+      50,
+      50
+    );
 
 
-      if (movieMeta) {
+    const imageData =
+      ctx.getImageData(
+        0,
+        0,
+        50,
+        50
+      ).data;
 
-        movieMeta.textContent =
-          `${movie.year || ""}${movie.type ? " · " + movie.type : ""}`;
+
+    let r = 0;
+    let g = 0;
+    let b = 0;
+    let count = 0;
+
+
+    for (
+      let i = 0;
+      i < imageData.length;
+      i += 4
+    ) {
+
+      const red =
+        imageData[i];
+
+      const green =
+        imageData[i + 1];
+
+      const blue =
+        imageData[i + 2];
+
+
+      const brightness =
+        (red + green + blue) / 3;
+
+
+      if (brightness > 25) {
+
+        r += red;
+        g += green;
+        b += blue;
+        count++;
 
       }
 
+    }
 
-      const movieTitle =
-        document.querySelector(
-          ".movie-title"
-        );
 
+    if (!count) {
+      return;
+    }
 
-      if (movieTitle) {
 
-        movieTitle.textContent =
-          movie.title ||
-          "Без названия";
+    r = Math.round(r / count);
+    g = Math.round(g / count);
+    b = Math.round(b / count);
 
-      }
 
+    document.documentElement.style.setProperty(
+      "--poster-r",
+      r
+    );
 
-      const movieDescription =
-        document.querySelector(
-          ".movie-description"
-        );
+    document.documentElement.style.setProperty(
+      "--poster-g",
+      g
+    );
 
+    document.documentElement.style.setProperty(
+      "--poster-b",
+      b
+    );
 
-      if (movieDescription) {
 
-        movieDescription.textContent =
-          movie.description ||
-          "Описание отсутствует.";
+  } catch (error) {
 
-      }
+    console.error(
+      "Ошибка определения цвета постера:",
+      error
+    );
 
+  }
 
-      const poster =
-        document.querySelector(
-          ".poster"
-        );
+};
 
+}
 
-      if (poster) {
+/* =================================
+ССЫЛКИ
+================================= */
 
-        poster.src =
-          movie.poster_url ||
-          "";
+const movieLinks =
+document.querySelectorAll(
+".movie-links a"
+);
 
-        poster.alt =
-          movie.title ||
-          "Постер фильма";
+const trailerLink =
+movieLinks[0];
 
+const watchLink =
+movieLinks[1];
 
-        poster.onload =
-          () => {
+/* =================================
+ТРЕЙЛЕР
+================================= */
 
-            try {
+const trailerBackground =
+document.getElementById(
+"trailerBackground"
+);
 
-              const canvas =
-                document.createElement(
-                  "canvas"
-                );
+const trailerUrl =
+movie.trailer_url ||
+movie.trailer_auto_url;
 
-              const ctx =
-                canvas.getContext(
-                  "2d"
-                );
+/* =================================
+ТРЕЙЛЕР НА ФОНЕ
+================================= */
 
+if (
+trailerBackground &&
+trailerUrl
+) {
 
-              canvas.width = 50;
-              canvas.height = 50;
+let youtubeId = null;
 
 
-              ctx.drawImage(
-                poster,
-                0,
-                0,
-                50,
-                50
-              );
+try {
 
+  const url =
+    new URL(trailerUrl);
 
-              const imageData =
-                ctx.getImageData(
-                  0,
-                  0,
-                  50,
-                  50
-                ).data;
 
+  if (
+    url.hostname.includes(
+      "youtube.com"
+    )
+  ) {
 
-              let r = 0;
-              let g = 0;
-              let b = 0;
-              let count = 0;
+    youtubeId =
+      url.searchParams.get("v");
 
+  } else if (
+    url.hostname === "youtu.be"
+  ) {
 
-              for (
-                let i = 0;
-                i < imageData.length;
-                i += 4
-              ) {
+    youtubeId =
+      url.pathname.substring(1);
 
-                const red =
-                  imageData[i];
+  }
 
-                const green =
-                  imageData[i + 1];
 
-                const blue =
-                  imageData[i + 2];
+} catch (error) {
 
+  console.error(
+    "Ошибка ссылки YouTube:",
+    error
+  );
 
-                const brightness =
-                  (red +
-                    green +
-                    blue) / 3;
+}
 
 
-                if (
-                  brightness > 25
-                ) {
+if (youtubeId) {
 
-                  r += red;
-                  g += green;
-                  b += blue;
+  trailerBackground.src =
+    "https://www.youtube.com/embed/" +
+    youtubeId +
+    "?autoplay=1" +
+    "&mute=1" +
+    "&loop=1" +
+    "&playlist=" +
+    youtubeId +
+    "&controls=0" +
+    "&showinfo=0" +
+    "&rel=0";
 
-                  count++;
+}
 
-                }
+}
 
-              }
-
-
-              if (!count) {
-                return;
-              }
-
-
-              r =
-                Math.round(
-                  r / count
-                );
-
-              g =
-                Math.round(
-                  g / count
-                );
-
-              b =
-                Math.round(
-                  b / count
-                );
-
-
-              document.documentElement.style.setProperty(
-                "--poster-r",
-                r
-              );
-
-              document.documentElement.style.setProperty(
-                "--poster-g",
-                g
-              );
-
-              document.documentElement.style.setProperty(
-                "--poster-b",
-                b
-              );
-
-
-            } catch (error) {
-
-              console.error(
-                "Ошибка определения цвета постера:",
-                error
-              );
-
-            }
-
-          };
-
-      }
-
-
-      /* =================================
-         ССЫЛКИ
-         ================================= */
-
-      const movieLinks =
-        document.querySelectorAll(
-          ".movie-links a"
-        );
-
-
-      const trailerLink =
-        movieLinks[0];
-
-
-      const watchLink =
-        movieLinks[1];
-
-
-      /* =================================
-         ТРЕЙЛЕР
-         ================================= */
-
-      const trailerBackground =
-        document.getElementById(
-          "trailerBackground"
-        );
-
-
-      const trailerUrl =
-        movie.trailer_url ||
-        movie.trailer_auto_url;
-
-
-      /* =================================
-         ТРЕЙЛЕР НА ФОНЕ
-         ================================= */
-
-      if (
-        trailerBackground &&
-        trailerUrl
-      ) {
-
-        let youtubeId =
-          null;
-
-
-        try {
-
-          const url =
-            new URL(
-              trailerUrl
-            );
-
-
-          if (
-            url.hostname.includes(
-              "youtube.com"
-            )
-          ) {
-
-            youtubeId =
-              url.searchParams.get(
-                "v"
-              );
-
-          } else if (
-            url.hostname ===
-            "youtu.be"
-          ) {
-
-            youtubeId =
-              url.pathname.substring(
-                1
-              );
-
-          }
-
-
-        } catch (error) {
-
-          console.error(
-            "Ошибка ссылки YouTube:",
-            error
-          );
-
-        }
-
-
-        if (youtubeId) {
-
-          trailerBackground.src =
-            "https://www.youtube.com/embed/" +
-            youtubeId +
-            "?autoplay=1" +
-            "&mute=1" +
-            "&loop=1" +
-            "&playlist=" +
-            youtubeId +
-            "&controls=0" +
-            "&showinfo=0" +
-            "&rel=0";
-
-        }
-
-      }
-
-
-     /* =================================
+/* =================================
 КНОПКА «ТРЕЙЛЕР»
 ================================= */
 
@@ -1052,19 +994,22 @@ if (trailerLink) {
 
 if (trailerUrl) {
 
-trailerLink.href =
-  trailerUrl;
+  trailerLink.href =
+    trailerUrl;
 
-trailerLink.target =
-  "_blank";
+  trailerLink.target =
+    "_blank";
 
-trailerLink.style.display =
-  "inline";
+  trailerLink.rel =
+    "noopener noreferrer";
+
+  trailerLink.style.display =
+    "inline";
 
 } else {
 
-trailerLink.style.display =
-  "none";
+  trailerLink.style.display =
+    "none";
 
 }
 
@@ -1077,44 +1022,50 @@ trailerLink.style.display =
 if (watchLink) {
 
 const watchUrl =
-movie.watch_url ||
-movie.watch_auto_url;
+  movie.watch_url ||
+  movie.watch_auto_url;
+
 
 if (watchUrl) {
-  
-watchLink.href =
-  watchUrl;
 
-watchLink.target =
-  "_blank";
+  watchLink.href =
+    watchUrl;
 
-watchLink.rel =
-  "noopener noreferrer";
+  watchLink.target =
+    "_blank";
 
-watchLink.style.display =
-  "inline";
+  watchLink.rel =
+    "noopener noreferrer";
+
+  watchLink.textContent =
+    "Смотреть фильм";
+
+  watchLink.style.display =
+    "inline";
 
 } else if (movie.id) {
 
-watchLink.href =
-  `https://www.themoviedb.org/movie/${movie.id}/watch`;
+  watchLink.href =
+    `https://www.themoviedb.org/movie/${movie.id}/watch`;
 
-watchLink.target =
-  "_blank";
+  watchLink.target =
+    "_blank";
 
-watchLink.rel =
-  "noopener noreferrer";
+  watchLink.rel =
+    "noopener noreferrer";
 
-watchLink.textContent =
-  "Смотреть фильм";
+  watchLink.textContent =
+    "Смотреть фильм";
 
-watchLink.style.display =
-  "inline";
+  watchLink.style.display =
+    "inline";
 
 } else {
 
-watchLink.style.display =
-  "none";
+  watchLink.style.display =
+    "none";
+
+}
 
 }
 
@@ -1140,7 +1091,6 @@ if (addToLibraryBtn) {
 addToLibraryBtn.addEventListener(
 "click",
 async () => {
-
 
   const {
     data: sessionData
@@ -1202,8 +1152,7 @@ async () => {
   if (error) {
 
     if (
-      error.code ===
-      "23505"
+      error.code === "23505"
     ) {
 
       addToLibraryBtn.textContent =
@@ -1238,5 +1187,4 @@ async () => {
 
 </script>
 
-</body>
-</html>
+</body> </html>
