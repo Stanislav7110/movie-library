@@ -702,12 +702,20 @@ async function loadMovie() {
    ОТОБРАЖЕНИЕ ФИЛЬМА
    ================================= */
 
+/* =================================
+   ОТОБРАЖЕНИЕ ФИЛЬМА
+   ================================= */
+
 function showMovie(movie) {
 
   document.title =
     movie.title +
     " — Моя Кинотека";
 
+
+  /* =================================
+     ОСНОВНАЯ ИНФОРМАЦИЯ
+     ================================= */
 
   document.querySelector(
     ".movie-meta"
@@ -814,6 +822,7 @@ function showMovie(movie) {
 
           count++;
         }
+
       }
 
 
@@ -851,25 +860,47 @@ function showMovie(movie) {
   );
 
 
-    /* =================================
-       ТРЕЙЛЕР
-       ================================= */
+  /* =================================
+     ССЫЛКИ ФИЛЬМА
+     ================================= */
 
-    const trailerLink =
-      document.querySelector(
-        ".movie-links a"
-      );
+  const movieLinks =
+    document.querySelectorAll(
+      ".movie-links a"
+    );
 
+
+  const trailerLink =
+    movieLinks[0];
+
+
+  const watchLink =
+    movieLinks[1];
+
+
+  /* =================================
+     ТРЕЙЛЕР
+     ================================= */
+
+  if (trailerLink) {
 
     /*
-      Если админ указал свою ссылку
-      на трейлер — используем её.
+      Ручная ссылка администратора
+      имеет приоритет.
+
+      Если её нет, используется
+      автоматический трейлер TMDB.
     */
 
-    if (movie.trailer_url) {
+    const trailerUrl =
+      movie.trailer_url ||
+      movie.trailer_auto_url;
+
+
+    if (trailerUrl) {
 
       trailerLink.href =
-        movie.trailer_url;
+        trailerUrl;
 
       trailerLink.target =
         "_blank";
@@ -877,17 +908,7 @@ function showMovie(movie) {
       trailerLink.style.display =
         "inline";
 
-    }
-
-
-    /*
-      Если своей ссылки нет,
-      оставляем ссылку скрытой.
-      Автоматический трейлер TMDB
-      подключим следующим шагом.
-    */
-
-    else {
+    } else {
 
       trailerLink.style.display =
         "none";
@@ -898,145 +919,179 @@ function showMovie(movie) {
 
 
   /* =================================
-     ЗАГРУЗКА ФИЛЬМА
+     СМОТРЕТЬ ФИЛЬМ
      ================================= */
 
-  loadMovie();
+  if (watchLink) {
+
+    /*
+      Ручная ссылка администратора
+      имеет приоритет.
+
+      Если её нет, используется
+      автоматическая ссылка TMDB.
+    */
+
+    const watchUrl =
+      movie.watch_url ||
+      movie.watch_auto_url;
 
 
-  /* =================================
-     ДОБАВЛЕНИЕ ФИЛЬМА В КАРТОТЕКУ
-     ================================= */
+    if (watchUrl) {
 
-  const addToLibraryBtn =
-    document.querySelector(
-      ".movie-actions button"
-    );
+      watchLink.href =
+        watchUrl;
 
+      watchLink.target =
+        "_blank";
 
-  if (addToLibraryBtn) {
+      watchLink.style.display =
+        "inline";
 
-    addToLibraryBtn.addEventListener(
-      "click",
-      async () => {
+    } else {
 
+      watchLink.style.display =
+        "none";
 
-        /* =============================
-           ПРОВЕРЯЕМ АВТОРИЗАЦИЮ
-           ============================= */
-
-        const { data: sessionData } =
-          await supabaseClient.auth.getSession();
-
-
-        if (!sessionData.session) {
-
-          alert(
-            "Сначала войдите в аккаунт."
-          );
-
-          return;
-        }
-
-
-        /* =============================
-           ID ПОЛЬЗОВАТЕЛЯ
-           ============================= */
-
-        const userId =
-          sessionData.session.user.id;
-
-
-        /* =============================
-           ПОЛУЧАЕМ ID ФИЛЬМА
-           ============================= */
-
-        const params =
-          new URLSearchParams(
-            window.location.search
-          );
-
-
-        const movieId =
-          params.get("id");
-
-
-        /*
-          Если фильм открыт напрямую
-          из TMDB, локального ID ещё нет.
-
-          Пока ничего не добавляем.
-          Эту часть сделаем отдельно,
-          чтобы сохранить фильм в нашей
-          базе правильно.
-        */
-
-        if (!movieId) {
-
-          alert(
-            "Сначала добавьте фильм в нашу Кинотеку."
-          );
-
-          return;
-        }
-
-
-        /* =============================
-           ДОБАВЛЯЕМ В КАРТОТЕКУ
-           ============================= */
-
-        const { error } =
-          await supabaseClient
-            .from("user_movies")
-            .insert({
-              user_id: userId,
-              movie_id: Number(movieId)
-            });
-
-
-        /* =============================
-           ОБРАБОТКА ОШИБКИ
-           ============================= */
-
-        if (error) {
-
-          /*
-            Фильм уже есть
-          */
-
-          if (error.code === "23505") {
-
-            addToLibraryBtn.textContent =
-              "Уже в моей картотеке";
-
-            return;
-          }
-
-
-          console.error(error);
-
-          alert(
-            "Не удалось добавить фильм."
-          );
-
-          return;
-        }
-
-
-        /* =============================
-           УСПЕШНО ДОБАВЛЕН
-           ============================= */
-
-        addToLibraryBtn.textContent =
-          "Добавлено в картотеку";
-
-      }
-    );
+    }
 
   }
 
-</script>
+}
 
 
-</body>
-</html>
+/* =================================
+   ЗАГРУЗКА ФИЛЬМА
+   ================================= */
+
+loadMovie();
+
+
+/* =================================
+   ДОБАВЛЕНИЕ ФИЛЬМА В КАРТОТЕКУ
+   ================================= */
+
+const addToLibraryBtn =
+  document.querySelector(
+    ".movie-actions button"
+  );
+
+
+if (addToLibraryBtn) {
+
+  addToLibraryBtn.addEventListener(
+    "click",
+    async () => {
+
+
+      /* =============================
+         ПРОВЕРЯЕМ АВТОРИЗАЦИЮ
+         ============================= */
+
+      const { data: sessionData } =
+        await supabaseClient.auth.getSession();
+
+
+      if (!sessionData.session) {
+
+        alert(
+          "Сначала войдите в аккаунт."
+        );
+
+        return;
+      }
+
+
+      /* =============================
+         ID ПОЛЬЗОВАТЕЛЯ
+         ============================= */
+
+      const userId =
+        sessionData.session.user.id;
+
+
+      /* =============================
+         ПОЛУЧАЕМ ID ФИЛЬМА
+         ============================= */
+
+      const params =
+        new URLSearchParams(
+          window.location.search
+        );
+
+
+      const movieId =
+        params.get("id");
+
+
+      /*
+        Если фильм открыт напрямую
+        из TMDB, локального ID ещё нет.
+
+        Пока ничего не добавляем.
+        Эту часть сделаем отдельно.
+      */
+
+      if (!movieId) {
+
+        alert(
+          "Сначала добавьте фильм в нашу Кинотеку."
+        );
+
+        return;
+      }
+
+
+      /* =============================
+         ДОБАВЛЯЕМ В КАРТОТЕКУ
+         ============================= */
+
+      const { error } =
+        await supabaseClient
+          .from("user_movies")
+          .insert({
+            user_id: userId,
+            movie_id: Number(movieId)
+          });
+
+
+      /* =============================
+         ОБРАБОТКА ОШИБКИ
+         ============================= */
+
+      if (error) {
+
+        /*
+          Фильм уже есть
+        */
+
+        if (error.code === "23505") {
+
+          addToLibraryBtn.textContent =
+            "Уже в моей картотеке";
+
+          return;
+        }
+
+
+        console.error(error);
+
+        alert(
+          "Не удалось добавить фильм."
+        );
+
+        return;
+      }
+
+
+      /* =============================
+         УСПЕШНО ДОБАВЛЕН
+         ============================= */
+
+      addToLibraryBtn.textContent =
+        "Добавлено в картотеку";
+
+    }
+  );
+
+}
