@@ -1743,9 +1743,13 @@ async function searchMovies() {
   searchResults.innerHTML =
     "Поиск...";
 
+  // ===============================
+  // ПОИСК В НАШЕЙ КИНОТЕКЕ
+  // ===============================
+
   const {
-    data,
-    error
+    data: localMovies,
+    error: localError
   } = await supabaseClient
     .from("movies")
     .select("*")
@@ -1760,92 +1764,223 @@ async function searchMovies() {
       }
     );
 
-  if (error) {
+  if (localError) {
     console.error(
-      "Ошибка поиска:",
-      error
+      "Ошибка поиска в кинотеке:",
+      localError
     );
-
-    searchResults.innerHTML =
-      "Не удалось выполнить поиск.";
-
-    return;
-  }
-
-  if (!data || data.length === 0) {
-    searchResults.innerHTML =
-      "Ничего не найдено.";
-
-    return;
   }
 
   searchResults.innerHTML = "";
 
-  data.forEach((movie) => {
-    const result =
-      document.createElement("div");
+  // ===============================
+  // РЕЗУЛЬТАТЫ ИЗ НАШЕЙ КИНОТЕКИ
+  // ===============================
 
-    result.style.display =
-      "flex";
+  if (localMovies && localMovies.length > 0) {
+    const localTitle =
+      document.createElement("h3");
 
-    result.style.gap =
-      "15px";
+    localTitle.textContent =
+      "В моей Кинотеке";
 
-    result.style.padding =
-      "10px";
-
-    result.style.marginBottom =
-      "10px";
-
-    result.style.background =
-      "#1d2027";
-
-    result.style.borderRadius =
-      "8px";
-
-    result.style.cursor =
-      "pointer";
-
-    result.innerHTML = `
-      <img
-        src="${movie.poster_url || ""}"
-        alt="${movie.title}"
-        style="
-          width:70px;
-          height:100px;
-          object-fit:cover;
-          border-radius:6px;
-        "
-      >
-
-      <div>
-        <h3 style="
-          margin:0 0 8px 0;
-        ">
-          ${movie.title}
-        </h3>
-
-        <div style="
-          color:#aaa;
-          font-size:14px;
-        ">
-          ${movie.year} · ${movie.type}
-        </div>
-      </div>
-    `;
-
-    result.addEventListener(
-      "click",
-      () => {
-        window.location.href =
-          `movie.html?id=${movie.id}`;
-      }
-    );
+    localTitle.style.margin =
+      "0 0 15px 0";
 
     searchResults.appendChild(
-      result
+      localTitle
     );
-  });
+
+    localMovies.forEach((movie) => {
+      const result =
+        document.createElement("div");
+
+      result.style.display =
+        "flex";
+
+      result.style.gap =
+        "15px";
+
+      result.style.padding =
+        "10px";
+
+      result.style.marginBottom =
+        "10px";
+
+      result.style.background =
+        "#1d2027";
+
+      result.style.borderRadius =
+        "8px";
+
+      result.style.cursor =
+        "pointer";
+
+      result.innerHTML = `
+        <img
+          src="${movie.poster_url || ""}"
+          alt="${movie.title}"
+          style="
+            width:70px;
+            height:100px;
+            object-fit:cover;
+            border-radius:6px;
+          "
+        >
+
+        <div>
+          <h3 style="
+            margin:0 0 8px 0;
+          ">
+            ${movie.title}
+          </h3>
+
+          <div style="
+            color:#aaa;
+            font-size:14px;
+          ">
+            ${movie.year || ""} · ${movie.type || ""}
+          </div>
+        </div>
+      `;
+
+      result.addEventListener(
+        "click",
+        () => {
+          window.location.href =
+            `movie.html?id=${movie.id}`;
+        }
+      );
+
+      searchResults.appendChild(
+        result
+      );
+    });
+  }
+
+  // ===============================
+  // ПОИСК В TMDB
+  // ===============================
+
+  const {
+    data: tmdbData,
+    error: tmdbError
+  } = await supabaseClient.functions.invoke(
+    "tmdb-search",
+    {
+      body: {
+        query: query
+      }
+    }
+  );
+
+  if (tmdbError) {
+    console.error(
+      "Ошибка поиска TMDB:",
+      tmdbError
+    );
+  }
+
+  if (
+    tmdbData &&
+    tmdbData.results &&
+    tmdbData.results.length > 0
+  ) {
+    const tmdbTitle =
+      document.createElement("h3");
+
+    tmdbTitle.textContent =
+      "Найдено в мировой базе";
+
+    tmdbTitle.style.margin =
+      "20px 0 15px 0";
+
+    searchResults.appendChild(
+      tmdbTitle
+    );
+
+    tmdbData.results
+      .slice(0, 10)
+      .forEach((movie) => {
+        const result =
+          document.createElement("div");
+
+        result.style.display =
+          "flex";
+
+        result.style.gap =
+          "15px";
+
+        result.style.padding =
+          "10px";
+
+        result.style.marginBottom =
+          "10px";
+
+        result.style.background =
+          "#1d2027";
+
+        result.style.borderRadius =
+          "8px";
+
+        const poster =
+          movie.poster_path
+            ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+            : "";
+
+        const year =
+          movie.release_date
+            ? movie.release_date.substring(0, 4)
+            : "";
+
+        result.innerHTML = `
+          <img
+            src="${poster}"
+            alt="${movie.title || ""}"
+            style="
+              width:70px;
+              height:100px;
+              object-fit:cover;
+              border-radius:6px;
+            "
+          >
+
+          <div>
+            <h3 style="
+              margin:0 0 8px 0;
+            ">
+              ${movie.title || "Без названия"}
+            </h3>
+
+            <div style="
+              color:#aaa;
+              font-size:14px;
+            ">
+              ${year}
+            </div>
+          </div>
+        `;
+
+        searchResults.appendChild(
+          result
+        );
+      });
+  }
+
+  // ===============================
+  // НИЧЕГО НЕ НАЙДЕНО
+  // ===============================
+
+  if (
+    (!localMovies ||
+      localMovies.length === 0) &&
+    (!tmdbData ||
+      !tmdbData.results ||
+      tmdbData.results.length === 0)
+  ) {
+    searchResults.innerHTML =
+      "Ничего не найдено.";
+  }
 }
 
 
