@@ -1964,10 +1964,26 @@ async function searchMovies() {
           </div>
         `;
 
-     result.onclick = function () {
-  alert(
-    `Добавим фильм «${movie.title}» в Мою Кинотеку`
-  );
+  result.onclick = function () {
+  const tmdbMovie =
+    encodeURIComponent(
+      JSON.stringify({
+        id: movie.id,
+        title: movie.title || "",
+        year: movie.release_date
+          ? movie.release_date.substring(0, 4)
+          : "",
+        description:
+          movie.overview || "",
+        poster_url:
+          movie.poster_path
+            ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+            : ""
+      })
+    );
+
+  window.location.href =
+    `movie.html?tmdb=${tmdbMovie}`;
 };
         searchResults.appendChild(
           result
