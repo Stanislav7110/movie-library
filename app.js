@@ -81,84 +81,73 @@ closeAuth.addEventListener("click", () => {
 // ===============================
 
 authSubmit.addEventListener("click", async () => {
-  const usernameInput =
-    document.getElementById("authUsername");
-
-  const username =
-    usernameInput.value.trim();
-
-  const email =
-    authEmail.value.trim();
-
-  const password =
-    authPassword.value;
-
-  if (!username || !email || !password) {
-    authMessage.textContent =
-      "Заполни никнейм, email и пароль.";
-    return;
-  }
-
-  if (!/^[А-ЯЁа-яёІіЇїЄєҐґ]+$/.test(username)) {
-    authMessage.textContent =
-      "Никнейм должен содержать только кириллические буквы.";
-    return;
-  }
-
-  if (username.length < 2) {
-    authMessage.textContent =
-      "Никнейм должен содержать минимум 2 буквы.";
-    return;
-  }
-
-  authMessage.textContent =
-    "Подождите...";
+  const name = document.getElementById("authName").value.trim();
+  const username = document.getElementById("authUsername").value.trim();
+  const email = authEmail.value.trim();
+  const password = authPassword.value;
 
   if (authMode === "register") {
+    if (!name || !username || !email || !password) {
+      authMessage.textContent = "Заполни все поля.";
+      return;
+    }
 
-    const { data, error } =
-      await supabaseClient.auth.signUp({
-        email: email,
-        password: password
-      });
+    if (username.length < 3) {
+      authMessage.textContent = "Никнейм должен содержать минимум 3 символа.";
+      return;
+    }
+
+    authMessage.textContent = "Проверяем никнейм...";
+
+    const { data: existingUser, error: usernameError } =
+      await supabaseClient
+        .from("profiles")
+        .select("id")
+        .eq("username", username)
+        .maybeSingle();
+
+    if (usernameError) {
+      authMessage.textContent =
+        "Ошибка проверки никнейма: " + usernameError.message;
+      return;
+    }
+
+    if (existingUser) {
+      authMessage.textContent = "Такой никнейм уже занят.";
+      return;
+    }
+
+    authMessage.textContent = "Регистрация...";
+
+    const { data, error } = await supabaseClient.auth.signUp({
+      email: email,
+      password: password
+    });
 
     if (error) {
-      authMessage.textContent =
-        "Ошибка: " + error.message;
+      authMessage.textContent = "Ошибка: " + error.message;
       return;
     }
 
-    if (!data.user) {
-      authMessage.textContent =
-        "Не удалось создать пользователя.";
-      return;
-    }
-
-    const { error: profileError } =
-      await supabaseClient
+    if (data.user) {
+      const { error: profileError } = await supabaseClient
         .from("profiles")
         .insert({
           id: data.user.id,
+          name: name,
           username: username
         });
 
-    if (profileError) {
-      console.error(profileError);
-
-      if (profileError.code === "23505") {
+      if (profileError) {
         authMessage.textContent =
-          "Такой никнейм уже занят.";
-      } else {
-        authMessage.textContent =
-          "Аккаунт создан, но не удалось сохранить никнейм.";
+          "Аккаунт создан, но профиль не сохранился: " +
+          profileError.message;
+        return;
       }
-
-      return;
     }
 
     if (data.session) {
-      authMessage.textContent =
-        "Регистрация прошла успешно!";
+      authMessage.textContent = "Регистрация прошла успешно!";
     } else {
       authMessage.textContent =
         "Регистрация создана. Проверь почту для подтверждения.";
@@ -167,20 +156,17 @@ authSubmit.addEventListener("click", async () => {
     return;
   }
 
-  const { error } =
-    await supabaseClient.auth.signInWithPassword({
-      email: email,
-      password: password
-    });
+  const { error } = await supabaseClient.auth.signInWithPassword({
+    email: email,
+    password: password
+  });
 
   if (error) {
-    authMessage.textContent =
-      "Ошибка: " + error.message;
+    authMessage.textContent = "Ошибка: " + error.message;
     return;
   }
 
-  authMessage.textContent =
-    "Вы успешно вошли!";
+  authMessage.textContent = "Вы успешно вошли!";
 
   setTimeout(() => {
     authModal.style.display = "none";
