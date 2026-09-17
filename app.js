@@ -491,6 +491,7 @@ const languageSelect = document.getElementById("languageSelect");
 const translations = {
   ru: {
     logo: "🎬 Моя Кинотека",
+    search: "Поиск",
     home: "Главная",
     movies: "Фильмы",
     series: "Сериалы",
@@ -533,6 +534,7 @@ const translations = {
 
   uk: {
     logo: "🎬 Моя Кінотека",
+    search: "Пошук",
     home: "Головна",
     movies: "Фільми",
     series: "Серіали",
@@ -575,6 +577,7 @@ const translations = {
 
   en: {
     logo: "🎬 My Movie Library",
+    search: "Search",
     home: "Home",
     movies: "Movies",
     series: "Series",
