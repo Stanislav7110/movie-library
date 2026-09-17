@@ -1052,7 +1052,6 @@ if (trailerLink) {
 
 if (trailerUrl) {
 
-```
 trailerLink.href =
   trailerUrl;
 
@@ -1061,14 +1060,11 @@ trailerLink.target =
 
 trailerLink.style.display =
   "inline";
-```
 
 } else {
 
-```
 trailerLink.style.display =
   "none";
-```
 
 }
 
@@ -1085,8 +1081,7 @@ movie.watch_url ||
 movie.watch_auto_url;
 
 if (watchUrl) {
-
-```
+  
 watchLink.href =
   watchUrl;
 
@@ -1098,11 +1093,9 @@ watchLink.rel =
 
 watchLink.style.display =
   "inline";
-```
 
 } else if (movie.id) {
 
-```
 watchLink.href =
   `https://www.themoviedb.org/movie/${movie.id}/watch`;
 
@@ -1117,14 +1110,11 @@ watchLink.textContent =
 
 watchLink.style.display =
   "inline";
-```
 
 } else {
 
-```
 watchLink.style.display =
   "none";
-```
 
 }
 
@@ -1241,7 +1231,6 @@ async () => {
     "Добавлено в картотеку";
 
 }
-```
 
 );
 
