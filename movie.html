@@ -1044,34 +1044,37 @@
       }
 
 
-      /* =================================
-         КНОПКА «ТРЕЙЛЕР»
-         ================================= */
+     /* =================================
+КНОПКА «ТРЕЙЛЕР»
+================================= */
 
-      if (trailerLink) {
+if (trailerLink) {
 
-        if (trailerUrl) {
+if (trailerUrl) {
 
-          trailerLink.href =
-            trailerUrl;
+```
+trailerLink.href =
+  trailerUrl;
 
-          trailerLink.target =
-            "_blank";
+trailerLink.target =
+  "_blank";
 
-          trailerLink.style.display =
-            "inline";
+trailerLink.style.display =
+  "inline";
+```
 
-        } else {
+} else {
 
-          trailerLink.style.display =
-            "none";
+```
+trailerLink.style.display =
+  "none";
+```
 
-        }
+}
 
-      }
+}
 
-
-   /* =================================
+/* =================================
 СМОТРЕТЬ ФИЛЬМ
 ================================= */
 
@@ -1148,7 +1151,7 @@ addToLibraryBtn.addEventListener(
 "click",
 async () => {
 
-```
+
   const {
     data: sessionData
   } =
@@ -1238,6 +1241,7 @@ async () => {
     "Добавлено в картотеку";
 
 }
+```
 
 );
 
