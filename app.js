@@ -1773,7 +1773,7 @@ async function searchMovies() {
 
   searchResults.innerHTML = "";
 
-  // ===============================
+   // ===============================
   // РЕЗУЛЬТАТЫ ИЗ НАШЕЙ КИНОТЕКИ
   // ===============================
 
@@ -1923,6 +1923,9 @@ async function searchMovies() {
         result.style.borderRadius =
           "8px";
 
+        result.style.cursor =
+          "pointer";
+
         const poster =
           movie.poster_path
             ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
@@ -1960,6 +1963,15 @@ async function searchMovies() {
             </div>
           </div>
         `;
+
+        result.addEventListener(
+          "click",
+          () => {
+            alert(
+              `Вы выбрали: ${movie.title}`
+            );
+          }
+        );
 
         searchResults.appendChild(
           result
