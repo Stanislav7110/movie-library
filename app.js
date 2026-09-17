@@ -1964,9 +1964,9 @@ async function searchMovies() {
           </div>
         `;
 
-       result.onclick = function () {
+     result.onclick = function () {
   alert(
-    `Вы выбрали: ${movie.title}`
+    `Добавим фильм «${movie.title}» в Мою Кинотеку`
   );
 };
         searchResults.appendChild(
