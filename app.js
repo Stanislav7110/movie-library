@@ -628,14 +628,15 @@ function applyLanguage(language) {
   // Логотип
   document.querySelector(".logo").textContent = t.logo;
 
-  // Меню
-  const navLinks = document.querySelectorAll("nav a");
+ // Меню
+const navLinks = document.querySelectorAll("nav a");
 
-  navLinks[0].textContent = t.home;
-  navLinks[1].textContent = t.movies;
-  navLinks[2].textContent = t.series;
-  navLinks[3].textContent = t.cartoons;
-  navLinks[4].textContent = t.favorites;
+navLinks[0].textContent = t.search;
+navLinks[1].textContent = t.home;
+navLinks[2].textContent = t.movies;
+navLinks[3].textContent = t.series;
+navLinks[4].textContent = t.cartoons;
+navLinks[5].textContent = t.favorites;
 
   // Авторизация
   if (supabaseClient) {
