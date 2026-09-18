@@ -412,12 +412,26 @@
     <p>Фильмы, сериалы и мультфильмы в одном месте</p>
   </section>
 
- <div class="categories">
-  <div class="category" data-type="Фильм">🎬 Фильмы</div>
-  <div class="category" data-type="Сериал">📺 Сериалы</div>
-  <div class="category" data-type="Мультфильм">🎨 Мультфильмы</div>
-  <div class="category" data-type="Избранное">❤️ Избранное</div>
-  <div class="category" data-type="Посмотреть позже">⏰ Посмотреть позже</div>
+<div class="categories">
+  <div class="category" onclick="window.location.href='catalog.html?type=film'">
+    🎬 Фильмы
+  </div>
+
+  <div class="category" onclick="window.location.href='catalog.html?type=series'">
+    📺 Сериалы
+  </div>
+
+  <div class="category" onclick="window.location.href='catalog.html?type=cartoon'">
+    🎨 Мультфильмы
+  </div>
+
+  <div class="category" data-type="Избранное">
+    ❤️ Избранное
+  </div>
+
+  <div class="category" data-type="Посмотреть позже">
+    ⏰ Посмотреть позже
+  </div>
 </div>
 
   <main class="content">
