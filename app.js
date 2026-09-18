@@ -658,10 +658,17 @@ navLinks[5].textContent = t.favorites;
     });
   }
 
-  // Главный экран
-  document.querySelector(".hero h1").textContent = t.welcome;
-  document.querySelector(".hero p").textContent = t.subtitle;
+// Главный экран
+const heroTitle = document.querySelector(".hero h1");
+const heroSubtitle = document.querySelector(".hero p");
 
+if (heroTitle) {
+  heroTitle.textContent = t.welcome;
+}
+
+if (heroSubtitle) {
+  heroSubtitle.textContent = t.subtitle;
+}
   // Категории
   const categories = document.querySelectorAll(".category");
 
