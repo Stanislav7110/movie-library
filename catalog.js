@@ -1,1052 +1,634 @@
-// ===============================
-// SUPABASE
-// ===============================
+const SUPABASE_URL = "https://kfhlvfymyyqgtsamgcra.supabase.co";
+const SUPABASE_KEY = "sb_publishable_GKFUCUwNTj4m-FRGL2Pm2g_i1DI1xkk";
 
-const SUPABASE_URL =
-  "https://kfhlvfymyyqgtsamgcra.supabase.co";
-
-const SUPABASE_KEY =
-  "sb_publishable_GKFUCUwNTj4m-FRGL2Pm2g_i1DI1xkk";
-
-const { createClient } = supabase;
-
-const supabaseClient = createClient(
+const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
 
 
-// ===============================
-// ЭЛЕМЕНТЫ СТРАНИЦЫ
-// ===============================
+// --------------------------------------------------
+// НАСТРОЙКИ
+// --------------------------------------------------
 
-const catalogTitle =
-  document.getElementById("catalogTitle");
+const params = new URLSearchParams(window.location.search);
+const currentType = params.get("type") || "film";
 
-const genreButton =
-  document.getElementById("genreButton");
-
-const genreList =
-  document.getElementById("genreList");
-
-const movieGrid =
-  document.getElementById("movieGrid");
-
-const emptyMessage =
-  document.getElementById("emptyMessage");
-
-const languageSelect =
-  document.getElementById("languageSelect");
-
-
-// ===============================
-// ОПРЕДЕЛЯЕМ КАТЕГОРИЮ
-// ===============================
-
-const urlParams =
-  new URLSearchParams(window.location.search);
-
-const catalogType =
-  urlParams.get("type") || "film";
-
-
-// ===============================
-// НАЗВАНИЯ КАТЕГОРИЙ
-// ===============================
-
-const catalogNames = {
-  film: "ФИЛЬМЫ",
-  series: "СЕРИАЛЫ",
-  cartoon: "МУЛЬТФИЛЬМЫ"
+const typeSettings = {
+  film: {
+    title: "ФИЛЬМЫ",
+    tmdbType: "movie"
+  },
+  series: {
+    title: "СЕРИАЛЫ",
+    tmdbType: "tv"
+  },
+  cartoon: {
+    title: "МУЛЬТФИЛЬМЫ",
+    tmdbType: "cartoon"
+  }
 };
 
-
-const catalogName =
-  catalogNames[catalogType] || "ФИЛЬМЫ";
+const settings = typeSettings[currentType] || typeSettings.film;
 
 
-if (catalogTitle) {
-  catalogTitle.textContent =
-    catalogName;
-}
+// --------------------------------------------------
+// ЭЛЕМЕНТЫ
+// --------------------------------------------------
+
+const catalogTitle = document.getElementById("catalogTitle");
+const movieGrid = document.getElementById("movieGrid");
+const emptyMessage = document.getElementById("emptyMessage");
+
+const catalogSearch = document.getElementById("catalogSearch");
+
+const genreButton = document.getElementById("genreButton");
+const genreList = document.getElementById("genreList");
 
 
-// ===============================
-// ЖАНРЫ
-// ===============================
+// --------------------------------------------------
+// СОСТОЯНИЕ
+// --------------------------------------------------
+
+let allMovies = [];
+let displayedMovies = [];
+
+let currentPage = 1;
+let isLoading = false;
+let hasMore = true;
+
+let searchTimeout = null;
+let currentSearch = "";
+
+let selectedGenre = "all";
+
+
+// --------------------------------------------------
+// ЖАНРЫ TMDB
+// --------------------------------------------------
 
 const genres = [
+  { id: "all", name: "Все жанры" },
 
-  "Все жанры",
+  { id: 28, name: "Боевик" },
+  { id: 12, name: "Приключения" },
+  { id: 16, name: "Мультфильм" },
+  { id: 35, name: "Комедия" },
+  { id: 80, name: "Криминал" },
+  { id: 99, name: "Документальный" },
+  { id: 18, name: "Драма" },
+  { id: 10751, name: "Семейный" },
+  { id: 14, name: "Фэнтези" },
+  { id: 36, name: "История" },
+  { id: 27, name: "Ужасы" },
+  { id: 10402, name: "Музыка" },
+  { id: 9648, name: "Детектив" },
+  { id: 10749, name: "Мелодрама" },
+  { id: 878, name: "Фантастика" },
+  { id: 53, name: "Триллер" },
+  { id: 10752, name: "Военный" },
+  { id: 37, name: "Вестерн" },
 
-  "Боевик",
-  "Приключения",
-  "Анимация",
-  "Комедия",
-  "Криминал",
-  "Документальный",
-  "Драма",
-  "Семейный",
-  "Фэнтези",
-  "История",
-  "Ужасы",
-  "Музыка",
-  "Детектив",
-  "Мелодрама",
-  "Фантастика",
-  "Триллер",
-  "Военный",
-  "Вестерн",
-
-  "Биография",
-  "Спорт",
-  "Мистика",
-  "Мюзикл",
-  "Приключенческий",
-  "Научная фантастика"
-
+  { id: 10759, name: "Боевик и приключения" },
+  { id: 10762, name: "Детский" },
+  { id: 10763, name: "Новости" },
+  { id: 10764, name: "Реалити-шоу" },
+  { id: 10765, name: "Фантастика и фэнтези" },
+  { id: 10766, name: "Мыльная опера" },
+  { id: 10767, name: "Ток-шоу" },
+  { id: 10768, name: "Военное и политическое" }
 ];
 
 
-// ===============================
-// СОСТОЯНИЕ
-// ===============================
+// --------------------------------------------------
+// НАЗВАНИЕ СТРАНИЦЫ
+// --------------------------------------------------
 
-let selectedGenre = "Все жанры";
-
-let allMovies = [];
+catalogTitle.textContent = settings.title;
 
 
-// ===============================
-// СОЗДАЁМ СПИСОК ЖАНРОВ
-// ===============================
+// --------------------------------------------------
+// СОЗДАНИЕ СПИСКА ЖАНРОВ
+// --------------------------------------------------
 
-function createGenreList() {
-
-  if (!genreList) {
-    return;
-  }
-
+function renderGenres() {
   genreList.innerHTML = "";
 
+  genres.forEach(genre => {
+    const item = document.createElement("div");
 
-  genres.forEach((genre) => {
+    item.className = "genre-item";
 
-    const item =
-      document.createElement("div");
-
-    item.className =
-      "genre-item";
-
-
-    if (genre === "Все жанры") {
+    if (String(genre.id) === String(selectedGenre)) {
       item.classList.add("active");
     }
 
+    item.textContent = genre.name;
 
-    item.textContent =
-      genre;
+    item.addEventListener("click", () => {
+      selectedGenre = String(genre.id);
 
+      renderGenres();
 
-    item.addEventListener(
-      "click",
-      () => {
+      genreList.classList.remove("show");
 
-        selectedGenre =
-          genre;
+      currentPage = 1;
+      hasMore = true;
 
+      loadCatalog(true);
+    });
 
-        document
-          .querySelectorAll(".genre-item")
-          .forEach((element) => {
-            element.classList.remove(
-              "active"
-            );
-          });
-
-
-        item.classList.add(
-          "active"
-        );
-
-
-        genreButton.textContent =
-          genre === "Все жанры"
-            ? "Жанр ▾"
-            : `${genre} ▾`;
-
-
-        genreList.classList.remove(
-          "show"
-        );
-
-
-        renderMovies();
-
-      }
-    );
-
-
-    genreList.appendChild(
-      item
-    );
-
+    genreList.appendChild(item);
   });
-
 }
 
-
-// ===============================
-// ОТКРЫТИЕ ЖАНРОВ
-// ===============================
-
-if (genreButton && genreList) {
-
-  genreButton.addEventListener(
-    "click",
-    (event) => {
-
-      event.stopPropagation();
-
-      genreList.classList.toggle(
-        "show"
-      );
-
-    }
-  );
-
-}
+renderGenres();
 
 
-// ===============================
-// ЗАКРЫТИЕ ЖАНРОВ
-// ===============================
+// --------------------------------------------------
+// КНОПКА ЖАНРА
+// --------------------------------------------------
 
-document.addEventListener(
-  "click",
-  (event) => {
+genreButton.addEventListener("click", event => {
+  event.stopPropagation();
 
-    if (
-      genreList &&
-      !genreList.contains(event.target) &&
-      event.target !== genreButton
-    ) {
+  genreList.classList.toggle("show");
+});
 
-      genreList.classList.remove(
-        "show"
-      );
 
-    }
-
+// Закрываем список при клике вне него
+document.addEventListener("click", event => {
+  if (
+    !genreList.contains(event.target) &&
+    event.target !== genreButton
+  ) {
+    genreList.classList.remove("show");
   }
-);
+});
 
 
-// ===============================
-// ОПРЕДЕЛЯЕМ ТИП
-// ===============================
+// --------------------------------------------------
+// ПОИСК
+// --------------------------------------------------
+
+catalogSearch.addEventListener("input", () => {
+  clearTimeout(searchTimeout);
+
+  searchTimeout = setTimeout(() => {
+    currentSearch = catalogSearch.value.trim();
+
+    currentPage = 1;
+    hasMore = true;
+
+    loadCatalog(true);
+  }, 500);
+});
+
+
+// --------------------------------------------------
+// ОПРЕДЕЛЕНИЕ ТИПА ЛОКАЛЬНОГО ФИЛЬМА
+// --------------------------------------------------
 
 function isCorrectType(movie) {
+  const type = String(movie.type || "").toLowerCase().trim();
 
-  const type =
-    String(movie.type || "")
-      .trim()
-      .toLowerCase();
-
-
-  if (catalogType === "film") {
-
+  if (currentType === "film") {
     return (
       type === "movie" ||
       type === "film" ||
       type === "фильм" ||
       type === "фильмы"
     );
-
   }
 
-
-  if (catalogType === "series") {
-
+  if (currentType === "series") {
     return (
       type === "series" ||
       type === "tv" ||
       type === "сериал" ||
       type === "сериалы"
     );
-
   }
 
-
-  if (catalogType === "cartoon") {
-
+  if (currentType === "cartoon") {
     return (
       type === "cartoon" ||
       type === "мультфильм" ||
       type === "мультфильмы"
     );
-
   }
 
-
-  return true;
-
+  return false;
 }
 
 
-// ===============================
-// ПОЛУЧАЕМ ЖАНРЫ ФИЛЬМА
-// ===============================
+// --------------------------------------------------
+// ПРОВЕРКА ЖАНРА
+// --------------------------------------------------
 
-function getMovieGenres(movie) {
-
-  if (!movie) {
-    return [];
-  }
-
-
-  // Если в базе уже есть genres
-  if (Array.isArray(movie.genres)) {
-
-    return movie.genres.map(
-      (genre) =>
-        String(genre)
-          .trim()
-          .toLowerCase()
-    );
-
-  }
-
-
-  // Если genres хранится строкой
-  if (typeof movie.genres === "string") {
-
-    return movie.genres
-      .split(",")
-      .map(
-        (genre) =>
-          genre.trim().toLowerCase()
-      )
-      .filter(Boolean);
-
-  }
-
-
-  // Если жанр хранится в поле genre
-  if (typeof movie.genre === "string") {
-
-    return movie.genre
-      .split(",")
-      .map(
-        (genre) =>
-          genre.trim().toLowerCase()
-      )
-      .filter(Boolean);
-
-  }
-
-
-  return [];
-
-}
-
-
-// ===============================
-// ФИЛЬТР ПО ЖАНРУ
-// ===============================
-
-function matchesGenre(movie) {
-
-  if (
-    selectedGenre === "Все жанры"
-  ) {
-
+function movieHasGenre(movie) {
+  if (selectedGenre === "all") {
     return true;
-
   }
 
+  const wantedGenre = String(selectedGenre);
 
-  const movieGenres =
-    getMovieGenres(movie);
+  // TMDB
+  if (Array.isArray(movie.genre_ids)) {
+    return movie.genre_ids.some(
+      id => String(id) === wantedGenre
+    );
+  }
 
+  // Если TMDB вернул genres
+  if (Array.isArray(movie.genres)) {
+    return movie.genres.some(genre => {
+      if (typeof genre === "object") {
+        return String(genre.id) === wantedGenre;
+      }
 
-  return movieGenres.includes(
-    selectedGenre.toLowerCase()
-  );
+      return String(genre) === wantedGenre;
+    });
+  }
 
+  // Локальная база
+  if (Array.isArray(movie.genre_ids)) {
+    return movie.genre_ids.some(
+      id => String(id) === wantedGenre
+    );
+  }
+
+  if (movie.genre_id !== undefined && movie.genre_id !== null) {
+    return String(movie.genre_id) === wantedGenre;
+  }
+
+  if (typeof movie.genre === "string") {
+    const genreName = genres.find(
+      g => String(g.id) === wantedGenre
+    );
+
+    if (genreName) {
+      return movie.genre
+        .toLowerCase()
+        .includes(genreName.name.toLowerCase());
+    }
+  }
+
+  return false;
 }
 
 
-// ===============================
-// СОЗДАНИЕ КАРТОЧКИ
-// ===============================
-
-function createMovieCard(movie) {
-
-  const card =
-    document.createElement("div");
-
-
-  card.style.background =
-    "#242832";
-
-  card.style.borderRadius =
-    "10px";
-
-  card.style.overflow =
-    "hidden";
-
-  card.style.cursor =
-    "pointer";
-
-  card.style.transition =
-    "0.2s";
-
-
-  const title =
-    movie.title ||
-    movie.name ||
-    "Без названия";
-
-
-  const year =
-    movie.year ||
-    (
-      movie.release_date
-        ? movie.release_date.substring(0, 4)
-        : ""
-    ) ||
-    (
-      movie.first_air_date
-        ? movie.first_air_date.substring(0, 4)
-        : ""
-    );
-
-
-  const poster =
-    movie.poster_url ||
-    (
-      movie.poster_path
-        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-        : ""
-    );
-
-
-  let typeText =
-    "Фильм";
-
-
-  if (catalogType === "series") {
-    typeText = "Сериал";
-  }
-
-
-  if (catalogType === "cartoon") {
-    typeText = "Мультфильм";
-  }
-
-
-  card.innerHTML = `
-
-    <img
-      src="${poster}"
-      alt="${title}"
-      style="
-        width:100%;
-        height:270px;
-        object-fit:cover;
-        display:block;
-      "
-    >
-
-    <div
-      style="
-        padding:12px;
-      "
-    >
-
-      <h3
-        style="
-          margin:0 0 6px 0;
-          font-size:18px;
-        "
-      >
-        ${title}
-      </h3>
-
-      <div
-        style="
-          color:#aaa;
-          font-size:14px;
-        "
-      >
-        ${year} · ${typeText}
-      </div>
-
-    </div>
-
-  `;
-
-
-  card.addEventListener(
-    "mouseenter",
-    () => {
-      card.style.transform =
-        "translateY(-5px)";
-    }
-  );
-
-
-  card.addEventListener(
-    "mouseleave",
-    () => {
-      card.style.transform =
-        "translateY(0)";
-    }
-  );
-
-
-  return card;
-
-}
-
-
-// ===============================
-// ЗАГРУЗКА НАШЕЙ БИБЛИОТЕКИ
-// ===============================
+// --------------------------------------------------
+// ПОЛУЧЕНИЕ ЛОКАЛЬНЫХ ФИЛЬМОВ
+// --------------------------------------------------
 
 async function loadLocalMovies() {
+  const { data, error } = await supabaseClient
+    .from("movies")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-  const {
-    data,
-    error
-  } =
-    await supabaseClient
-      .from("movies")
-      .select("*")
-      .order(
-        "created_at",
-        {
-          ascending: false
-        }
+  if (error) {
+    console.error("Ошибка загрузки библиотеки:", error);
+    return [];
+  }
+
+  return (data || []).filter(movie => {
+    if (!isCorrectType(movie)) {
+      return false;
+    }
+
+    if (currentSearch) {
+      const title = String(movie.title || "").toLowerCase();
+
+      if (!title.includes(currentSearch.toLowerCase())) {
+        return false;
+      }
+    }
+
+    return movieHasGenre(movie);
+  });
+}
+
+
+// --------------------------------------------------
+// ЗАПРОС К TMDB
+// --------------------------------------------------
+
+async function loadTMDBPage(page) {
+  try {
+    let body;
+
+    if (currentSearch) {
+      body = {
+        mode: "search",
+        query: currentSearch,
+        type: settings.tmdbType,
+        page: page
+      };
+    } else {
+      body = {
+        mode: "catalog",
+        type: settings.tmdbType,
+        page: page
+      };
+    }
+
+    const response = await fetch(
+      `${SUPABASE_URL}/functions/v1/tmdb-search`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SUPABASE_KEY,
+          "Authorization": `Bearer ${SUPABASE_KEY}`
+        },
+        body: JSON.stringify(body)
+      }
+    );
+
+    if (!response.ok) {
+      console.error(
+        "TMDB ошибка:",
+        response.status,
+        await response.text()
       );
 
+      return {
+        results: [],
+        total_pages: 1
+      };
+    }
 
-  if (error) {
+    const result = await response.json();
 
-    console.error(
-      "Ошибка загрузки библиотеки:",
-      error
-    );
+    let results = [];
 
-    return [];
+    if (Array.isArray(result)) {
+      results = result;
+    } else if (Array.isArray(result.results)) {
+      results = result.results;
+    } else if (Array.isArray(result.data)) {
+      results = result.data;
+    }
 
+    return {
+      results: results,
+      total_pages: Number(result.total_pages || 1)
+    };
+
+  } catch (error) {
+    console.error("Ошибка TMDB:", error);
+
+    return {
+      results: [],
+      total_pages: 1
+    };
   }
-
-
-  return data || [];
-
 }
 
 
-// ===============================
-// ЗАГРУЗКА TMDB
-// ===============================
+// --------------------------------------------------
+// ФИЛЬТР TMDB ПО ЖАНРУ
+// --------------------------------------------------
 
-async function loadTMDB() {
-
-  let tmdbType =
-    "movie";
-
-
-  if (catalogType === "series") {
-    tmdbType = "tv";
+function filterTMDBByGenre(movies) {
+  if (selectedGenre === "all") {
+    return movies;
   }
 
+  return movies.filter(movie => {
+    if (Array.isArray(movie.genre_ids)) {
+      return movie.genre_ids.some(
+        id => String(id) === String(selectedGenre)
+      );
+    }
 
-  if (catalogType === "cartoon") {
-    tmdbType = "cartoon";
-  }
-
-
-  const {
-    data,
-    error
-  } =
-    await supabaseClient.functions.invoke(
-      "tmdb-search",
-      {
-        body: {
-          mode: "catalog",
-          type: tmdbType,
-          page: 1
+    if (Array.isArray(movie.genres)) {
+      return movie.genres.some(genre => {
+        if (typeof genre === "object") {
+          return String(genre.id) === String(selectedGenre);
         }
-      }
-    );
 
+        return String(genre) === String(selectedGenre);
+      });
+    }
 
-  if (error) {
-
-    console.error(
-      "Ошибка загрузки TMDB:",
-      error
-    );
-
-    return [];
-
-  }
-
-
-  if (
-    !data ||
-    !Array.isArray(data.results)
-  ) {
-
-    return [];
-
-  }
-
-
-  return data.results;
-
+    return false;
+  });
 }
 
 
-// ===============================
-// ПЕРЕХОД НА СТРАНИЦУ ФИЛЬМА
-// ===============================
+// --------------------------------------------------
+// ЗАГРУЗКА КАТАЛОГА
+// --------------------------------------------------
 
-function openLocalMovie(movie) {
+async function loadCatalog(reset = false) {
 
-  window.location.href =
-    `movie.html?id=${movie.id}`;
-
-}
-
-
-function openTMDBMovie(movie) {
-
-  const type =
-    catalogType === "series"
-      ? "Сериал"
-      : catalogType === "cartoon"
-      ? "Мультфильм"
-      : "Фильм";
-
-
-  const movieData = {
-
-    id:
-      movie.id,
-
-    title:
-      movie.title ||
-      movie.name ||
-      "",
-
-    year:
-      movie.release_date
-        ? movie.release_date.substring(0, 4)
-        : movie.first_air_date
-        ? movie.first_air_date.substring(0, 4)
-        : "",
-
-    description:
-      movie.overview ||
-      "",
-
-    poster_url:
-      movie.poster_path
-        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-        : "",
-
-    type:
-      type
-
-  };
-
-
-  const encoded =
-    encodeURIComponent(
-      JSON.stringify(movieData)
-    );
-
-
-  window.location.href =
-    `movie.html?tmdb=${encoded}`;
-
-}
-
-
-// ===============================
-// ОТОБРАЖЕНИЕ ФИЛЬМОВ
-// ===============================
-
-function renderMovies() {
-
-  if (!movieGrid) {
+  if (isLoading) {
     return;
   }
 
-
-  movieGrid.innerHTML = "";
-
-
-  let filtered =
-    allMovies.filter(
-      (movie) =>
-        isCorrectType(movie) &&
-        matchesGenre(movie)
-    );
-
-
-  if (
-    filtered.length === 0
-  ) {
-
-    if (emptyMessage) {
-      emptyMessage.style.display =
-        "block";
-    }
-
-  } else {
-
-    if (emptyMessage) {
-      emptyMessage.style.display =
-        "none";
-    }
-
-
-    filtered.forEach(
-      (movie) => {
-
-        const card =
-          createMovieCard(movie);
-
-
-        card.addEventListener(
-          "click",
-          () => {
-            openLocalMovie(movie);
-          }
-        );
-
-
-        movieGrid.appendChild(
-          card
-        );
-
-      }
-    );
-
-  }
-
-}
-
-
-// ===============================
-// ЗАПУСК
-// ===============================
-
-async function loadCatalog() {
-
-  if (!movieGrid) {
+  if (!hasMore && !reset) {
     return;
   }
 
+  isLoading = true;
 
-  movieGrid.innerHTML =
-    "Загрузка...";
-
-
-  if (emptyMessage) {
-    emptyMessage.style.display =
-      "none";
+  if (reset) {
+    currentPage = 1;
+    hasMore = true;
+    allMovies = [];
+    displayedMovies = [];
+    movieGrid.innerHTML = "";
+    hideLoadMoreButton();
   }
 
+  // Локальная библиотека показывается только на первой странице
+  if (currentPage === 1) {
+    const localMovies = await loadLocalMovies();
 
-  const localMovies =
-    await loadLocalMovies();
+    localMovies.forEach(movie => {
+      allMovies.push({
+        ...movie,
+        _local: true
+      });
+    });
+  }
 
+  // Загружаем TMDB
+  const tmdbData = await loadTMDBPage(currentPage);
 
-  const tmdbMovies =
-    await loadTMDB();
+  let tmdbMovies = filterTMDBByGenre(
+    tmdbData.results || []
+  );
 
+  tmdbMovies = tmdbMovies.map(movie => ({
+    ...movie,
+    _local: false
+  }));
 
-  /*
-    Сохраняем в общий массив
-    фильмы из нашей базы.
-  */
-
-  allMovies =
-    localMovies;
-
+  allMovies.push(...tmdbMovies);
 
   renderMovies();
 
-
-  /*
-    TMDB добавляем отдельно,
-    чтобы они отображались после
-    нашей библиотеки.
-  */
-
-  tmdbMovies.forEach(
-    (movie) => {
-
-      const card =
-        createMovieCard(movie);
-
-
-      card.addEventListener(
-        "click",
-        () => {
-          openTMDBMovie(movie);
-        }
-      );
-
-
-      movieGrid.appendChild(
-        card
-      );
-
-    }
-  );
-
-
-  /*
-    Если вообще ничего нет.
-  */
-
   if (
-    localMovies.length === 0 &&
-    tmdbMovies.length === 0
+    currentPage >= Number(tmdbData.total_pages || 1) ||
+    (tmdbData.results || []).length === 0
   ) {
-
-    movieGrid.innerHTML = "";
-
-
-    if (emptyMessage) {
-
-      emptyMessage.textContent =
-        "В этой категории пока ничего нет.";
-
-      emptyMessage.style.display =
-        "block";
-
-    }
-
+    hasMore = false;
+  } else {
+    currentPage++;
   }
 
+  updateLoadMoreButton();
+
+  isLoading = false;
 }
 
 
-// ===============================
-// ЯЗЫК
-// ===============================
+// --------------------------------------------------
+// ОТРИСОВКА
+// --------------------------------------------------
 
-const catalogTranslations = {
+function renderMovies() {
+  movieGrid.innerHTML = "";
 
-  ru: {
-    home: "Главная",
-    movies: "Фильмы",
-    series: "Сериалы",
-    cartoons: "Мультфильмы",
-    favorites: "Избранное",
-    genre: "Жанр ▾",
-    allGenres: "Все жанры",
-    library: "Библиотека",
-    empty: "Ничего не найдено.",
-    footer: "Моя Кинотека © 2026"
-  },
-
-  uk: {
-    home: "Головна",
-    movies: "Фільми",
-    series: "Серіали",
-    cartoons: "Мультфільми",
-    favorites: "Обране",
-    genre: "Жанр ▾",
-    allGenres: "Усі жанри",
-    library: "Бібліотека",
-    empty: "Нічого не знайдено.",
-    footer: "Моя Кінотека © 2026"
-  },
-
-  en: {
-    home: "Home",
-    movies: "Movies",
-    series: "Series",
-    cartoons: "Cartoons",
-    favorites: "Favorites",
-    genre: "Genre ▾",
-    allGenres: "All genres",
-    library: "Library",
-    empty: "Nothing found.",
-    footer: "My Movie Library © 2026"
-  }
-
-};
-
-
-// ===============================
-// ПРИМЕНЕНИЕ ЯЗЫКА
-// ===============================
-
-function applyCatalogLanguage(
-  language
-) {
-
-  const t =
-    catalogTranslations[language];
-
-
-  if (!t) {
+  if (allMovies.length === 0) {
+    emptyMessage.style.display = "block";
     return;
   }
 
+  emptyMessage.style.display = "none";
 
-  const navLinks =
-    document.querySelectorAll(
-      "nav a"
-    );
-
-
-  if (navLinks[0]) {
-    navLinks[0].textContent =
-      t.home;
-  }
-
-
-  if (navLinks[1]) {
-    navLinks[1].textContent =
-      t.movies;
-  }
-
-
-  if (navLinks[2]) {
-    navLinks[2].textContent =
-      t.series;
-  }
-
-
-  if (navLinks[3]) {
-    navLinks[3].textContent =
-      t.cartoons;
-  }
-
-
-  if (navLinks[4]) {
-    navLinks[4].textContent =
-      t.favorites;
-  }
-
-
-  if (genreButton) {
-
-    genreButton.textContent =
-      selectedGenre === "Все жанры"
-        ? t.genre
-        : `${selectedGenre} ▾`;
-
-  }
-
-
-  const allGenreItem =
-    document.querySelector(
-      '.genre-item[data-genre="all"]'
-    );
-
-
-  if (allGenreItem) {
-
-    allGenreItem.textContent =
-      t.allGenres;
-
-  }
-
-
-  const libraryTitle =
-    document.querySelector(
-      ".content h2"
-    );
-
-
-  if (libraryTitle) {
-    libraryTitle.textContent =
-      t.library;
-  }
-
-
-  if (emptyMessage) {
-    emptyMessage.textContent =
-      t.empty;
-  }
-
-
-  const footer =
-    document.querySelector(
-      "footer"
-    );
-
-
-  if (footer) {
-    footer.textContent =
-      t.footer;
-  }
-
-
-  localStorage.setItem(
-    "siteLanguage",
-    language
-  );
-
+  allMovies.forEach(movie => {
+    movieGrid.appendChild(createMovieCard(movie));
+  });
 }
 
 
-// ===============================
-// СМЕНА ЯЗЫКА
-// ===============================
+// --------------------------------------------------
+// КАРТОЧКА ФИЛЬМА
+// --------------------------------------------------
 
-if (languageSelect) {
+function createMovieCard(movie) {
 
-  languageSelect.addEventListener(
-    "change",
-    () => {
+  const card = document.createElement("div");
 
-      applyCatalogLanguage(
-        languageSelect.value
-      );
+  card.style.background = "#1a1d24";
+  card.style.borderRadius = "10px";
+  card.style.overflow = "hidden";
+  card.style.cursor = "pointer";
+  card.style.transition = "transform 0.2s";
 
+  card.addEventListener("mouseenter", () => {
+    card.style.transform = "translateY(-5px)";
+  });
+
+  card.addEventListener("mouseleave", () => {
+    card.style.transform = "translateY(0)";
+  });
+
+
+  let title = "";
+  let year = "";
+  let poster = "";
+
+
+  // Локальный фильм
+  if (movie._local) {
+
+    title = movie.title || "Без названия";
+
+    year = movie.year || "";
+
+    poster = movie.poster_url || "";
+
+  }
+
+  // TMDB
+  else {
+
+    title =
+      movie.title ||
+      movie.name ||
+      "Без названия";
+
+    const date =
+      movie.release_date ||
+      movie.first_air_date ||
+      "";
+
+    year = date
+      ? date.substring(0, 4)
+      : "";
+
+    if (movie.poster_url) {
+      poster = movie.poster_url;
+    } else if (movie.poster_path) {
+      poster =
+        `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
     }
-  );
-
-}
+  }
 
 
-const savedLanguage =
-  localStorage.getItem(
-    "siteLanguage"
-  ) || "ru";
+  const posterWrapper = document.createElement("div");
+
+  posterWrapper.style.width = "100%";
+  posterWrapper.style.aspectRatio = "2 / 3";
+  posterWrapper.style.background = "#242832";
 
 
-if (languageSelect) {
+  if (poster) {
 
-  languageSelect.value =
-    savedLanguage;
+    const img = document.createElement("img");
 
-}
+    img.src = poster;
+    img.alt = title;
+
+    img.style.width = "100%";
+    img.style.height = "100%";
+    img.style.objectFit = "cover";
+    img.loading = "lazy";
+
+    posterWrapper.appendChild(img);
+
+  } else {
+
+    const noPoster = document.createElement("div");
+
+    noPoster.textContent = "Нет постера";
+
+    noPoster.style.height = "100%";
+    noPoster.style.display = "flex";
+    noPoster.style.alignItems = "center";
+    noPoster.style.justifyContent = "center";
+    noPoster.style.color = "#777";
+
+    posterWrapper.appendChild(noPoster);
+  }
 
 
-// ===============================
-// ИНИЦИАЛИЗАЦИЯ
-// ===============================
+  const info = document.createElement("div");
 
-createGenreList();
+  info.style.padding = "12px";
 
-applyCatalogLanguage(
-  savedLanguage
-);
 
-loadCatalog();
+  const titleElement = document.createElement("div");
 
+  titleElement.textContent = title;
+
+  titleElement.style.fontWeight = "bold";
+  titleElement.style.fontSize = "16px";
+  titleElement.style.marginBottom = "6px";
+  titleElement.style.whiteSpace = "nowrap";
+  titleElement.style.overflow = "hidden";
+  titleElement.style.textOverflow = "ellipsis";
+
+
+  const yearElement = document.createElement("div");
+
+  yearElement.textContent = year;
+
+  yearElement.style.color = "#888";
+  yearElement.style.fontSize =
