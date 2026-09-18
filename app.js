@@ -706,7 +706,12 @@ if (collectionTitle) {
   }
 
   // Профиль
-  document.querySelector("#profileModal h2").textContent = t.profileTitle;
+ const profileTitleElement =
+  document.querySelector("#profileModal h2");
+
+if (profileTitleElement) {
+  profileTitleElement.textContent = t.profileTitle;
+}
   changeProfileAvatar.textContent = t.changePhoto;
   saveProfile.textContent = t.saveProfile;
   closeProfile.textContent = t.close;
