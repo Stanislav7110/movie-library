@@ -2568,3 +2568,65 @@ if (searchInput) {
   );
 
 }
+// ===============================
+// НАДЁЖНЫЙ ЗАПУСК ПОИСКА НА ГЛАВНОЙ
+// ===============================
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const searchButton = document.getElementById("searchBtn");
+  const searchWindow = document.getElementById("searchModal");
+  const searchField = document.getElementById("searchInput");
+  const findButton = document.getElementById("searchSubmit");
+  const closeButton = document.getElementById("closeSearchModal");
+
+  if (!searchButton || !searchWindow) {
+    console.error("Элементы поиска не найдены.");
+    return;
+  }
+
+  // Открыть поиск
+  searchButton.onclick = (event) => {
+    event.preventDefault();
+
+    searchWindow.style.display = "flex";
+
+    if (searchField) {
+      searchField.focus();
+    }
+  };
+
+  // Закрыть поиск
+  if (closeButton) {
+    closeButton.onclick = () => {
+      searchWindow.style.display = "none";
+    };
+  }
+
+  // Закрытие по клику на затемнение
+  searchWindow.onclick = (event) => {
+    if (event.target === searchWindow) {
+      searchWindow.style.display = "none";
+    }
+  };
+
+  // Кнопка "Найти"
+  if (findButton) {
+    findButton.onclick = () => {
+      searchMovies();
+    };
+  }
+
+  // Enter
+  if (searchField) {
+    searchField.onkeydown = (event) => {
+
+      if (event.key === "Enter") {
+        event.preventDefault();
+        searchMovies();
+      }
+
+    };
+  }
+
+});
