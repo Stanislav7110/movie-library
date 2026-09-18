@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Моя Кинотека</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: white;
+    }
+
+    header {
+      background: #181818;
+      padding: 20px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    nav a:hover {
+      color: #aaa;
+    }
+
+    #languageSelect {
+      background: #222;
+      color: white;
+      border: 1px solid #444;
+      padding: 6px 10px;
+      border-radius: 6px;
+    }
+
+    .catalog-header {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 45px 30px 20px;
+    }
+
+    .catalog-title {
+      font-size: 42px;
+      font-weight: 800;
+      margin: 0 0 25px;
+      text-transform: uppercase;
+    }
+
+    .genre-area {
+      position: relative;
+      display: inline-block;
+    }
+
+    .genre-button {
+      background: #222;
+      color: white;
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 12px 18px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .genre-button:hover {
+      background: #2d2d2d;
+    }
+
+    .genre-list {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      min-width: 220px;
+      max-height: 350px;
+      overflow-y: auto;
+      background: #1c1c1c;
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 8px;
+      z-index: 100;
+      box-shadow: 0 10px 30px rgba(0,0,0,.5);
+    }
+
+    .genre-list.show {
+      display: block;
+    }
+
+    .genre-item {
+      padding: 10px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .genre-item:hover {
+      background: #2c2c2c;
+    }
+
+    #movieGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px;
+      padding: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .empty-message {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px;
+      color: #aaa;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">🎬 Моя Кинотека</div>
+
+  <nav>
+    <a href="index.html">Главная</a>
+    <a href="catalog.html?type=film">Фильмы</a>
+    <a href="catalog.html?type=series">Сериалы</a>
+    <a href="catalog.html?type=cartoon">Мультфильмы</a>
+    <a href="index.html">Избранное</a>
+
+    <select id="languageSelect">
+      <option value="ru">RU</option>
+      <option value="uk">UA</option>
+      <option value="en">EN</option>
+    </select>
+  </nav>
+</header>
+
+<main>
+
+  <section class="catalog-header">
+
+    <h1 id="catalogTitle" class="catalog-title">
+      ФИЛЬМЫ
+    </h1>
+
+    <div class="genre-area">
+
+      <button id="genreButton" class="genre-button">
+        Жанр ▾
+      </button>
+
+      <div id="genreList" class="genre-list">
+        <div class="genre-item" data-genre="all">Все жанры</div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <section>
+    <div id="movieGrid"></div>
+    <div id="emptyMessage" class="empty-message" style="display:none;">
+      Ничего не найдено.
+    </div>
+  </section>
+
+</main>
+
+<script src="catalog.js"></script>
+
+</body>
+</html>
