@@ -597,17 +597,158 @@
   </div>
 
 
-  <!-- ==================== КАТАЛОГ НА ГЛАВНОЙ ==================== -->
+ <!-- ==================== КАТАЛОГ НА ГЛАВНОЙ ==================== -->
 
- <section
-  id="movieCatalog"
-  style="
-    padding:30px;
-    max-width:none;
-    width:100%;
-    margin:0 auto;
-  "
->
+<style>
+  #homeCatalogLayout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 25px;
+    align-items: start;
+    padding: 0 30px 30px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  #movieCatalog {
+    padding: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  #usersSection {
+    background: #1d2027;
+    border-radius: 12px;
+    padding: 18px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  #usersSection h2 {
+    margin: 0 0 15px;
+    font-size: 20px;
+  }
+
+  #usersSearchInput {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #3a3f48;
+    background: #252932;
+    color: white;
+    outline: none;
+    margin-bottom: 10px;
+  }
+
+  #usersSearchType {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #3a3f48;
+    background: #252932;
+    color: white;
+    outline: none;
+    margin-bottom: 15px;
+  }
+
+  .user-card {
+    padding: 14px 0;
+    border-top: 1px solid #343942;
+    cursor: pointer;
+  }
+
+  .user-card:first-child {
+    border-top: none;
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .user-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: #343942;
+  }
+
+  .user-name {
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 1.2;
+  }
+
+  .user-username {
+    color: #999;
+    font-size: 13px;
+    margin-top: 3px;
+  }
+
+  .user-movies {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 4px;
+  }
+
+  .user-movie-poster {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    border-radius: 4px;
+    background: #343942;
+  }
+
+  .user-movie-empty {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    border-radius: 4px;
+    background: #292d35;
+  }
+
+  #usersShowMore {
+    width: 100%;
+    margin-top: 15px;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background: #343942;
+    color: white;
+    cursor: pointer;
+  }
+
+  #usersShowMore:hover {
+    background: #414752;
+  }
+
+  @media (max-width: 1000px) {
+    #homeCatalogLayout {
+      grid-template-columns: 1fr;
+    }
+
+    #usersSection {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 600px) {
+    #homeCatalogLayout {
+      padding: 0 15px 25px;
+    }
+  }
+</style>
+
+<div id="homeCatalogLayout">
+
+  <!-- ОСНОВНОЙ КАТАЛОГ -->
+  <section id="movieCatalog">
 
     <div
       id="movieGrid"
@@ -619,6 +760,34 @@
     ></div>
 
   </section>
+
+
+  <!-- ==================== ПОЛЬЗОВАТЕЛИ ==================== -->
+
+  <aside id="usersSection">
+
+    <h2>ПОЛЬЗОВАТЕЛИ</h2>
+
+    <input
+      type="text"
+      id="usersSearchInput"
+      placeholder="Поиск пользователя..."
+    >
+
+    <select id="usersSearchType">
+      <option value="name">Имя</option>
+      <option value="username">Никнейм</option>
+    </select>
+
+    <div id="usersList"></div>
+
+    <button id="usersShowMore">
+      Показать ещё
+    </button>
+
+  </aside>
+
+</div>
 
 
   <!-- ==================== ОКНО ПОДДЕРЖКИ ==================== -->
