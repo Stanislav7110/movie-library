@@ -21,6 +21,11 @@
       font-family: Arial, sans-serif;
       background: #111318;
       color: #ffffff;
+
+      /* Чтобы футер всегда был внизу */
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
     header {
@@ -135,7 +140,7 @@
     }
 
     footer {
-      margin-top: 60px;
+      margin-top: auto;
       padding: 30px;
       text-align: center;
       color: #777;
@@ -149,7 +154,7 @@
   <header>
     <div class="logo">🎬 Моя Кинотека</div>
 
-   <nav>
+    <nav>
       <a href="#" id="searchBtn">Поиск</a>
       <a href="#">Главная</a>
       <a href="#">Фильмы</a>
@@ -161,6 +166,7 @@
       <a href="#" id="profileBtn" style="display:none;">Профиль</a>
       <a href="#" id="supportBtn">Поддержка</a>
       <a href="#" id="adminSupportBtn" style="display:none;">Админ-панель</a>
+
       <select id="languageSelect" style="
         margin-left:25px;
         padding:6px 8px;
@@ -169,289 +175,348 @@
         background:#242832;
         color:white;
         cursor:pointer;
-">
-  <option value="ru">RU</option>
-  <option value="uk">UA</option>
-  <option value="en">EN</option>
-</select>
+      ">
+        <option value="ru">RU</option>
+        <option value="uk">UA</option>
+        <option value="en">EN</option>
+      </select>
     </nav>
   </header>
 
- <div id="profileModal" style="
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.75);
-  z-index:1000;
-  align-items:center;
-  justify-content:center;
-">
-  <div style="
-    background:#1b1e26;
-    padding:24px;
-    border-radius:15px;
-    width:360px;
-    max-width:calc(100% - 40px);
-    box-sizing:border-box;
-    text-align:center;
+
+  <!-- Профиль -->
+
+  <div id="profileModal" style="
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.75);
+    z-index:1000;
+    align-items:center;
+    justify-content:center;
   ">
 
-    <h2>Мой профиль</h2>
-
     <div style="
-      width:90px;
-      height:90px;
-      margin:20px auto 10px;
-      border-radius:50%;
-      background:#292e39;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      overflow:hidden;
-      position:relative;
+      background:#1b1e26;
+      padding:24px;
+      border-radius:15px;
+      width:360px;
+      max-width:calc(100% - 40px);
+      box-sizing:border-box;
+      text-align:center;
     ">
-      <img
-        id="profileAvatar"
-        src=""
-        alt="Фото профиля"
+
+      <h2>Мой профиль</h2>
+
+      <div style="
+        width:90px;
+        height:90px;
+        margin:20px auto 10px;
+        border-radius:50%;
+        background:#292e39;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        overflow:hidden;
+        position:relative;
+      ">
+
+        <img
+          id="profileAvatar"
+          src=""
+          alt="Фото профиля"
+          style="
+            width:100%;
+            height:100%;
+            object-fit:cover;
+            display:none;
+          "
+        >
+
+        <span
+          id="profileAvatarPlaceholder"
+          style="
+            font-size:40px;
+          "
+        >👤</span>
+
+      </div>
+
+      <input
+        type="file"
+        id="profileAvatarInput"
+        accept="image/*"
+        style="display:none;"
+      >
+
+      <button
+        id="changeProfileAvatar"
+        type="button"
         style="
+          display:inline-block;
+          width:auto;
+          padding:6px 12px;
+          margin:0 0 12px;
+          border:none;
+          border-radius:7px;
+          cursor:pointer;
+          font-size:14px;
+        "
+      >
+        Изменить фото
+      </button>
+
+      <p
+        id="profileEmail"
+        style="
+          color:#b8bcc6;
+          margin:10px 0;
+        "
+      ></p>
+
+      <input
+        id="profileUsername"
+        type="text"
+        placeholder="Имя пользователя"
+        maxlength="30"
+        style="
+          display:block;
           width:100%;
-          height:100%;
-          object-fit:cover;
-          display:none;
+          box-sizing:border-box;
+          padding:12px;
+          margin:10px 0;
+          border-radius:8px;
+          border:1px solid #3a3f4a;
+          background:#111318;
+          color:white;
         "
       >
 
-      <span
-        id="profileAvatarPlaceholder"
-        style="
-          font-size:40px;
-        "
-      >👤</span>
+      <div style="
+        display:flex;
+        justify-content:center;
+        gap:10px;
+        margin-top:10px;
+      ">
+
+        <button
+          id="saveProfile"
+          type="button"
+          style="
+            padding:10px 18px;
+            cursor:pointer;
+            flex:1;
+          "
+        >
+          Сохранить профиль
+        </button>
+
+        <button
+          id="closeProfile"
+          type="button"
+          style="
+            padding:10px 18px;
+            cursor:pointer;
+            flex:1;
+          "
+        >
+          Закрыть
+        </button>
+
+      </div>
+
+      <p id="profileMessage"></p>
+
     </div>
-
-    <input
-      type="file"
-      id="profileAvatarInput"
-      accept="image/*"
-      style="display:none;"
-    >
-
-    <button
-      id="changeProfileAvatar"
-      type="button"
-      style="
-        display:inline-block;
-        width:auto;
-        padding:6px 12px;
-        margin:0 0 12px;
-        border:none;
-        border-radius:7px;
-        cursor:pointer;
-        font-size:14px;
-      "
-    >
-      Изменить фото
-    </button>
-
-    <p
-      id="profileEmail"
-      style="
-        color:#b8bcc6;
-        margin:10px 0;
-      "
-    ></p>
-
-    <input
-      id="profileUsername"
-      type="text"
-      placeholder="Имя пользователя"
-      maxlength="30"
-      style="
-        display:block;
-        width:100%;
-        box-sizing:border-box;
-        padding:12px;
-        margin:10px 0;
-        border-radius:8px;
-        border:1px solid #3a3f4a;
-        background:#111318;
-        color:white;
-      "
-    >
-
-   <div style="
-  display:flex;
-  justify-content:center;
-  gap:10px;
-  margin-top:10px;
-">
-
-  <button
-    id="saveProfile"
-    type="button"
-    style="
-      padding:10px 18px;
-      cursor:pointer;
-      flex:1;
-    "
-  >
-       Сохранить профиль
-  </button>
-
-  <button
-    id="closeProfile"
-    type="button"
-    style="
-      padding:10px 18px;
-      cursor:pointer;
-      flex:1;
-    "
-  >
-    Закрыть
-  </button>
-
   </div>
 
-  <p id="profileMessage"></p>
 
-  </div>
-</div>
+  <!-- Регистрация / вход -->
 
-<div id="authModal" style="
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.75);
-  z-index:1000;
-  align-items:center;
-  justify-content:center;
-">
-  <div style="
-    background:#1b1e26;
-    padding:30px;
-    border-radius:15px;
-    width:90%;
-    max-width:400px;
+  <div id="authModal" style="
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.75);
+    z-index:1000;
+    align-items:center;
+    justify-content:center;
   ">
-    <h2 id="authTitle">Регистрация</h2>
 
-<input
-  id="authName"
-  type="text"
-  placeholder="Имя"
-  maxlength="50"
-  style="
-    width:100%;
-    padding:12px;
-    margin:8px 0;
-    box-sizing:border-box;
-  "
->
-    
-    <input
-  id="authUsername"
-  type="text"
-  placeholder="Никнейм"
-  maxlength="30"
-  style="
-    width:100%;
-    padding:12px;
-    margin:8px 0;
-    box-sizing:border-box;
-  "
->
-
-<input
-  id="authEmail"
-  type="email"
-  placeholder="Email"
-  style="
-    width:100%;
-    padding:12px;
-    margin:8px 0;
-    box-sizing:border-box;
-  "
->
-
-<input
-  id="authPassword"
-  type="password"
-  placeholder="Пароль"
-  style="
-    width:100%;
-    padding:12px;
-    margin:8px 0;
-    box-sizing:border-box;
-  "
->
-
-    <button id="authSubmit" style="
-      width:100%;
-      padding:12px;
-      margin-top:10px;
-      cursor:pointer;
+    <div style="
+      background:#1b1e26;
+      padding:30px;
+      border-radius:15px;
+      width:90%;
+      max-width:400px;
     ">
-      Зарегистрироваться
-    </button>
 
-    <p id="authMessage"></p>
+      <h2 id="authTitle">Регистрация</h2>
 
-    <button id="closeAuth" style="
-      width:100%;
-      padding:10px;
-      margin-top:10px;
-      cursor:pointer;
-    ">
-      Закрыть
-    </button>
+      <input
+        id="authName"
+        type="text"
+        placeholder="Имя"
+        maxlength="50"
+        style="
+          width:100%;
+          padding:12px;
+          margin:8px 0;
+          box-sizing:border-box;
+        "
+      >
+
+      <input
+        id="authUsername"
+        type="text"
+        placeholder="Никнейм"
+        maxlength="30"
+        style="
+          width:100%;
+          padding:12px;
+          margin:8px 0;
+          box-sizing:border-box;
+        "
+      >
+
+      <input
+        id="authEmail"
+        type="email"
+        placeholder="Email"
+        style="
+          width:100%;
+          padding:12px;
+          margin:8px 0;
+          box-sizing:border-box;
+        "
+      >
+
+      <input
+        id="authPassword"
+        type="password"
+        placeholder="Пароль"
+        style="
+          width:100%;
+          padding:12px;
+          margin:8px 0;
+          box-sizing:border-box;
+        "
+      >
+
+      <button
+        id="authSubmit"
+        style="
+          width:100%;
+          padding:12px;
+          margin-top:10px;
+          cursor:pointer;
+        "
+      >
+        Зарегистрироваться
+      </button>
+
+      <p id="authMessage"></p>
+
+      <button
+        id="closeAuth"
+        style="
+          width:100%;
+          padding:10px;
+          margin-top:10px;
+          cursor:pointer;
+        "
+      >
+        Закрыть
+      </button>
+
+    </div>
   </div>
-</div>
+
+
+  <!-- Главный экран -->
+
   <section class="hero">
     <h1>Добро пожаловать в мою кинотеку</h1>
     <p>Фильмы, сериалы и мультфильмы в одном месте</p>
   </section>
 
-<div class="categories">
-  <div class="category" onclick="window.location.href='catalog.html?type=film'">
-    🎬 Фильмы
+
+  <!-- Категории -->
+
+  <div class="categories">
+
+    <div
+      class="category"
+      onclick="window.location.href='catalog.html?type=film'"
+    >
+      🎬 Фильмы
+    </div>
+
+    <div
+      class="category"
+      onclick="window.location.href='catalog.html?type=series'"
+    >
+      📺 Сериалы
+    </div>
+
+    <div
+      class="category"
+      onclick="window.location.href='catalog.html?type=cartoon'"
+    >
+      🎨 Мультфильмы
+    </div>
+
+    <div
+      class="category"
+      data-type="Избранное"
+    >
+      ❤️ Избранное
+    </div>
+
+    <div
+      class="category"
+      data-type="Посмотреть позже"
+    >
+      ⏰ Посмотреть позже
+    </div>
+
   </div>
 
-  <div class="category" onclick="window.location.href='catalog.html?type=series'">
-    📺 Сериалы
-  </div>
 
-  <div class="category" onclick="window.location.href='catalog.html?type=cartoon'">
-    🎨 Мультфильмы
-  </div>
+  <!-- Карточки фильмов -->
+  <!-- Заголовка "Рекомендации фильмов" здесь специально нет -->
 
-  <div class="category" data-type="Избранное">
-    ❤️ Избранное
-  </div>
+  <section
+    id="movieCatalog"
+    style="
+      padding:30px;
+      max-width:1200px;
+      width:100%;
+      margin:0 auto;
+    "
+  >
 
-  <div class="category" data-type="Посмотреть позже">
-    ⏰ Посмотреть позже
-  </div>
-</div>
+    <div
+      id="movieGrid"
+      style="
+        display:grid;
+        grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));
+        gap:20px;
+      "
+    ></div>
 
-<!-- Каталог рекомендаций -->
-<section id="movieCatalog" style="
-  padding:30px;
-  max-width:1200px;
-  margin:0 auto;
-">
+  </section>
 
-  <div id="movieGrid" style="
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));
-    gap:20px;
-  "></div>
 
-</section>
+  <!-- Футер -->
 
-<footer>
-  Моя Кинотека © 2026
-</footer>
+  <footer>
+    Моя Кинотека © 2026
+  </footer>
+
+</body>
+</html>
+
 
   <!-- Окно поддержки -->
   <div id="supportModal" style="
