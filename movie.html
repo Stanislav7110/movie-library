@@ -1077,115 +1077,273 @@ if (watchUrl) {
 
 loadMovie();
 
-/* =================================
+<!-- =================================
 ДОБАВЛЕНИЕ В МОЮ КАРТОТЕКУ
-================================= */
+================================= -->
+
+<script>
 
 const addToLibraryBtn =
-document.querySelector(
-".movie-actions button"
-);
+  document.querySelector(".movie-actions button");
 
 if (addToLibraryBtn) {
 
-addToLibraryBtn.addEventListener(
-"click",
-async () => {
+  addToLibraryBtn.addEventListener("click", async () => {
 
-  const {
-    data: sessionData
-  } =
-    await supabaseClient.auth.getSession();
+    // ===============================
+    // ПРОВЕРЯЕМ АВТОРИЗАЦИЮ
+    // ===============================
 
-
-  if (
-    !sessionData ||
-    !sessionData.session
-  ) {
-
-    alert(
-      "Сначала войдите в аккаунт."
-    );
-
-    return;
-  }
-
-
-  const userId =
-    sessionData.session.user.id;
-
-
-  const params =
-    new URLSearchParams(
-      window.location.search
-    );
-
-
-  const movieId =
-    params.get("id");
-
-
-  if (!movieId) {
-
-    alert(
-      "Сначала добавьте фильм в нашу Кинотеку."
-    );
-
-    return;
-  }
-
-
-  const {
-    error
-  } =
-    await supabaseClient
-      .from("user_movies")
-      .insert({
-        user_id:
-          userId,
-
-        movie_id:
-          Number(movieId)
-      });
-
-
-  if (error) {
+    const {
+      data: sessionData
+    } = await supabaseClient.auth.getSession();
 
     if (
-      error.code === "23505"
+      !sessionData ||
+      !sessionData.session
     ) {
+      alert("Сначала войдите в аккаунт.");
+      return;
+    }
+
+    const userId =
+      sessionData.session.user.id;
+
+
+    // ===============================
+    // ПОЛУЧАЕМ ПАРАМЕТРЫ СТРАНИЦЫ
+    // ===============================
+
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    const movieId =
+      params.get("id");
+
+    const tmdbData =
+      params.get("tmdb");
+
+
+    // ===============================
+    // ОБЫЧНЫЙ ФИЛЬМ ИЗ НАШЕЙ КИНОТЕКИ
+    // ===============================
+
+    if (movieId) {
+
+      const {
+        error
+      } = await supabaseClient
+        .from("user_movies")
+        .insert({
+          user_id: userId,
+          movie_id: Number(movieId)
+        });
+
+      if (error) {
+
+        if (error.code === "23505") {
+
+          addToLibraryBtn.textContent =
+            "Уже в моей картотеке";
+
+          return;
+        }
+
+        console.error(
+          "Ошибка добавления:",
+          error
+        );
+
+        alert(
+          "Не удалось добавить фильм."
+        );
+
+        return;
+      }
 
       addToLibraryBtn.textContent =
-        "Уже в моей картотеке";
+        "Добавлено в картотеку";
 
       return;
     }
 
 
-    console.error(
-      "Ошибка добавления:",
-      error
-    );
+    // ===============================
+    // ФИЛЬМ ИЗ ВСЕМИРНОЙ БАЗЫ TMDB
+    // ===============================
+
+    if (tmdbData) {
+
+      let tmdbMovie;
+
+      try {
+
+        tmdbMovie =
+          JSON.parse(
+            decodeURIComponent(tmdbData)
+          );
+
+      } catch (error) {
+
+        console.error(
+          "Ошибка чтения данных TMDB:",
+          error
+        );
+
+        alert(
+          "Не удалось получить данные фильма."
+        );
+
+        return;
+      }
 
 
-    alert(
-      "Не удалось добавить фильм."
-    );
+      // ===============================
+      // ИЩЕМ ФИЛЬМ В НАШЕЙ КИНОТЕКЕ
+      // ===============================
 
-    return;
-  }
+      let movieInDatabase = null;
+
+      const {
+        data: existingMovies,
+        error: searchError
+      } = await supabaseClient
+        .from("movies")
+        .select("*")
+        .eq("title", tmdbMovie.title)
+        .eq("year", tmdbMovie.year)
+        .limit(1);
+
+      if (searchError) {
+
+        console.error(
+          "Ошибка поиска фильма:",
+          searchError
+        );
+
+        alert(
+          "Не удалось проверить фильм."
+        );
+
+        return;
+      }
+
+      if (
+        existingMovies &&
+        existingMovies.length > 0
+      ) {
+        movieInDatabase =
+          existingMovies[0];
+      }
 
 
-  addToLibraryBtn.textContent =
-    "Добавлено в картотеку";
+      // ===============================
+      // ЕСЛИ ФИЛЬМА ЕЩЁ НЕТ —
+      // СОЗДАЁМ ЕГО В КИНОТЕКЕ
+      // ===============================
 
-}
+      if (!movieInDatabase) {
 
-);
+        const {
+          data: newMovie,
+          error: insertMovieError
+        } = await supabaseClient
+          .from("movies")
+          .insert({
+            title:
+              tmdbMovie.title,
+
+            year:
+              tmdbMovie.year,
+
+            description:
+              tmdbMovie.description || "",
+
+            poster_url:
+              tmdbMovie.poster_url || "",
+
+            type:
+              tmdbMovie.type || "Фильм"
+          })
+          .select()
+          .single();
+
+
+        if (insertMovieError) {
+
+          console.error(
+            "Ошибка создания фильма:",
+            insertMovieError
+          );
+
+          alert(
+            "Не удалось добавить фильм в Кинотеку."
+          );
+
+          return;
+        }
+
+        movieInDatabase =
+          newMovie;
+      }
+
+
+      // ===============================
+      // ДОБАВЛЯЕМ ФИЛЬМ В КАРТОТЕКУ
+      // ПОЛЬЗОВАТЕЛЯ
+      // ===============================
+
+      const {
+        error: libraryError
+      } = await supabaseClient
+        .from("user_movies")
+        .insert({
+          user_id:
+            userId,
+
+          movie_id:
+            movieInDatabase.id
+        });
+
+
+      if (libraryError) {
+
+        if (
+          libraryError.code === "23505"
+        ) {
+
+          addToLibraryBtn.textContent =
+            "Уже в моей картотеке";
+
+          return;
+        }
+
+        console.error(
+          "Ошибка добавления в картотеку:",
+          libraryError
+        );
+
+        alert(
+          "Не удалось добавить фильм в картотеку."
+        );
+
+        return;
+      }
+
+
+      // ===============================
+      // УСПЕШНО
+      // ===============================
+
+      addToLibraryBtn.textContent =
+        "Добавлено в картотеку";
+
+    }
+
+  });
 
 }
 
 </script>
-
-</body> 
-</html>
