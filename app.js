@@ -2904,10 +2904,13 @@ const {
 
 if (userMoviesError) {
 
-  console.error(
-    "Ошибка загрузки фильмов пользователей:",
-    userMoviesError
-  );
+console.error(
+  "Ошибка загрузки фильмов пользователей:",
+  userMoviesError.message,
+  userMoviesError.details,
+  userMoviesError.hint,
+  userMoviesError.code
+);
 
 } else {
 
