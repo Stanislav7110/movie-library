@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
 
   <link
@@ -9,6 +10,7 @@
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Моя Кинотека</title>
 
   <style>
@@ -22,7 +24,6 @@
       background: #111318;
       color: #ffffff;
 
-      /* Чтобы футер всегда был внизу */
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -147,79 +148,154 @@
       border-top: 1px solid #2d313b;
     }
   </style>
+
 </head>
+
 
 <body>
 
+
+  <!-- ==================== ШАПКА ==================== -->
+
   <header>
-    <div class="logo">🎬 Моя Кинотека</div>
+
+    <div class="logo">
+      🎬 Моя Кинотека
+    </div>
 
     <nav>
-      <a href="#" id="searchBtn">Поиск</a>
-      <a href="#">Главная</a>
-      <a href="#">Фильмы</a>
-      <a href="#">Сериалы</a>
-      <a href="#">Мультфильмы</a>
-      <a href="#">Избранное</a>
-      <a href="#" id="loginBtn">Войти</a>
-      <a href="#" id="registerBtn">Регистрация</a>
-      <a href="#" id="profileBtn" style="display:none;">Профиль</a>
-      <a href="#" id="supportBtn">Поддержка</a>
-      <a href="#" id="adminSupportBtn" style="display:none;">Админ-панель</a>
 
-      <select id="languageSelect" style="
-        margin-left:25px;
-        padding:6px 8px;
-        border-radius:6px;
-        border:1px solid #3a3f4a;
-        background:#242832;
-        color:white;
-        cursor:pointer;
-      ">
-        <option value="ru">RU</option>
-        <option value="uk">UA</option>
-        <option value="en">EN</option>
+      <a href="#" id="searchBtn">
+        Поиск
+      </a>
+
+      <a href="#">
+        Главная
+      </a>
+
+      <a href="catalog.html?type=film">
+        Фильмы
+      </a>
+
+      <a href="catalog.html?type=series">
+        Сериалы
+      </a>
+
+      <a href="catalog.html?type=cartoon">
+        Мультфильмы
+      </a>
+
+      <a href="#">
+        Избранное
+      </a>
+
+      <a href="#" id="loginBtn">
+        Войти
+      </a>
+
+      <a href="#" id="registerBtn">
+        Регистрация
+      </a>
+
+      <a
+        href="#"
+        id="profileBtn"
+        style="display:none;"
+      >
+        Профиль
+      </a>
+
+      <a href="#" id="supportBtn">
+        Поддержка
+      </a>
+
+      <a
+        href="#"
+        id="adminSupportBtn"
+        style="display:none;"
+      >
+        Админ-панель
+      </a>
+
+
+      <select
+        id="languageSelect"
+        style="
+          margin-left:25px;
+          padding:6px 8px;
+          border-radius:6px;
+          border:1px solid #3a3f4a;
+          background:#242832;
+          color:white;
+          cursor:pointer;
+        "
+      >
+
+        <option value="ru">
+          RU
+        </option>
+
+        <option value="uk">
+          UA
+        </option>
+
+        <option value="en">
+          EN
+        </option>
+
       </select>
+
     </nav>
+
   </header>
 
 
-  <!-- Профиль -->
+  <!-- ==================== ПРОФИЛЬ ==================== -->
 
-  <div id="profileModal" style="
-    display:none;
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,0.75);
-    z-index:1000;
-    align-items:center;
-    justify-content:center;
-  ">
+  <div
+    id="profileModal"
+    style="
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.75);
+      z-index:1000;
+      align-items:center;
+      justify-content:center;
+    "
+  >
 
-    <div style="
-      background:#1b1e26;
-      padding:24px;
-      border-radius:15px;
-      width:360px;
-      max-width:calc(100% - 40px);
-      box-sizing:border-box;
-      text-align:center;
-    ">
+    <div
+      style="
+        background:#1b1e26;
+        padding:24px;
+        border-radius:15px;
+        width:360px;
+        max-width:calc(100% - 40px);
+        box-sizing:border-box;
+        text-align:center;
+      "
+    >
 
-      <h2>Мой профиль</h2>
+      <h2>
+        Мой профиль
+      </h2>
 
-      <div style="
-        width:90px;
-        height:90px;
-        margin:20px auto 10px;
-        border-radius:50%;
-        background:#292e39;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        overflow:hidden;
-        position:relative;
-      ">
+
+      <div
+        style="
+          width:90px;
+          height:90px;
+          margin:20px auto 10px;
+          border-radius:50%;
+          background:#292e39;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          overflow:hidden;
+          position:relative;
+        "
+      >
 
         <img
           id="profileAvatar"
@@ -238,9 +314,12 @@
           style="
             font-size:40px;
           "
-        >👤</span>
+        >
+          👤
+        </span>
 
       </div>
+
 
       <input
         type="file"
@@ -248,6 +327,7 @@
         accept="image/*"
         style="display:none;"
       >
+
 
       <button
         id="changeProfileAvatar"
@@ -266,6 +346,7 @@
         Изменить фото
       </button>
 
+
       <p
         id="profileEmail"
         style="
@@ -273,6 +354,7 @@
           margin:10px 0;
         "
       ></p>
+
 
       <input
         id="profileUsername"
@@ -292,12 +374,15 @@
         "
       >
 
-      <div style="
-        display:flex;
-        justify-content:center;
-        gap:10px;
-        margin-top:10px;
-      ">
+
+      <div
+        style="
+          display:flex;
+          justify-content:center;
+          gap:10px;
+          margin-top:10px;
+        "
+      >
 
         <button
           id="saveProfile"
@@ -310,6 +395,7 @@
         >
           Сохранить профиль
         </button>
+
 
         <button
           id="closeProfile"
@@ -325,33 +411,43 @@
 
       </div>
 
+
       <p id="profileMessage"></p>
 
     </div>
+
   </div>
 
 
-  <!-- Регистрация / вход -->
+  <!-- ==================== РЕГИСТРАЦИЯ / ВХОД ==================== -->
 
-  <div id="authModal" style="
-    display:none;
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,0.75);
-    z-index:1000;
-    align-items:center;
-    justify-content:center;
-  ">
+  <div
+    id="authModal"
+    style="
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.75);
+      z-index:1000;
+      align-items:center;
+      justify-content:center;
+    "
+  >
 
-    <div style="
-      background:#1b1e26;
-      padding:30px;
-      border-radius:15px;
-      width:90%;
-      max-width:400px;
-    ">
+    <div
+      style="
+        background:#1b1e26;
+        padding:30px;
+        border-radius:15px;
+        width:90%;
+        max-width:400px;
+      "
+    >
 
-      <h2 id="authTitle">Регистрация</h2>
+      <h2 id="authTitle">
+        Регистрация
+      </h2>
+
 
       <input
         id="authName"
@@ -366,6 +462,7 @@
         "
       >
 
+
       <input
         id="authUsername"
         type="text"
@@ -379,6 +476,7 @@
         "
       >
 
+
       <input
         id="authEmail"
         type="email"
@@ -390,6 +488,7 @@
           box-sizing:border-box;
         "
       >
+
 
       <input
         id="authPassword"
@@ -403,6 +502,7 @@
         "
       >
 
+
       <button
         id="authSubmit"
         style="
@@ -415,7 +515,9 @@
         Зарегистрироваться
       </button>
 
+
       <p id="authMessage"></p>
+
 
       <button
         id="closeAuth"
@@ -430,18 +532,26 @@
       </button>
 
     </div>
+
   </div>
 
 
-  <!-- Главный экран -->
+  <!-- ==================== ГЛАВНЫЙ ЭКРАН ==================== -->
 
   <section class="hero">
-    <h1>Добро пожаловать в мою кинотеку</h1>
-    <p>Фильмы, сериалы и мультфильмы в одном месте</p>
+
+    <h1>
+      Добро пожаловать в мою кинотеку
+    </h1>
+
+    <p>
+      Фильмы, сериалы и мультфильмы в одном месте
+    </p>
+
   </section>
 
 
-  <!-- Категории -->
+  <!-- ==================== КАТЕГОРИИ ==================== -->
 
   <div class="categories">
 
@@ -452,12 +562,14 @@
       🎬 Фильмы
     </div>
 
+
     <div
       class="category"
       onclick="window.location.href='catalog.html?type=series'"
     >
       📺 Сериалы
     </div>
+
 
     <div
       class="category"
@@ -466,12 +578,14 @@
       🎨 Мультфильмы
     </div>
 
+
     <div
       class="category"
       data-type="Избранное"
     >
       ❤️ Избранное
     </div>
+
 
     <div
       class="category"
@@ -483,8 +597,7 @@
   </div>
 
 
-  <!-- Карточки фильмов -->
-  <!-- Заголовка "Рекомендации фильмов" здесь специально нет -->
+  <!-- ==================== КАТАЛОГ НА ГЛАВНОЙ ==================== -->
 
   <section
     id="movieCatalog"
@@ -508,149 +621,58 @@
   </section>
 
 
-  <!-- Футер -->
+  <!-- ==================== ОКНО ПОДДЕРЖКИ ==================== -->
 
-  <footer>
-    Моя Кинотека © 2026
-  </footer>
+  <div
+    id="supportModal"
+    style="
+      display:none;
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      background:rgba(0,0,0,0.7);
+      align-items:center;
+      justify-content:center;
+      z-index:99999;
+    "
+  >
 
-</body>
-</html>
-
-
-  <!-- Окно поддержки -->
-  <div id="supportModal" style="
-    display:none;
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:rgba(0,0,0,0.7);
-    align-items:center;
-    justify-content:center;
-    z-index:99999;
-  ">
-    <div style="
-      width:500px;
-      max-width:90%;
-      background:#242832;
-      padding:20px;
-      border-radius:12px;
-      box-sizing:border-box;
-    ">
-
-      <h2 style="margin-top:0;">Поддержка</h2>
-
-      <div id="supportMessages" style="
-        height:300px;
-        overflow-y:auto;
-        border:1px solid #3a3f4a;
-        border-radius:8px;
-        padding:10px;
-        margin-bottom:15px;
-        background:#1b1e24;
+    <div
+      style="
+        width:500px;
+        max-width:90%;
+        background:#242832;
+        padding:20px;
+        border-radius:12px;
         box-sizing:border-box;
-      "></div>
+      "
+    >
 
-      <textarea id="supportInput" placeholder="Напишите сообщение..." style="
-        width:100%;
-        height:80px;
-        resize:none;
-        padding:10px;
-        box-sizing:border-box;
-        border-radius:8px;
-        border:1px solid #3a3f4a;
-        background:#1b1e24;
-        color:white;
-        margin-bottom:10px;
-      "></textarea>
+      <h2 style="margin-top:0;">
+        Поддержка
+      </h2>
 
-      <button id="sendSupportMessage" style="
-        padding:8px 15px;
-        border:none;
-        border-radius:6px;
-        cursor:pointer;
-        margin-right:5px;
-      ">Отправить</button>
 
-      <button id="closeSupport" style="
-        padding:8px 15px;
-        border:none;
-        border-radius:6px;
-        cursor:pointer;
-      ">Закрыть</button>
+      <div
+        id="supportMessages"
+        style="
+          height:300px;
+          overflow-y:auto;
+          border:1px solid #3a3f4a;
+          border-radius:8px;
+          padding:10px;
+          margin-bottom:15px;
+          background:#1b1e24;
+          box-sizing:border-box;
+        "
+      ></div>
 
-    </div>
-  </div>
-
- <!-- Админ-панель -->
-<div id="adminSupportModal" style="
-  display:none;
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.7);
-  align-items:center;
-  justify-content:center;
-  z-index:99999;
-">
-  <div style="
-    width:700px;
-    max-width:90%;
-    max-height:90%;
-    background:#242832;
-    padding:20px;
-    border-radius:12px;
-    box-sizing:border-box;
-    overflow-y:auto;
-  ">
-
-    <h2 style="margin-top:0;">Админ-панель</h2>
-
-    <div style="
-      display:flex;
-      gap:10px;
-      margin-bottom:20px;
-    ">
-      <button id="adminSupportTab" style="
-        padding:8px 15px;
-        border:none;
-        border-radius:6px;
-        cursor:pointer;
-      ">Поддержка</button>
-
-      <button id="adminMoviesTab" style="
-        padding:8px 15px;
-        border:none;
-        border-radius:6px;
-        cursor:pointer;
-      ">Фильмы</button>
-    </div>
-
-    <!-- Поддержка -->
-    <div id="adminSupportSection">
-
-      <div id="adminSupportUsers" style="
-        margin-bottom:15px;
-      "></div>
-
-      <div id="adminSupportChat" style="
-        height:300px;
-        overflow-y:auto;
-        border:1px solid #3a3f4a;
-        border-radius:8px;
-        padding:10px;
-        margin-bottom:15px;
-        background:#1b1e24;
-        box-sizing:border-box;
-      "></div>
 
       <textarea
-        id="adminSupportInput"
-        placeholder="Ответ пользователю..."
+        id="supportInput"
+        placeholder="Напишите сообщение..."
         style="
           width:100%;
           height:80px;
@@ -665,342 +687,307 @@
         "
       ></textarea>
 
-      <button id="adminSendSupport" style="
-        padding:8px 15px;
-        border:none;
-        border-radius:6px;
-        cursor:pointer;
-        margin-right:5px;
-      ">Ответить</button>
 
-    </div>
-
-    <!-- Фильмы -->
-    <div id="adminMoviesSection" style="
-      display:none;
-    ">
-
-      <h3>Добавить фильм</h3>
-
-      <input
-        id="movieTitle"
-        type="text"
-        placeholder="Название"
-        style="
-          width:100%;
-          padding:10px;
-          margin-bottom:10px;
-          box-sizing:border-box;
-          border-radius:8px;
-          border:1px solid #3a3f4a;
-          background:#1b1e24;
-          color:white;
-        "
-      >
-
-      <input
-        id="movieYear"
-        type="number"
-        placeholder="Год"
-        style="
-          width:100%;
-          padding:10px;
-          margin-bottom:10px;
-          box-sizing:border-box;
-          border-radius:8px;
-          border:1px solid #3a3f4a;
-          background:#1b1e24;
-          color:white;
-        "
-      >
-
-      <select
-        id="movieType"
-        style="
-          width:100%;
-          padding:10px;
-          margin-bottom:10px;
-          box-sizing:border-box;
-          border-radius:8px;
-          border:1px solid #3a3f4a;
-          background:#1b1e24;
-          color:white;
-        "
-      >
-        <option value="movie">Фильм</option>
-        <option value="series">Сериал</option>
-        <option value="cartoon">Мультфильм</option>
-      </select>
-
-      <textarea
-        id="movieDescription"
-        placeholder="Описание"
-        style="
-          width:100%;
-          height:100px;
-          resize:none;
-          padding:10px;
-          margin-bottom:10px;
-          box-sizing:border-box;
-          border-radius:8px;
-          border:1px solid #3a3f4a;
-          background:#1b1e24;
-          color:white;
-        "
-      ></textarea>
-
-      <label style="
-        display:block;
-        margin-bottom:10px;
-      ">
-        Постер:
-        <input
-          id="moviePoster"
-          type="file"
-          accept="image/*"
-          style="
-            display:block;
-            margin-top:8px;
-          "
-        >
-      </label>
-
-      <input
-        id="movieTrailer"
-        type="url"
-        placeholder="Ссылка на трейлер"
-        style="
-          width:100%;
-          padding:10px;
-          margin-bottom:10px;
-          box-sizing:border-box;
-          border-radius:8px;
-          border:1px solid #3a3f4a;
-          background:#1b1e24;
-          color:white;
-        "
-      >
-      
       <button
-        id="addMovieBtn"
+        id="sendSupportMessage"
         style="
-          padding:10px 18px;
+          padding:8px 15px;
           border:none;
           border-radius:6px;
           cursor:pointer;
-        "
-      >Добавить фильм</button>
-
-      <div
-        id="movieAddStatus"
-        style="
-          margin-top:10px;
-        "
-      ></div>
-
-    </div>
-
-    <button id="closeAdminSupport" style="
-      padding:8px 15px;
-      border:none;
-      border-radius:6px;
-      cursor:pointer;
-      margin-top:20px;
-    ">Закрыть</button>
-
-  </div>
-</div>
-
-<!-- Каталог фильмов -->
-<section id="movieCatalog" style="
-  padding:30px;
-  max-width:1200px;
-  margin:0 auto;
-">
-
-  <h2>Фильмы</h2>
-
-  <div id="movieGrid" style="
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));
-    gap:20px;
-  "></div>
-
-</section>
-
-  <!-- Окно поиска -->
-<div id="searchModal" style="
-  display:none;
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.8);
-  align-items:center;
-  justify-content:center;
-  z-index:99997;
-">
-
-  <div style="
-    width:700px;
-    max-width:90%;
-    max-height:90%;
-    overflow-y:auto;
-    background:#242832;
-    padding:25px;
-    border-radius:12px;
-    box-sizing:border-box;
-  ">
-
-    <h2 style="
-      margin-top:0;
-    ">
-      Поиск фильмов
-    </h2>
-
-    <div style="
-      display:flex;
-      gap:10px;
-      margin-bottom:20px;
-    ">
-
-      <input
-        id="searchInput"
-        type="text"
-        placeholder="Введите название фильма..."
-        style="
-          flex:1;
-          padding:12px;
-          border:none;
-          border-radius:6px;
-          background:#1d2027;
-          color:white;
-          box-sizing:border-box;
+          margin-right:5px;
         "
       >
+        Отправить
+      </button>
+
 
       <button
-        id="searchSubmit"
+        id="closeSupport"
         style="
-          padding:10px 18px;
+          padding:8px 15px;
           border:none;
           border-radius:6px;
           cursor:pointer;
         "
       >
-        Найти
+        Закрыть
       </button>
 
     </div>
 
-    <div id="searchResults"></div>
+  </div>
 
-    <button
-      id="closeSearchModal"
+
+  <!-- ==================== АДМИН-ПАНЕЛЬ ==================== -->
+
+  <div
+    id="adminSupportModal"
+    style="
+      display:none;
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      background:rgba(0,0,0,0.7);
+      align-items:center;
+      justify-content:center;
+      z-index:99999;
+    "
+  >
+
+    <div
       style="
-        margin-top:20px;
-        padding:8px 15px;
-        border:none;
-        border-radius:6px;
-        cursor:pointer;
+        width:700px;
+        max-width:90%;
+        max-height:90%;
+        background:#242832;
+        padding:20px;
+        border-radius:12px;
+        box-sizing:border-box;
+        overflow-y:auto;
       "
     >
-      Закрыть
-    </button>
 
-  </div>
-</div>
-  
-  <!-- Окно фильма -->
-<div id="movieModal" style="
-  display:none;
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.8);
-  align-items:center;
-  justify-content:center;
-  z-index:99998;
-">
+      <h2 style="margin-top:0;">
+        Админ-панель
+      </h2>
 
-  <div style="
-    width:800px;
-    max-width:90%;
-    max-height:90%;
-    overflow-y:auto;
-    background:#242832;
-    padding:25px;
-    border-radius:12px;
-    box-sizing:border-box;
-  ">
 
-    <div style="
-      display:flex;
-      gap:25px;
-      flex-wrap:wrap;
-    ">
-
-      <img
-        id="movieModalPoster"
-        src=""
-        alt=""
+      <div
         style="
-          width:250px;
-          max-width:100%;
-          height:370px;
-          object-fit:cover;
-          border-radius:8px;
+          display:flex;
+          gap:10px;
+          margin-bottom:20px;
         "
       >
 
-      <div style="
-        flex:1;
-        min-width:250px;
-      ">
-
-        <h2
-          id="movieModalTitle"
+        <button
+          id="adminSupportTab"
           style="
-            margin-top:0;
+            padding:8px 15px;
+            border:none;
+            border-radius:6px;
+            cursor:pointer;
           "
-        ></h2>
+        >
+          Поддержка
+        </button>
+
+
+        <button
+          id="adminMoviesTab"
+          style="
+            padding:8px 15px;
+            border:none;
+            border-radius:6px;
+            cursor:pointer;
+          "
+        >
+          Фильмы
+        </button>
+
+      </div>
+
+
+      <!-- Поддержка -->
+
+      <div id="adminSupportSection">
 
         <div
-          id="movieModalInfo"
+          id="adminSupportUsers"
           style="
-            color:#aaa;
             margin-bottom:15px;
           "
         ></div>
 
-        <p
-          id="movieModalDescription"
-          style="
-            line-height:1.6;
-          "
-        ></p>
 
-        <a
-          id="movieModalTrailer"
-          href="#"
-          target="_blank"
-          rel="noopener noreferrer"
+        <div
+          id="adminSupportChat"
           style="
-            display:none;
-            color:#fff;
-            text-decoration:none;
+            height:300px;
+            overflow-y:auto;
+            border:1px solid #3a3f4a;
+            border-radius:8px;
+            padding:10px;
+            margin-bottom:15px;
+            background:#1b1e24;
+            box-sizing:border-box;
           "
-        >
-          Смотреть трейлер
-        </a>
+        ></div>
 
-        <br><br>
+
+        <textarea
+          id="adminSupportInput"
+          placeholder="Ответ пользователю..."
+          style="
+            width:100%;
+            height:80px;
+            resize:none;
+            padding:10px;
+            box-sizing:border-box;
+            border-radius:8px;
+            border:1px solid #3a3f4a;
+            background:#1b1e24;
+            color:white;
+            margin-bottom:10px;
+          "
+        ></textarea>
+
 
         <button
-          id="addToLibraryBtn"
+          id="adminSendSupport"
+          style="
+            padding:8px 15px;
+            border:none;
+            border-radius:6px;
+            cursor:pointer;
+            margin-right:5px;
+          "
+        >
+          Ответить
+        </button>
+
+      </div>
+
+
+      <!-- Фильмы -->
+
+      <div
+        id="adminMoviesSection"
+        style="
+          display:none;
+        "
+      >
+
+        <h3>
+          Добавить фильм
+        </h3>
+
+
+        <input
+          id="movieTitle"
+          type="text"
+          placeholder="Название"
+          style="
+            width:100%;
+            padding:10px;
+            margin-bottom:10px;
+            box-sizing:border-box;
+            border-radius:8px;
+            border:1px solid #3a3f4a;
+            background:#1b1e24;
+            color:white;
+          "
+        >
+
+
+        <input
+          id="movieYear"
+          type="number"
+          placeholder="Год"
+          style="
+            width:100%;
+            padding:10px;
+            margin-bottom:10px;
+            box-sizing:border-box;
+            border-radius:8px;
+            border:1px solid #3a3f4a;
+            background:#1b1e24;
+            color:white;
+          "
+        >
+
+
+        <select
+          id="movieType"
+          style="
+            width:100%;
+            padding:10px;
+            margin-bottom:10px;
+            box-sizing:border-box;
+            border-radius:8px;
+            border:1px solid #3a3f4a;
+            background:#1b1e24;
+            color:white;
+          "
+        >
+
+          <option value="movie">
+            Фильм
+          </option>
+
+          <option value="series">
+            Сериал
+          </option>
+
+          <option value="cartoon">
+            Мультфильм
+          </option>
+
+        </select>
+
+
+        <textarea
+          id="movieDescription"
+          placeholder="Описание"
+          style="
+            width:100%;
+            height:100px;
+            resize:none;
+            padding:10px;
+            margin-bottom:10px;
+            box-sizing:border-box;
+            border-radius:8px;
+            border:1px solid #3a3f4a;
+            background:#1b1e24;
+            color:white;
+          "
+        ></textarea>
+
+
+        <label
+          style="
+            display:block;
+            margin-bottom:10px;
+          "
+        >
+
+          Постер:
+
+          <input
+            id="moviePoster"
+            type="file"
+            accept="image/*"
+            style="
+              display:block;
+              margin-top:8px;
+            "
+          >
+
+        </label>
+
+
+        <input
+          id="movieTrailer"
+          type="url"
+          placeholder="Ссылка на трейлер"
+          style="
+            width:100%;
+            padding:10px;
+            margin-bottom:10px;
+            box-sizing:border-box;
+            border-radius:8px;
+            border:1px solid #3a3f4a;
+            background:#1b1e24;
+            color:white;
+          "
+        >
+
+
+        <button
+          id="addMovieBtn"
           style="
             padding:10px 18px;
             border:none;
@@ -1008,11 +995,12 @@
             cursor:pointer;
           "
         >
-          Добавить в мою картотеку
+          Добавить фильм
         </button>
 
+
         <div
-          id="libraryAddStatus"
+          id="movieAddStatus"
           style="
             margin-top:10px;
           "
@@ -1020,26 +1008,282 @@
 
       </div>
 
+
+      <button
+        id="closeAdminSupport"
+        style="
+          padding:8px 15px;
+          border:none;
+          border-radius:6px;
+          cursor:pointer;
+          margin-top:20px;
+        "
+      >
+        Закрыть
+      </button>
+
     </div>
 
-    <button
-      id="closeMovieModal"
+  </div>
+
+
+  <!-- ==================== ОКНО ПОИСКА ==================== -->
+
+  <div
+    id="searchModal"
+    style="
+      display:none;
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      background:rgba(0,0,0,0.8);
+      align-items:center;
+      justify-content:center;
+      z-index:99997;
+    "
+  >
+
+    <div
       style="
-        margin-top:20px;
-        padding:8px 15px;
-        border:none;
-        border-radius:6px;
-        cursor:pointer;
+        width:700px;
+        max-width:90%;
+        max-height:90%;
+        overflow-y:auto;
+        background:#242832;
+        padding:25px;
+        border-radius:12px;
+        box-sizing:border-box;
       "
     >
-      Закрыть
-    </button>
+
+      <h2 style="margin-top:0;">
+        Поиск фильмов
+      </h2>
+
+
+      <div
+        style="
+          display:flex;
+          gap:10px;
+          margin-bottom:20px;
+        "
+      >
+
+        <input
+          id="searchInput"
+          type="text"
+          placeholder="Введите название фильма..."
+          style="
+            flex:1;
+            padding:12px;
+            border:none;
+            border-radius:6px;
+            background:#1d2027;
+            color:white;
+            box-sizing:border-box;
+          "
+        >
+
+
+        <button
+          id="searchSubmit"
+          style="
+            padding:10px 18px;
+            border:none;
+            border-radius:6px;
+            cursor:pointer;
+          "
+        >
+          Найти
+        </button>
+
+      </div>
+
+
+      <div id="searchResults"></div>
+
+
+      <button
+        id="closeSearchModal"
+        style="
+          margin-top:20px;
+          padding:8px 15px;
+          border:none;
+          border-radius:6px;
+          cursor:pointer;
+        "
+      >
+        Закрыть
+      </button>
+
+    </div>
 
   </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js"></script>
+
+  <!-- ==================== ОКНО ФИЛЬМА ==================== -->
+
+  <div
+    id="movieModal"
+    style="
+      display:none;
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      background:rgba(0,0,0,0.8);
+      align-items:center;
+      justify-content:center;
+      z-index:99998;
+    "
+  >
+
+    <div
+      style="
+        width:800px;
+        max-width:90%;
+        max-height:90%;
+        overflow-y:auto;
+        background:#242832;
+        padding:25px;
+        border-radius:12px;
+        box-sizing:border-box;
+      "
+    >
+
+      <div
+        style="
+          display:flex;
+          gap:25px;
+          flex-wrap:wrap;
+        "
+      >
+
+        <img
+          id="movieModalPoster"
+          src=""
+          alt=""
+          style="
+            width:250px;
+            max-width:100%;
+            height:370px;
+            object-fit:cover;
+            border-radius:8px;
+          "
+        >
+
+
+        <div
+          style="
+            flex:1;
+            min-width:250px;
+          "
+        >
+
+          <h2
+            id="movieModalTitle"
+            style="
+              margin-top:0;
+            "
+          ></h2>
+
+
+          <div
+            id="movieModalInfo"
+            style="
+              color:#aaa;
+              margin-bottom:15px;
+            "
+          ></div>
+
+
+          <p
+            id="movieModalDescription"
+            style="
+              line-height:1.6;
+            "
+          ></p>
+
+
+          <a
+            id="movieModalTrailer"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            style="
+              display:none;
+              color:#fff;
+              text-decoration:none;
+            "
+          >
+            Смотреть трейлер
+          </a>
+
+
+          <br>
+          <br>
+
+
+          <button
+            id="addToLibraryBtn"
+            style="
+              padding:10px 18px;
+              border:none;
+              border-radius:6px;
+              cursor:pointer;
+            "
+          >
+            Добавить в мою картотеку
+          </button>
+
+
+          <div
+            id="libraryAddStatus"
+            style="
+              margin-top:10px;
+            "
+          ></div>
+
+        </div>
+
+      </div>
+
+
+      <button
+        id="closeMovieModal"
+        style="
+          margin-top:20px;
+          padding:8px 15px;
+          border:none;
+          border-radius:6px;
+          cursor:pointer;
+        "
+      >
+        Закрыть
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- ==================== JAVASCRIPT ==================== -->
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script src="app.js"></script>
+
+
+  <!-- ==================== ФУТЕР ==================== -->
+
+  <footer>
+    Моя Кинотека © 2026
+  </footer>
+
 
 </body>
+
 </html>
