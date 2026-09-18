@@ -1804,20 +1804,15 @@ async function loadMovies(filterType = null) {
     return;
   }
 
-
-  movieGrid.innerHTML =
-    "Загрузка фильмов...";
-
-// ===============================
-// ЗАГРУЗКА КАТАЛОГА
-// ===============================
-
-async function loadMovies(filterType = null) {
-
-  if (!movieGrid) {
-    return;
+  // Если переключили категорию —
+  // удаляем старую кнопку
+  if (loadMoreButton) {
+    loadMoreButton.remove();
+    loadMoreButton = null;
   }
 
+  tmdbCurrentPage = 1;
+  tmdbLoading = false;
 
   movieGrid.innerHTML =
     "Загрузка фильмов...";
@@ -1961,18 +1956,22 @@ async function loadMovies(filterType = null) {
   }
 
 
+  tmdbCurrentType = tmdbType;
+
+
   // ===============================
-  // ЗАГРУЖАЕМ TMDB
+  // ЗАГРУЖАЕМ ПЕРВУЮ СТРАНИЦУ TMDB
   // ===============================
 
   const tmdbMovies =
     await loadTMDBCatalog(
-      tmdbType
+      tmdbType,
+      1
     );
 
 
   // ===============================
-  // ПОТОМ TMDB
+  // ДОБАВЛЯЕМ TMDB
   // ===============================
 
   tmdbMovies.forEach(
@@ -1991,6 +1990,19 @@ async function loadMovies(filterType = null) {
 
 
   // ===============================
+  // КНОПКА «ЗАГРУЗИТЬ ЕЩЁ»
+  // ===============================
+
+  if (
+    tmdbMovies.length > 0
+  ) {
+
+    createLoadMoreButton();
+
+  }
+
+
+  // ===============================
   // НИЧЕГО НЕ НАЙДЕНО
   // ===============================
 
@@ -2005,11 +2017,6 @@ async function loadMovies(filterType = null) {
   }
 
 }
-
-
-// ===============================
-// ОКНО ФИЛЬМА
-// ===============================
 
 function openMovieModal(movie) {
 
