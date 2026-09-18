@@ -1623,7 +1623,13 @@ function createMovieCard(movie, isTMDB = false, tmdbType = "movie") {
 // ЗАГРУЗКА TMDB КАТАЛОГА
 // ===============================
 
-async function loadTMDBCatalog(type) {
+let tmdbCurrentPage = 1;
+let tmdbCurrentType = "movie";
+let tmdbLoading = false;
+let loadMoreButton = null;
+
+
+async function loadTMDBCatalog(type, page = 1) {
 
   const {
     data,
@@ -1635,7 +1641,7 @@ async function loadTMDBCatalog(type) {
         body: {
           mode: "catalog",
           type: type,
-          page: 1
+          page: page
         }
       }
     );
@@ -1666,6 +1672,141 @@ async function loadTMDBCatalog(type) {
   return data.results;
 }
 
+
+// ===============================
+// КНОПКА «ЗАГРУЗИТЬ ЕЩЁ»
+// ===============================
+
+function createLoadMoreButton() {
+
+  if (loadMoreButton) {
+    return;
+  }
+
+
+  loadMoreButton =
+    document.createElement("button");
+
+
+  loadMoreButton.textContent =
+    "Загрузить ещё";
+
+
+  loadMoreButton.style.display =
+    "block";
+
+
+  loadMoreButton.style.margin =
+    "30px auto";
+
+
+  loadMoreButton.style.padding =
+    "12px 25px";
+
+
+  loadMoreButton.style.border =
+    "none";
+
+
+  loadMoreButton.style.borderRadius =
+    "8px";
+
+
+  loadMoreButton.style.cursor =
+    "pointer";
+
+
+  loadMoreButton.style.fontSize =
+    "16px";
+
+
+  loadMoreButton.addEventListener(
+    "click",
+    async () => {
+
+      if (tmdbLoading) {
+        return;
+      }
+
+
+      tmdbLoading = true;
+
+
+      loadMoreButton.textContent =
+        "Загрузка...";
+
+
+      tmdbCurrentPage++;
+
+
+      const tmdbMovies =
+        await loadTMDBCatalog(
+          tmdbCurrentType,
+          tmdbCurrentPage
+        );
+
+
+      tmdbMovies.forEach(
+        (movie) => {
+
+          movieGrid.appendChild(
+            createMovieCard(
+              movie,
+              true,
+              tmdbCurrentType
+            )
+          );
+
+        }
+      );
+
+
+      if (
+        tmdbMovies.length === 0
+      ) {
+
+        loadMoreButton.textContent =
+          "Больше ничего нет";
+
+
+        loadMoreButton.disabled =
+          true;
+
+
+      } else {
+
+        loadMoreButton.textContent =
+          "Загрузить ещё";
+
+      }
+
+
+      tmdbLoading = false;
+
+    }
+  );
+
+
+  movieGrid.parentElement.appendChild(
+    loadMoreButton
+  );
+
+}
+
+
+// ===============================
+// ЗАГРУЗКА КАТАЛОГА
+// ===============================
+
+async function loadMovies(filterType = null) {
+
+  if (!movieGrid) {
+    return;
+  }
+
+
+  movieGrid.innerHTML =
+    "Загрузка фильмов...";
 
 // ===============================
 // ЗАГРУЗКА КАТАЛОГА
