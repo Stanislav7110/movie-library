@@ -669,8 +669,14 @@ navLinks[5].textContent = t.favorites;
   categories[3].textContent = t.categoryFavorites;
   categories[4].textContent = t.watchLater;
 
-  // Коллекция
-  document.querySelector(".content h2").textContent = t.collection;
+ // Коллекция
+const collectionTitle =
+  document.querySelector(".content h2");
+
+if (collectionTitle) {
+  collectionTitle.textContent =
+    t.collection;
+}
 
   // Карточки
   const movies = document.querySelectorAll(".movie");
