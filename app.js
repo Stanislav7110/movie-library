@@ -2169,26 +2169,21 @@ async function searchMovies() {
     const localTitle =
       document.createElement("h3");
 
-
     localTitle.textContent =
       "В моей Кинотеке";
-
 
     localTitle.style.margin =
       "0 0 15px 0";
 
-
     searchResults.appendChild(
       localTitle
     );
-
 
     localMovies.forEach(
       (movie) => {
 
         const result =
           document.createElement("div");
-
 
         result.style.display =
           "flex";
@@ -2211,11 +2206,10 @@ async function searchMovies() {
         result.style.cursor =
           "pointer";
 
-
         result.innerHTML = `
           <img
             src="${movie.poster_url || ""}"
-            alt="${movie.title}"
+            alt="${movie.title || ""}"
             style="
               width:70px;
               height:100px;
@@ -2229,7 +2223,7 @@ async function searchMovies() {
             <h3 style="
               margin:0 0 8px 0;
             ">
-              ${movie.title}
+              ${movie.title || "Без названия"}
             </h3>
 
             <div style="
@@ -2242,7 +2236,6 @@ async function searchMovies() {
           </div>
         `;
 
-
         result.addEventListener(
           "click",
           () => {
@@ -2253,7 +2246,6 @@ async function searchMovies() {
           }
         );
 
-
         searchResults.appendChild(
           result
         );
@@ -2262,197 +2254,6 @@ async function searchMovies() {
     );
 
   }
-
-
- async function loadTMDBPage(page) {
-  try {
-
-    // ==========================================
-    // ПОИСК
-    // ==========================================
-
-    if (currentSearch) {
-
-      const {
-        data: tmdbData,
-        error: tmdbError
-      } = await supabaseClient.functions.invoke(
-        "tmdb-search",
-        {
-          body: {
-            query: currentSearch
-          }
-        }
-      );
-
-
-      if (tmdbError) {
-
-        console.error(
-          "Ошибка поиска TMDB:",
-          tmdbError
-        );
-
-        return {
-          results: [],
-          total_pages: 1
-        };
-      }
-
-
-      let results = [];
-
-
-      if (Array.isArray(tmdbData)) {
-
-        results = tmdbData;
-
-      } else if (Array.isArray(tmdbData?.results)) {
-
-        results = tmdbData.results;
-
-      } else if (Array.isArray(tmdbData?.data)) {
-
-        results = tmdbData.data;
-
-      }
-
-
-      // ==========================================
-      // ОСТАВЛЯЕМ ТОЛЬКО НУЖНЫЙ РАЗДЕЛ
-      // ==========================================
-
-      results = results.filter(movie => {
-
-        const mediaType =
-          movie.media_type ||
-          movie.type ||
-          "";
-
-
-        // Фильмы
-        if (currentType === "film") {
-
-          return (
-            mediaType === "movie" ||
-            (!mediaType &&
-              !movie.first_air_date)
-          );
-        }
-
-
-        // Сериалы
-        if (currentType === "series") {
-
-          return (
-            mediaType === "tv" ||
-            mediaType === "series" ||
-            Boolean(movie.first_air_date)
-          );
-        }
-
-
-        // Мультфильмы
-        if (currentType === "cartoon") {
-
-          // Если TMDB явно сообщает тип мультфильма
-          if (mediaType === "cartoon") {
-            return true;
-          }
-
-          // Или если есть жанр "Мультфильм" (16)
-          if (Array.isArray(movie.genre_ids)) {
-
-            return movie.genre_ids.includes(16);
-
-          }
-
-          return false;
-        }
-
-
-        return true;
-      });
-
-
-      return {
-        results: results,
-        total_pages: 1
-      };
-    }
-
-
-    // ==========================================
-    // ОБЫЧНЫЙ КАТАЛОГ
-    // ==========================================
-
-    const {
-      data: tmdbData,
-      error: tmdbError
-    } =
-      await supabaseClient.functions.invoke(
-        "tmdb-search",
-        {
-          body: {
-            mode: "catalog",
-            type: settings.tmdbType,
-            page: page
-          }
-        }
-      );
-
-
-    if (tmdbError) {
-
-      console.error(
-        "Ошибка каталога TMDB:",
-        tmdbError
-      );
-
-      return {
-        results: [],
-        total_pages: 1
-      };
-    }
-
-
-    let results = [];
-
-
-    if (Array.isArray(tmdbData)) {
-
-      results = tmdbData;
-
-    } else if (Array.isArray(tmdbData?.results)) {
-
-      results = tmdbData.results;
-
-    } else if (Array.isArray(tmdbData?.data)) {
-
-      results = tmdbData.data;
-
-    }
-
-
-    return {
-      results: results,
-      total_pages:
-        Number(tmdbData?.total_pages || 1)
-    };
-
-  } catch (error) {
-
-    console.error(
-      "Ошибка TMDB:",
-      error
-    );
-
-    return {
-      results: [],
-      total_pages: 1
-    };
-  }
-}
 
 
   // ===============================
@@ -2468,19 +2269,15 @@ async function searchMovies() {
     const tmdbTitle =
       document.createElement("h3");
 
-
     tmdbTitle.textContent =
       "Найдено в мировой базе";
-
 
     tmdbTitle.style.margin =
       "20px 0 15px 0";
 
-
     searchResults.appendChild(
       tmdbTitle
     );
-
 
     tmdbData.results
       .slice(0, 10)
@@ -2489,7 +2286,6 @@ async function searchMovies() {
 
           const result =
             document.createElement("div");
-
 
           result.style.display =
             "flex";
@@ -2519,16 +2315,28 @@ async function searchMovies() {
               : "";
 
 
+          const title =
+            movie.title ||
+            movie.name ||
+            "Без названия";
+
+
+          const date =
+            movie.release_date ||
+            movie.first_air_date ||
+            "";
+
+
           const year =
-            movie.release_date
-              ? movie.release_date.substring(0, 4)
+            date
+              ? date.substring(0, 4)
               : "";
 
 
           result.innerHTML = `
             <img
               src="${poster}"
-              alt="${movie.title || ""}"
+              alt="${title}"
               style="
                 width:70px;
                 height:100px;
@@ -2542,7 +2350,7 @@ async function searchMovies() {
               <h3 style="
                 margin:0 0 8px 0;
               ">
-                ${movie.title || "Без названия"}
+                ${title}
               </h3>
 
               <div style="
@@ -2568,20 +2376,16 @@ async function searchMovies() {
                       movie.id,
 
                     title:
-                      movie.title || "",
+                      title,
 
                     year:
-                      movie.release_date
-                        ? movie.release_date.substring(0, 4)
-                        : "",
+                      year,
 
                     description:
                       movie.overview || "",
 
                     poster_url:
-                      movie.poster_path
-                        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-                        : ""
+                      poster
 
                   })
                 );
