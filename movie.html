@@ -2,10 +2,7 @@
 <html lang="ru">
 <head>
 
-  <link
-    rel="stylesheet"
-    href="background.css"
-  >
+  <link rel="stylesheet" href="background.css">
 
   <meta charset="UTF-8">
 
@@ -36,7 +33,9 @@
       overflow-x: hidden;
     }
 
-    /* Фоновый трейлер */
+    /* ================================
+       ФОНОВЫЙ ТРЕЙЛЕР
+       ================================ */
 
     .trailer-background {
       position: fixed;
@@ -57,8 +56,6 @@
         );
     }
 
-    /* Само видео */
-
     .trailer-video {
       position: absolute;
       top: 0;
@@ -69,9 +66,8 @@
       opacity: 0.45;
       filter: brightness(0.55);
       z-index: 0;
+      border: none;
     }
-
-    /* Затемнение видео */
 
     .trailer-overlay {
       position: absolute;
@@ -87,13 +83,17 @@
         );
     }
 
-    /* Основная страница */
+    /* ================================
+       СТРАНИЦА ФИЛЬМА
+       ================================ */
 
     .movie-page {
       position: relative;
       z-index: 2;
+
       width: 100%;
       min-height: 100vh;
+
       margin: 0;
       padding: 70px 7%;
 
@@ -105,8 +105,6 @@
 
       backdrop-filter: blur(3px);
     }
-
-    /* Основная компоновка */
 
     .movie-layout {
       display: grid;
@@ -122,7 +120,9 @@
       min-height: calc(100vh - 140px);
     }
 
-    /* Информация */
+    /* ================================
+       ИНФОРМАЦИЯ
+       ================================ */
 
     .movie-info {
       padding-top: 10px;
@@ -148,7 +148,9 @@
       max-width: 700px;
     }
 
-    /* Рейтинг */
+    /* ================================
+       РЕЙТИНГ
+       ================================ */
 
     .movie-rating {
       margin-top: 30px;
@@ -161,7 +163,9 @@
       margin-right: 8px;
     }
 
-    /* Кнопка */
+    /* ================================
+       КНОПКА
+       ================================ */
 
     .movie-actions {
       display: flex;
@@ -177,9 +181,22 @@
       cursor: pointer;
       color: white;
       background: #4a6cf7;
+      font-size: 14px;
+      transition: opacity 0.2s ease;
     }
 
-    /* Ссылки */
+    .movie-actions button:hover {
+      opacity: 0.88;
+    }
+
+    .movie-actions button:disabled {
+      cursor: default;
+      opacity: 0.7;
+    }
+
+    /* ================================
+       ССЫЛКИ
+       ================================ */
 
     .movie-links {
       display: flex;
@@ -196,7 +213,9 @@
       color: white;
     }
 
-    /* Область постера */
+    /* ================================
+       ПОСТЕР
+       ================================ */
 
     .poster-area {
       position: relative;
@@ -207,8 +226,6 @@
 
       min-height: 640px;
     }
-
-    /* Мягкий свет */
 
     .poster-glow {
       position: absolute;
@@ -290,8 +307,6 @@
       filter: blur(28px);
     }
 
-    /* Дополнительный свет непосредственно за краями постера */
-
     .poster-area::after {
       content: "";
 
@@ -316,8 +331,6 @@
 
       filter: blur(7px);
     }
-
-    /* Свет от постера на поверхность снизу */
 
     .poster-reflection {
       position: absolute;
@@ -344,8 +357,6 @@
       border-radius: 50%;
     }
 
-    /* Сам постер */
-
     .poster {
       position: relative;
 
@@ -363,7 +374,9 @@
         0 25px 65px rgba(0, 0, 0, 0.55);
     }
 
-    /* Телефон */
+    /* ================================
+       ТЕЛЕФОН
+       ================================ */
 
     @media (max-width: 800px) {
 
@@ -404,7 +417,9 @@
 
 <body>
 
-  <!-- Фоновый трейлер -->
+  <!-- ================================
+       ФОНОВЫЙ ТРЕЙЛЕР
+       ================================ -->
 
   <div class="trailer-background">
 
@@ -425,13 +440,15 @@
 
   <div class="page-background"></div>
 
-  <!-- Страница фильма -->
+  <!-- ================================
+       СТРАНИЦА ФИЛЬМА
+       ================================ -->
 
   <main class="movie-page">
 
     <div class="movie-layout">
 
-      <!-- Информация о фильме -->
+      <!-- Информация -->
 
       <section class="movie-info">
 
@@ -455,7 +472,7 @@
 
         <div class="movie-actions">
 
-          <button>
+          <button id="addToLibraryBtn">
             Добавить в мою картотеку
           </button>
 
@@ -463,11 +480,17 @@
 
         <div class="movie-links">
 
-          <a href="#">
+          <a
+            id="trailerLink"
+            href="#"
+          >
             ▶ Трейлер
           </a>
 
-          <a href="#">
+          <a
+            id="watchLink"
+            href="#"
+          >
             Смотреть фильм
           </a>
 
@@ -495,7 +518,13 @@
 
   </main>
 
+
+  <!-- ================================
+       SUPABASE
+       ================================ -->
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 
   <script>
 
@@ -513,691 +542,518 @@
 
 
     /* =================================
-       ЗАГРУЗКА ФИЛЬМА
+       ПОЛУЧАЕМ ПАРАМЕТРЫ
        ================================= */
 
-    async function loadMovie() {
-
-      const params =
-        new URLSearchParams(
-          window.location.search
-        );
-
-      const movieId =
-        params.get("id");
-
-      const tmdbData =
-        params.get("tmdb");
-
-
-      /* =================================
-         ФИЛЬМ ИЗ НАШЕЙ БАЗЫ
-         ================================= */
-
-      if (movieId) {
-
-        const { data: movie, error } =
-          await supabaseClient
-            .from("movies")
-            .select("*")
-            .eq("id", movieId)
-            .single();
-
-
-        if (error || !movie) {
-
-          console.error(
-            "Ошибка загрузки фильма:",
-            error
-          );
-
-          return;
-        }
-
-
-        showMovie(movie);
-
-        return;
-      }
-
-
-      /* =================================
-         ФИЛЬМ ИЗ TMDB
-         ================================= */
-
-      if (tmdbData) {
-
-        try {
-
-          const movie =
-            JSON.parse(
-              decodeURIComponent(
-                tmdbData
-              )
-            );
-
-
-          showMovie(movie);
-
-
-          const {
-            data: result,
-            error
-          } =
-            await supabaseClient.functions.invoke(
-              "tmdb-movie",
-              {
-                body: {
-                  movie_id:
-                    movie.id
-                }
-              }
-            );
-
-
-          if (error) {
-
-            console.error(
-              "Ошибка функции tmdb-movie:",
-              error
-            );
-
-            return;
-          }
-
-
-          if (!result) {
-
-            console.error(
-              "tmdb-movie не вернула данные"
-            );
-
-            return;
-          }
-
-
-          console.log(
-            "Данные TMDB:",
-            result
-          );
-
-
-          const fullMovie =
-            result.movie;
-
-
-          if (!fullMovie) {
-
-            console.error(
-              "В ответе нет данных фильма"
-            );
-
-            return;
-          }
-
-
-          let trailerAutoUrl =
-            null;
-
-
-          if (
-            result.trailer &&
-            result.trailer.youtube_url
-          ) {
-
-            trailerAutoUrl =
-              result.trailer.youtube_url;
-
-          }
-
-
-          let watchAutoUrl =
-            null;
-
-
-          if (
-            result.watch &&
-            result.watch.link
-          ) {
-
-            watchAutoUrl =
-              result.watch.link;
-
-          }
-
-
-          const updatedMovie = {
-
-            ...movie,
-
-            title:
-              fullMovie.title ||
-              movie.title,
-
-            year:
-              fullMovie.release_date
-                ? fullMovie.release_date.substring(
-                    0,
-                    4
-                  )
-                : movie.year,
-
-            description:
-              fullMovie.overview ||
-              movie.description,
-
-            poster_url:
-              fullMovie.poster_path
-                ? "https://image.tmdb.org/t/p/w500" +
-                  fullMovie.poster_path
-                : movie.poster_url,
-
-            trailer_auto_url:
-              trailerAutoUrl,
-
-            watch_auto_url:
-              watchAutoUrl
-
-          };
-
-
-          showMovie(
-            updatedMovie
-          );
-
-
-          console.log(
-            "Автоматический трейлер:",
-            trailerAutoUrl
-          );
-
-          console.log(
-            "Автоматическая ссылка просмотра:",
-            watchAutoUrl
-          );
-
-
-        } catch (error) {
-
-          console.error(
-            "Ошибка загрузки фильма TMDB:",
-            error
-          );
-
-        }
-
-        return;
-      }
-
-    }
-
-
-    /* =================================
-ОТОБРАЖЕНИЕ ФИЛЬМА
-================================= */
-
-function showMovie(movie) {
-
-document.title =
-(movie.title || "Фильм") +
-" — Моя Кинотека";
-
-const movieMeta =
-document.querySelector(".movie-meta");
-
-if (movieMeta) {
-
-movieMeta.textContent =
-  `${movie.year || ""}${movie.type ? " · " + movie.type : ""}`;
-
-}
-
-const movieTitle =
-document.querySelector(".movie-title");
-
-if (movieTitle) {
-
-movieTitle.textContent =
-  movie.title || "Без названия";
-
-}
-
-const movieDescription =
-document.querySelector(".movie-description");
-
-if (movieDescription) {
-
-movieDescription.textContent =
-  movie.description ||
-  "Описание отсутствует.";
-
-}
-
-const poster =
-document.querySelector(".poster");
-
-if (poster) {
-
-poster.src =
-  movie.poster_url || "";
-
-poster.alt =
-  movie.title || "Постер фильма";
-
-
-poster.onload = () => {
-
-  try {
-
-    const canvas =
-      document.createElement("canvas");
-
-    const ctx =
-      canvas.getContext("2d");
-
-    canvas.width = 50;
-    canvas.height = 50;
-
-    ctx.drawImage(
-      poster,
-      0,
-      0,
-      50,
-      50
-    );
-
-
-    const imageData =
-      ctx.getImageData(
-        0,
-        0,
-        50,
-        50
-      ).data;
-
-
-    let r = 0;
-    let g = 0;
-    let b = 0;
-    let count = 0;
-
-
-    for (
-      let i = 0;
-      i < imageData.length;
-      i += 4
-    ) {
-
-      const red =
-        imageData[i];
-
-      const green =
-        imageData[i + 1];
-
-      const blue =
-        imageData[i + 2];
-
-
-      const brightness =
-        (red + green + blue) / 3;
-
-
-      if (brightness > 25) {
-
-        r += red;
-        g += green;
-        b += blue;
-        count++;
-
-      }
-
-    }
-
-
-    if (!count) {
-      return;
-    }
-
-
-    r = Math.round(r / count);
-    g = Math.round(g / count);
-    b = Math.round(b / count);
-
-
-    document.documentElement.style.setProperty(
-      "--poster-r",
-      r
-    );
-
-    document.documentElement.style.setProperty(
-      "--poster-g",
-      g
-    );
-
-    document.documentElement.style.setProperty(
-      "--poster-b",
-      b
-    );
-
-
-  } catch (error) {
-
-    console.error(
-      "Ошибка определения цвета постера:",
-      error
-    );
-
-  }
-
-};
-
-}
-
-/* =================================
-ССЫЛКИ
-================================= */
-
-const movieLinks =
-document.querySelectorAll(
-".movie-links a"
-);
-
-const trailerLink =
-movieLinks[0];
-
-const watchLink =
-movieLinks[1];
-
-/* =================================
-ТРЕЙЛЕР
-================================= */
-
-const trailerBackground =
-document.getElementById(
-"trailerBackground"
-);
-
-const trailerUrl =
-movie.trailer_url ||
-movie.trailer_auto_url;
-
-/* =================================
-ТРЕЙЛЕР НА ФОНЕ
-================================= */
-
-if (
-trailerBackground &&
-trailerUrl
-) {
-
-let youtubeId = null;
-
-
-try {
-
-  const url =
-    new URL(trailerUrl);
-
-
-  if (
-    url.hostname.includes(
-      "youtube.com"
-    )
-  ) {
-
-    youtubeId =
-      url.searchParams.get("v");
-
-  } else if (
-    url.hostname === "youtu.be"
-  ) {
-
-    youtubeId =
-      url.pathname.substring(1);
-
-  }
-
-
-} catch (error) {
-
-  console.error(
-    "Ошибка ссылки YouTube:",
-    error
-  );
-
-}
-
-
-if (youtubeId) {
-
-  trailerBackground.src =
-    "https://www.youtube.com/embed/" +
-    youtubeId +
-    "?autoplay=1" +
-    "&mute=1" +
-    "&loop=1" +
-    "&playlist=" +
-    youtubeId +
-    "&controls=0" +
-    "&showinfo=0" +
-    "&rel=0";
-
-}
-
-}
-
-/* =================================
-КНОПКА «ТРЕЙЛЕР»
-================================= */
-
-if (trailerLink) {
-
-if (trailerUrl) {
-
-  trailerLink.href =
-    trailerUrl;
-
-  trailerLink.target =
-    "_blank";
-
-  trailerLink.rel =
-    "noopener noreferrer";
-
-  trailerLink.style.display =
-    "inline";
-
-} else {
-
-  trailerLink.style.display =
-    "none";
-
-}
-
-}
-
-/* =================================
-СМОТРЕТЬ ФИЛЬМ
-================================= */
-
-if (watchLink) {
-
-const watchUrl =
-  movie.watch_url ||
-  movie.watch_auto_url;
-
-
-if (watchUrl) {
-
-  watchLink.href =
-    watchUrl;
-
-  watchLink.target =
-    "_blank";
-
-  watchLink.rel =
-    "noopener noreferrer";
-
-  watchLink.textContent =
-    "Смотреть фильм";
-
-  watchLink.style.display =
-    "inline";
-
-} else if (movie.id) {
-
-  watchLink.href =
-    `https://www.themoviedb.org/movie/${movie.id}/watch`;
-
-  watchLink.target =
-    "_blank";
-
-  watchLink.rel =
-    "noopener noreferrer";
-
-  watchLink.textContent =
-    "Смотреть фильм";
-
-  watchLink.style.display =
-    "inline";
-
-} else {
-
-  watchLink.style.display =
-    "none";
-
-}
-
-}
-
-}
-
-/* =================================
-ЗАПУСК ЗАГРУЗКИ
-================================= */
-
-loadMovie();
-
-/* =================================
-ДОБАВЛЕНИЕ В МОЮ КАРТОТЕКУ
-================================= */
-
-const addToLibraryBtn =
-  document.querySelector(".movie-actions button");
-
-if (addToLibraryBtn) {
-
-  addToLibraryBtn.addEventListener("click", async () => {
-
-    /* =================================
-       ПРОВЕРЯЕМ АВТОРИЗАЦИЮ
-       ================================= */
-
-    const {
-      data: sessionData,
-      error: sessionError
-    } = await supabaseClient.auth.getSession();
-
-    if (sessionError) {
-
-      console.error(
-        "Ошибка проверки авторизации:",
-        sessionError
-      );
-
-      alert("Не удалось проверить авторизацию.");
-
-      return;
-    }
-
-    if (
-      !sessionData ||
-      !sessionData.session
-    ) {
-
-      alert("Сначала войдите в аккаунт.");
-
-      return;
-    }
-
-    const userId =
-      sessionData.session.user.id;
-
-
-    /* =================================
-       ПАРАМЕТРЫ СТРАНИЦЫ
-       ================================= */
-
-    const params =
+    const pageParams =
       new URLSearchParams(
         window.location.search
       );
 
-    const movieId =
-      params.get("id");
+    const localMovieId =
+      pageParams.get("id");
 
     const tmdbData =
-      params.get("tmdb");
+      pageParams.get("tmdb");
 
 
     /* =================================
-       ФИЛЬМ ИЗ НАШЕЙ БАЗЫ
+       ЭЛЕМЕНТЫ СТРАНИЦЫ
        ================================= */
 
-    if (movieId) {
+    const movieMeta =
+      document.querySelector(".movie-meta");
 
-      const {
-        error: libraryError
-      } = await supabaseClient
-        .from("user_movies")
-        .insert({
-          user_id: userId,
-          movie_id: Number(movieId)
-        });
+    const movieTitle =
+      document.querySelector(".movie-title");
 
-      if (libraryError) {
+    const movieDescription =
+      document.querySelector(".movie-description");
 
-        if (
-          libraryError.code === "23505"
-        ) {
+    const poster =
+      document.querySelector(".poster");
 
-          addToLibraryBtn.textContent =
-            "Уже в моей картотеке";
+    const trailerBackground =
+      document.getElementById(
+        "trailerBackground"
+      );
 
-          return;
-        }
+    const trailerLink =
+      document.getElementById(
+        "trailerLink"
+      );
 
-        console.error(
-          "Ошибка добавления:",
-          libraryError
-        );
+    const watchLink =
+      document.getElementById(
+        "watchLink"
+      );
 
-        alert(
-          "Не удалось добавить фильм."
-        );
+    const addToLibraryBtn =
+      document.getElementById(
+        "addToLibraryBtn"
+      );
 
-        return;
+
+    /* =================================
+       ПОКАЗ ОШИБКИ
+       ================================= */
+
+    function showPageError(message) {
+
+      if (movieTitle) {
+        movieTitle.textContent =
+          "Не удалось загрузить фильм";
       }
 
-      addToLibraryBtn.textContent =
-        "Добавлено в картотеку";
+      if (movieDescription) {
+        movieDescription.textContent =
+          message;
+      }
 
-      return;
+      console.error(message);
+
     }
 
 
     /* =================================
-       ФИЛЬМ ИЗ TMDB
+       ОПРЕДЕЛЕНИЕ ЦВЕТА ПОСТЕРА
        ================================= */
 
-    if (tmdbData) {
+    function setPosterColor() {
 
-      let tmdbMovie;
+      if (!poster) {
+        return;
+      }
 
       try {
 
-        tmdbMovie =
+        const canvas =
+          document.createElement("canvas");
+
+        const ctx =
+          canvas.getContext("2d");
+
+        canvas.width = 50;
+        canvas.height = 50;
+
+        ctx.drawImage(
+          poster,
+          0,
+          0,
+          50,
+          50
+        );
+
+        const imageData =
+          ctx.getImageData(
+            0,
+            0,
+            50,
+            50
+          ).data;
+
+        let r = 0;
+        let g = 0;
+        let b = 0;
+        let count = 0;
+
+        for (
+          let i = 0;
+          i < imageData.length;
+          i += 4
+        ) {
+
+          const red =
+            imageData[i];
+
+          const green =
+            imageData[i + 1];
+
+          const blue =
+            imageData[i + 2];
+
+          const brightness =
+            (red + green + blue) / 3;
+
+          if (brightness > 25) {
+
+            r += red;
+            g += green;
+            b += blue;
+
+            count++;
+
+          }
+
+        }
+
+        if (!count) {
+          return;
+        }
+
+        r =
+          Math.round(r / count);
+
+        g =
+          Math.round(g / count);
+
+        b =
+          Math.round(b / count);
+
+        document.documentElement.style.setProperty(
+          "--poster-r",
+          r
+        );
+
+        document.documentElement.style.setProperty(
+          "--poster-g",
+          g
+        );
+
+        document.documentElement.style.setProperty(
+          "--poster-b",
+          b
+        );
+
+      } catch (error) {
+
+        console.error(
+          "Ошибка определения цвета постера:",
+          error
+        );
+
+      }
+
+    }
+
+
+    /* =================================
+       YOUTUBE ID
+       ================================= */
+
+    function getYoutubeId(urlString) {
+
+      if (!urlString) {
+        return null;
+      }
+
+      try {
+
+        const url =
+          new URL(urlString);
+
+        if (
+          url.hostname.includes(
+            "youtube.com"
+          )
+        ) {
+
+          return url.searchParams.get("v");
+
+        }
+
+        if (
+          url.hostname ===
+          "youtu.be"
+        ) {
+
+          return url.pathname
+            .replace("/", "")
+            .trim();
+
+        }
+
+      } catch (error) {
+
+        console.error(
+          "Ошибка разбора YouTube:",
+          error
+        );
+
+      }
+
+      return null;
+
+    }
+
+
+    /* =================================
+       ПОКАЗ ФИЛЬМА
+       ================================= */
+
+    function showMovie(movie) {
+
+      if (!movie) {
+        showPageError(
+          "Данные фильма отсутствуют."
+        );
+        return;
+      }
+
+
+      /* Заголовок */
+
+      document.title =
+        (movie.title || "Фильм") +
+        " — Моя Кинотека";
+
+
+      /* Метаданные */
+
+      if (movieMeta) {
+
+        const parts = [];
+
+        if (movie.year) {
+          parts.push(movie.year);
+        }
+
+        if (movie.type) {
+          parts.push(movie.type);
+        }
+
+        movieMeta.textContent =
+          parts.join(" · ");
+
+      }
+
+
+      /* Название */
+
+      if (movieTitle) {
+
+        movieTitle.textContent =
+          movie.title ||
+          "Без названия";
+
+      }
+
+
+      /* Описание */
+
+      if (movieDescription) {
+
+        movieDescription.textContent =
+          movie.description ||
+          "Описание отсутствует.";
+
+      }
+
+
+      /* Постер */
+
+      if (poster) {
+
+        poster.src =
+          movie.poster_url || "";
+
+        poster.alt =
+          movie.title ||
+          "Постер фильма";
+
+        poster.onload =
+          setPosterColor;
+
+      }
+
+
+      /* =================================
+         ТРЕЙЛЕР
+         ================================= */
+
+      const trailerUrl =
+        movie.trailer_url ||
+        movie.trailer_auto_url ||
+        null;
+
+      if (trailerUrl) {
+
+        const youtubeId =
+          getYoutubeId(trailerUrl);
+
+        if (
+          trailerBackground &&
+          youtubeId
+        ) {
+
+          trailerBackground.src =
+            "https://www.youtube.com/embed/" +
+            youtubeId +
+            "?autoplay=1" +
+            "&mute=1" +
+            "&loop=1" +
+            "&playlist=" +
+            youtubeId +
+            "&controls=0" +
+            "&showinfo=0" +
+            "&rel=0";
+
+        }
+
+        if (trailerLink) {
+
+          trailerLink.href =
+            trailerUrl;
+
+          trailerLink.target =
+            "_blank";
+
+          trailerLink.rel =
+            "noopener noreferrer";
+
+          trailerLink.style.display =
+            "inline";
+
+        }
+
+      } else {
+
+        if (trailerLink) {
+          trailerLink.style.display =
+            "none";
+        }
+
+      }
+
+
+      /* =================================
+         ПРОСМОТР ФИЛЬМА
+         ================================= */
+
+      const watchUrl =
+        movie.watch_url ||
+        movie.watch_auto_url ||
+        null;
+
+      if (watchLink) {
+
+        if (watchUrl) {
+
+          watchLink.href =
+            watchUrl;
+
+          watchLink.target =
+            "_blank";
+
+          watchLink.rel =
+            "noopener noreferrer";
+
+          watchLink.textContent =
+            "Смотреть фильм";
+
+          watchLink.style.display =
+            "inline";
+
+        } else if (
+          movie.tmdb_id ||
+          (
+            movie.id &&
+            tmdbData
+          )
+        ) {
+
+          const tmdbId =
+            movie.tmdb_id ||
+            movie.id;
+
+          watchLink.href =
+            `https://www.themoviedb.org/movie/${tmdbId}/watch`;
+
+          watchLink.target =
+            "_blank";
+
+          watchLink.rel =
+            "noopener noreferrer";
+
+          watchLink.textContent =
+            "Смотреть фильм";
+
+          watchLink.style.display =
+            "inline";
+
+        } else {
+
+          watchLink.style.display =
+            "none";
+
+        }
+
+      }
+
+    }
+
+
+    /* =================================
+       ЗАГРУЗКА ФИЛЬМА ИЗ БАЗЫ
+       ================================= */
+
+    async function loadLocalMovie() {
+
+      if (!localMovieId) {
+        return null;
+      }
+
+      const {
+        data: movie,
+        error
+      } =
+        await supabaseClient
+          .from("movies")
+          .select("*")
+          .eq("id", localMovieId)
+          .single();
+
+      if (error) {
+
+        console.error(
+          "Ошибка загрузки фильма:",
+          error
+        );
+
+        showPageError(
+          "Не удалось загрузить фильм из Кинотеки."
+        );
+
+        return null;
+
+      }
+
+      if (!movie) {
+
+        showPageError(
+          "Фильм не найден."
+        );
+
+        return null;
+
+      }
+
+      showMovie(movie);
+
+      return movie;
+
+    }
+
+
+    /* =================================
+       ЗАГРУЗКА ФИЛЬМА ИЗ TMDB
+       ================================= */
+
+    async function loadTmdbMovie() {
+
+      if (!tmdbData) {
+        return null;
+      }
+
+      let movie;
+
+      try {
+
+        movie =
           JSON.parse(
-            decodeURIComponent(tmdbData)
+            decodeURIComponent(
+              tmdbData
+            )
           );
 
       } catch (error) {
@@ -1207,175 +1063,616 @@ if (addToLibraryBtn) {
           error
         );
 
-        alert(
-          "Не удалось получить данные фильма."
+        showPageError(
+          "Не удалось прочитать данные фильма."
         );
 
-        return;
+        return null;
+
       }
 
 
-      if (!tmdbMovie.id) {
+      /* Сначала показываем то,
+         что уже пришло из поиска */
 
-        alert(
-          "У этого фильма отсутствует TMDB ID."
-        );
-
-        return;
-      }
+      showMovie(movie);
 
 
-      /* =================================
-         ИЩЕМ ФИЛЬМ В НАШЕЙ БАЗЕ
-         ================================= */
-
-      let movieInDatabase = null;
-
-      const {
-        data: existingMovies,
-        error: searchError
-      } = await supabaseClient
-        .from("movies")
-        .select("*")
-        .eq("tmdb_id", tmdbMovie.id)
-        .limit(1);
-
-
-      if (searchError) {
+      if (!movie.id) {
 
         console.error(
-          "Ошибка поиска фильма:",
-          searchError
+          "У фильма нет TMDB ID."
         );
 
-        alert(
-          "Не удалось проверить фильм в Кинотеке."
-        );
-
-        return;
-      }
-
-
-      if (
-        existingMovies &&
-        existingMovies.length > 0
-      ) {
-
-        movieInDatabase =
-          existingMovies[0];
+        return movie;
 
       }
 
 
-      /* =================================
-         ЕСЛИ НЕТ — СОЗДАЁМ ФИЛЬМ
-         ================================= */
+      /* Получаем полную информацию */
 
-      if (!movieInDatabase) {
+      try {
 
         const {
-          data: newMovie,
-          error: insertMovieError
-        } = await supabaseClient
-          .from("movies")
-          .insert({
-
-            title:
-              tmdbMovie.title ||
-              "Без названия",
-
-            year:
-              tmdbMovie.year ||
-              null,
-
-            description:
-              tmdbMovie.description ||
-              "",
-
-            poster_url:
-              tmdbMovie.poster_url ||
-              "",
-
-            type:
-              tmdbMovie.type ||
-              "Фильм",
-
-            tmdb_id:
-              tmdbMovie.id
-
-          })
-          .select()
-          .single();
+          data: result,
+          error
+        } =
+          await supabaseClient.functions.invoke(
+            "tmdb-movie",
+            {
+              body: {
+                movie_id: movie.id
+              }
+            }
+          );
 
 
-        if (insertMovieError) {
+        if (error) {
 
           console.error(
-            "Ошибка создания фильма:",
-            insertMovieError
+            "Ошибка функции tmdb-movie:",
+            error
           );
 
-          alert(
-            "Не удалось добавить фильм в Кинотеку."
-          );
+          return movie;
 
-          return;
         }
 
-        movieInDatabase =
-          newMovie;
-      }
+
+        if (!result) {
+
+          console.error(
+            "tmdb-movie не вернула данные."
+          );
+
+          return movie;
+
+        }
 
 
-      /* =================================
-         ДОБАВЛЯЕМ В КАРТОТЕКУ ПОЛЬЗОВАТЕЛЯ
-         ================================= */
-
-      const {
-        error: libraryError
-      } = await supabaseClient
-        .from("user_movies")
-        .insert({
-
-          user_id:
-            userId,
-
-          movie_id:
-            movieInDatabase.id
-
-        });
+        console.log(
+          "Данные TMDB:",
+          result
+        );
 
 
-      if (libraryError) {
+        const fullMovie =
+          result.movie;
+
+
+        if (!fullMovie) {
+
+          console.error(
+            "В ответе нет данных фильма."
+          );
+
+          return movie;
+
+        }
+
+
+        let trailerAutoUrl =
+          null;
 
         if (
-          libraryError.code === "23505"
+          result.trailer &&
+          result.trailer.youtube_url
         ) {
 
-          addToLibraryBtn.textContent =
-            "Уже в моей картотеке";
+          trailerAutoUrl =
+            result.trailer.youtube_url;
 
-          return;
         }
 
+
+        let watchAutoUrl =
+          null;
+
+        if (
+          result.watch &&
+          result.watch.link
+        ) {
+
+          watchAutoUrl =
+            result.watch.link;
+
+        }
+
+
+        const updatedMovie = {
+
+          ...movie,
+
+          title:
+            fullMovie.title ||
+            movie.title,
+
+          year:
+            fullMovie.release_date
+              ? fullMovie.release_date.substring(
+                  0,
+                  4
+                )
+              : movie.year,
+
+          description:
+            fullMovie.overview ||
+            movie.description,
+
+          poster_url:
+            fullMovie.poster_path
+              ? "https://image.tmdb.org/t/p/w500" +
+                fullMovie.poster_path
+              : movie.poster_url,
+
+          trailer_auto_url:
+            trailerAutoUrl,
+
+          watch_auto_url:
+            watchAutoUrl
+
+        };
+
+
+        showMovie(
+          updatedMovie
+        );
+
+
+        console.log(
+          "Автоматический трейлер:",
+          trailerAutoUrl
+        );
+
+        console.log(
+          "Автоматическая ссылка просмотра:",
+          watchAutoUrl
+        );
+
+
+        return updatedMovie;
+
+      } catch (error) {
+
         console.error(
-          "Ошибка добавления в картотеку:",
-          libraryError
+          "Ошибка загрузки TMDB:",
+          error
         );
 
-        alert(
-          "Не удалось добавить фильм в картотеку."
-        );
+        return movie;
 
-        return;
       }
-
-
-      addToLibraryBtn.textContent =
-        "Добавлено в картотеку";
 
     }
 
-  });
 
-}
+    /* =================================
+       ЗАГРУЗКА СТРАНИЦЫ
+       ================================= */
+
+    async function loadMovie() {
+
+      if (localMovieId) {
+
+        await loadLocalMovie();
+
+        return;
+
+      }
+
+
+      if (tmdbData) {
+
+        await loadTmdbMovie();
+
+        return;
+
+      }
+
+
+      showPageError(
+        "Фильм не указан."
+      );
+
+    }
+
+
+    /* =================================
+       ДОБАВЛЕНИЕ В МОЮ КАРТОТЕКУ
+       ================================= */
+
+    if (addToLibraryBtn) {
+
+      addToLibraryBtn.addEventListener(
+        "click",
+        async function () {
+
+          /* Не даём нажать несколько раз */
+
+          addToLibraryBtn.disabled = true;
+
+          const originalText =
+            addToLibraryBtn.textContent;
+
+
+          try {
+
+            /* =================================
+               ПРОВЕРЯЕМ АВТОРИЗАЦИЮ
+               ================================= */
+
+            const {
+              data: sessionData,
+              error: sessionError
+            } =
+              await supabaseClient.auth.getSession();
+
+
+            if (sessionError) {
+
+              console.error(
+                "Ошибка проверки авторизации:",
+                sessionError
+              );
+
+              alert(
+                "Не удалось проверить авторизацию."
+              );
+
+              return;
+
+            }
+
+
+            if (
+              !sessionData ||
+              !sessionData.session
+            ) {
+
+              alert(
+                "Сначала войдите в аккаунт."
+              );
+
+              return;
+
+            }
+
+
+            const userId =
+              sessionData.session.user.id;
+
+
+            /* =================================
+               ОБЫЧНЫЙ ФИЛЬМ ИЗ НАШЕЙ БАЗЫ
+               ================================= */
+
+            if (localMovieId) {
+
+              const {
+                error: libraryError
+              } =
+                await supabaseClient
+                  .from("user_movies")
+                  .insert({
+
+                    user_id:
+                      userId,
+
+                    movie_id:
+                      Number(localMovieId)
+
+                  });
+
+
+              if (libraryError) {
+
+                if (
+                  libraryError.code ===
+                  "23505"
+                ) {
+
+                  addToLibraryBtn.textContent =
+                    "Уже в моей картотеке";
+
+                  return;
+
+                }
+
+
+                console.error(
+                  "Ошибка добавления:",
+                  libraryError
+                );
+
+                alert(
+                  "Не удалось добавить фильм."
+                );
+
+                return;
+
+              }
+
+
+              addToLibraryBtn.textContent =
+                "Добавлено в картотеку";
+
+              return;
+
+            }
+
+
+            /* =================================
+               ФИЛЬМ ИЗ TMDB
+               ================================= */
+
+            if (tmdbData) {
+
+              let tmdbMovie;
+
+              try {
+
+                tmdbMovie =
+                  JSON.parse(
+                    decodeURIComponent(
+                      tmdbData
+                    )
+                  );
+
+              } catch (error) {
+
+                console.error(
+                  "Ошибка чтения TMDB:",
+                  error
+                );
+
+                alert(
+                  "Не удалось получить данные фильма."
+                );
+
+                return;
+
+              }
+
+
+              if (!tmdbMovie.id) {
+
+                alert(
+                  "У этого фильма отсутствует TMDB ID."
+                );
+
+                return;
+
+              }
+
+
+              /* =================================
+                 ИЩЕМ ФИЛЬМ В НАШЕЙ БАЗЕ
+                 ================================= */
+
+              let movieInDatabase =
+                null;
+
+
+              const {
+                data: existingMovies,
+                error: searchError
+              } =
+                await supabaseClient
+                  .from("movies")
+                  .select("*")
+                  .eq(
+                    "tmdb_id",
+                    tmdbMovie.id
+                  )
+                  .limit(1);
+
+
+              if (searchError) {
+
+                console.error(
+                  "Ошибка поиска фильма:",
+                  searchError
+                );
+
+                alert(
+                  "Не удалось проверить фильм в Кинотеке."
+                );
+
+                return;
+
+              }
+
+
+              if (
+                existingMovies &&
+                existingMovies.length > 0
+              ) {
+
+                movieInDatabase =
+                  existingMovies[0];
+
+              }
+
+
+              /* =================================
+                 ЕСЛИ ФИЛЬМА НЕТ — СОЗДАЁМ
+                 ================================= */
+
+              if (!movieInDatabase) {
+
+                const {
+                  data: newMovie,
+                  error: insertMovieError
+                } =
+                  await supabaseClient
+                    .from("movies")
+                    .insert({
+
+                      title:
+                        tmdbMovie.title ||
+                        "Без названия",
+
+                      year:
+                        tmdbMovie.year ||
+                        null,
+
+                      description:
+                        tmdbMovie.description ||
+                        "",
+
+                      poster_url:
+                        tmdbMovie.poster_url ||
+                        "",
+
+                      type:
+                        tmdbMovie.type ||
+                        "Фильм",
+
+                      tmdb_id:
+                        tmdbMovie.id
+
+                    })
+                    .select()
+                    .single();
+
+
+                if (insertMovieError) {
+
+                  console.error(
+                    "Ошибка создания фильма:",
+                    insertMovieError
+                  );
+
+                  alert(
+                    "Не удалось добавить фильм в Кинотеку."
+                  );
+
+                  return;
+
+                }
+
+
+                movieInDatabase =
+                  newMovie;
+
+              }
+
+
+              /* =================================
+                 ДОБАВЛЯЕМ ФИЛЬМ ПОЛЬЗОВАТЕЛЮ
+                 ================================= */
+
+              const {
+                error: libraryError
+              } =
+                await supabaseClient
+                  .from("user_movies")
+                  .insert({
+
+                    user_id:
+                      userId,
+
+                    movie_id:
+                      movieInDatabase.id
+
+                  });
+
+
+              if (libraryError) {
+
+                if (
+                  libraryError.code ===
+                  "23505"
+                ) {
+
+                  addToLibraryBtn.textContent =
+                    "Уже в моей картотеке";
+
+                  return;
+
+                }
+
+
+                console.error(
+                  "Ошибка добавления в картотеку:",
+                  libraryError
+                );
+
+                alert(
+                  "Не удалось добавить фильм в картотеку."
+                );
+
+                return;
+
+              }
+
+
+              addToLibraryBtn.textContent =
+                "Добавлено в картотеку";
+
+              return;
+
+            }
+
+
+            alert(
+              "Не удалось определить фильм."
+            );
+
+          } catch (error) {
+
+            console.error(
+              "Неожиданная ошибка:",
+              error
+            );
+
+            alert(
+              "Произошла ошибка. Посмотрите консоль браузера."
+            );
+
+          } finally {
+
+            /*
+             * Если фильм успешно добавлен
+             * или уже находится в картотеке,
+             * кнопку оставляем отключённой.
+             */
+
+            if (
+              addToLibraryBtn.textContent ===
+                "Добавлено в картотеку" ||
+              addToLibraryBtn.textContent ===
+                "Уже в моей картотеке"
+            ) {
+
+              addToLibraryBtn.disabled =
+                true;
+
+            } else {
+
+              addToLibraryBtn.disabled =
+                false;
+
+              addToLibraryBtn.textContent =
+                originalText;
+
+            }
+
+          }
+
+        }
+      );
+
+    }
+
+
+    /* =================================
+       ЗАПУСК
+       ================================= */
+
+    loadMovie();
+
+  </script>
+
+</body>
+</html>
