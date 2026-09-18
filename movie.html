@@ -1090,13 +1090,24 @@ if (addToLibraryBtn) {
 
   addToLibraryBtn.addEventListener("click", async () => {
 
-    // ===============================
+    // =================================
     // ПРОВЕРЯЕМ АВТОРИЗАЦИЮ
-    // ===============================
+    // =================================
 
     const {
-      data: sessionData
+      data: sessionData,
+      error: sessionError
     } = await supabaseClient.auth.getSession();
+
+    if (sessionError) {
+      console.error(
+        "Ошибка проверки авторизации:",
+        sessionError
+      );
+
+      alert("Не удалось проверить авторизацию.");
+      return;
+    }
 
     if (
       !sessionData ||
@@ -1110,9 +1121,9 @@ if (addToLibraryBtn) {
       sessionData.session.user.id;
 
 
-    // ===============================
+    // =================================
     // ПОЛУЧАЕМ ПАРАМЕТРЫ СТРАНИЦЫ
-    // ===============================
+    // =================================
 
     const params =
       new URLSearchParams(
@@ -1126,14 +1137,14 @@ if (addToLibraryBtn) {
       params.get("tmdb");
 
 
-    // ===============================
+    // =================================
     // ОБЫЧНЫЙ ФИЛЬМ ИЗ НАШЕЙ КИНОТЕКИ
-    // ===============================
+    // =================================
 
     if (movieId) {
 
       const {
-        error
+        error: libraryError
       } = await supabaseClient
         .from("user_movies")
         .insert({
@@ -1141,9 +1152,13 @@ if (addToLibraryBtn) {
           movie_id: Number(movieId)
         });
 
-      if (error) {
 
-        if (error.code === "23505") {
+      if (libraryError) {
+
+        // Фильм уже есть у пользователя
+        if (
+          libraryError.code === "23505"
+        ) {
 
           addToLibraryBtn.textContent =
             "Уже в моей картотеке";
@@ -1151,9 +1166,10 @@ if (addToLibraryBtn) {
           return;
         }
 
+
         console.error(
           "Ошибка добавления:",
-          error
+          libraryError
         );
 
         alert(
@@ -1163,6 +1179,7 @@ if (addToLibraryBtn) {
         return;
       }
 
+
       addToLibraryBtn.textContent =
         "Добавлено в картотеку";
 
@@ -1170,13 +1187,18 @@ if (addToLibraryBtn) {
     }
 
 
-    // ===============================
+    // =================================
     // ФИЛЬМ ИЗ ВСЕМИРНОЙ БАЗЫ TMDB
-    // ===============================
+    // =================================
 
     if (tmdbData) {
 
       let tmdbMovie;
+
+
+      // =================================
+      // ЧИТАЕМ ДАННЫЕ TMDB
+      // =================================
 
       try {
 
@@ -1200,11 +1222,28 @@ if (addToLibraryBtn) {
       }
 
 
-      // ===============================
-      // ИЩЕМ ФИЛЬМ В НАШЕЙ КИНОТЕКЕ
-      // ===============================
+      // Проверяем наличие TMDB ID
+      if (!tmdbMovie.id) {
+
+        console.error(
+          "У фильма отсутствует TMDB ID:",
+          tmdbMovie
+        );
+
+        alert(
+          "У этого фильма отсутствует идентификатор TMDB."
+        );
+
+        return;
+      }
+
+
+      // =================================
+      // ИЩЕМ ФИЛЬМ ПО TMDB ID
+      // =================================
 
       let movieInDatabase = null;
+
 
       const {
         data: existingMovies,
@@ -1212,37 +1251,44 @@ if (addToLibraryBtn) {
       } = await supabaseClient
         .from("movies")
         .select("*")
-        .eq("title", tmdbMovie.title)
-        .eq("year", tmdbMovie.year)
+        .eq("tmdb_id", tmdbMovie.id)
         .limit(1);
+
 
       if (searchError) {
 
         console.error(
-          "Ошибка поиска фильма:",
+          "Ошибка поиска фильма по TMDB ID:",
           searchError
         );
 
         alert(
-          "Не удалось проверить фильм."
+          "Не удалось проверить фильм в Кинотеке."
         );
 
         return;
       }
 
+
+      // =================================
+      // ФИЛЬМ УЖЕ ЕСТЬ В НАШЕЙ КИНОТЕКЕ
+      // =================================
+
       if (
         existingMovies &&
         existingMovies.length > 0
       ) {
+
         movieInDatabase =
           existingMovies[0];
+
       }
 
 
-      // ===============================
-      // ЕСЛИ ФИЛЬМА ЕЩЁ НЕТ —
-      // СОЗДАЁМ ЕГО В КИНОТЕКЕ
-      // ===============================
+      // =================================
+      // ЕСЛИ ФИЛЬМА НЕТ —
+      // СОЗДАЁМ ЕГО В НАШЕЙ КИНОТЕКЕ
+      // =================================
 
       if (!movieInDatabase) {
 
@@ -1252,20 +1298,30 @@ if (addToLibraryBtn) {
         } = await supabaseClient
           .from("movies")
           .insert({
+
             title:
-              tmdbMovie.title,
+              tmdbMovie.title ||
+              "Без названия",
 
             year:
-              tmdbMovie.year,
+              tmdbMovie.year ||
+              null,
 
             description:
-              tmdbMovie.description || "",
+              tmdbMovie.description ||
+              "",
 
             poster_url:
-              tmdbMovie.poster_url || "",
+              tmdbMovie.poster_url ||
+              "",
 
             type:
-              tmdbMovie.type || "Фильм"
+              tmdbMovie.type ||
+              "Фильм",
+
+            tmdb_id:
+              tmdbMovie.id
+
           })
           .select()
           .single();
@@ -1274,7 +1330,7 @@ if (addToLibraryBtn) {
         if (insertMovieError) {
 
           console.error(
-            "Ошибка создания фильма:",
+            "Ошибка создания фильма в Кинотеке:",
             insertMovieError
           );
 
@@ -1285,31 +1341,40 @@ if (addToLibraryBtn) {
           return;
         }
 
+
         movieInDatabase =
           newMovie;
       }
 
 
-      // ===============================
+      // =================================
       // ДОБАВЛЯЕМ ФИЛЬМ В КАРТОТЕКУ
       // ПОЛЬЗОВАТЕЛЯ
-      // ===============================
+      // =================================
 
       const {
         error: libraryError
       } = await supabaseClient
         .from("user_movies")
         .insert({
+
           user_id:
             userId,
 
           movie_id:
             movieInDatabase.id
+
         });
 
 
+      // =================================
+      // ОБРАБАТЫВАЕМ ОШИБКУ
+      // =================================
+
       if (libraryError) {
 
+        // Фильм уже находится
+        // в картотеке пользователя
         if (
           libraryError.code === "23505"
         ) {
@@ -1319,6 +1384,7 @@ if (addToLibraryBtn) {
 
           return;
         }
+
 
         console.error(
           "Ошибка добавления в картотеку:",
@@ -1333,9 +1399,9 @@ if (addToLibraryBtn) {
       }
 
 
-      // ===============================
+      // =================================
       // УСПЕШНО
-      // ===============================
+      // =================================
 
       addToLibraryBtn.textContent =
         "Добавлено в картотеку";
