@@ -157,97 +157,122 @@
 
   <!-- ==================== ШАПКА ==================== -->
 
-  <header>
+<header>
 
-    <div class="logo">
-      🎬 Моя Кинотека
-    </div>
+  <div class="logo">
+    🎬 Моя Кинотека
+  </div>
 
-    <nav>
+  <nav>
 
-      <a href="#" id="searchBtn">
-        Поиск
-      </a>
+    <a href="#" id="searchBtn">
+      Поиск
+    </a>
 
-      <a href="#">
-        Главная
-      </a>
+    <a href="index.html">
+      Главная
+    </a>
 
-      <a href="catalog.html?type=film">
-        Фильмы
-      </a>
+    <a href="catalog.html?type=film">
+      Фильмы
+    </a>
 
-      <a href="catalog.html?type=series">
-        Сериалы
-      </a>
+    <a href="catalog.html?type=series">
+      Сериалы
+    </a>
 
-      <a href="catalog.html?type=cartoon">
-        Мультфильмы
-      </a>
+    <a href="catalog.html?type=cartoon">
+      Мультфильмы
+    </a>
 
-      <a href="#">
-        Избранное
-      </a>
+    <!-- Показывается только авторизованному пользователю -->
+    <a
+      href="#"
+      id="favoritesBtn"
+      style="display:none;"
+    >
+      Избранное
+    </a>
 
-      <a href="#" id="loginBtn">
-        Войти
-      </a>
+    <!-- Неавторизованный пользователь -->
+    <a
+      href="#"
+      id="loginBtn"
+    >
+      Войти
+    </a>
 
-      <a href="#" id="registerBtn">
-        Регистрация
-      </a>
+    <a
+      href="#"
+      id="registerBtn"
+    >
+      Регистрация
+    </a>
 
-      <a
-        href="#"
-        id="profileBtn"
-        style="display:none;"
-      >
-        Профиль
-      </a>
+    <!-- Авторизованный пользователь -->
+    <a
+      href="#"
+      id="profileBtn"
+      style="display:none;"
+    >
+      Мой профиль
+    </a>
 
-      <a href="#" id="supportBtn">
-        Поддержка
-      </a>
+    <a
+      href="#"
+      id="logoutBtn"
+      style="display:none;"
+    >
+      Выйти
+    </a>
 
-      <a
-        href="#"
-        id="adminSupportBtn"
-        style="display:none;"
-      >
-        Админ-панель
-      </a>
+    <!-- Доступно всем -->
+    <a
+      href="#"
+      id="supportBtn"
+    >
+      Поддержка
+    </a>
 
+    <!-- Только администратор -->
+    <a
+      href="#"
+      id="adminSupportBtn"
+      style="display:none;"
+    >
+      Админ-панель
+    </a>
 
-      <select
-        id="languageSelect"
-        style="
-          margin-left:25px;
-          padding:6px 8px;
-          border-radius:6px;
-          border:1px solid #3a3f4a;
-          background:#242832;
-          color:white;
-          cursor:pointer;
-        "
-      >
+    <select
+      id="languageSelect"
+      style="
+        margin-left:25px;
+        padding:6px 8px;
+        border-radius:6px;
+        border:1px solid #3a3f4a;
+        background:#242832;
+        color:white;
+        cursor:pointer;
+      "
+    >
 
-        <option value="ru">
-          RU
-        </option>
+      <option value="ru">
+        RU
+      </option>
 
-        <option value="uk">
-          UA
-        </option>
+      <option value="uk">
+        UA
+      </option>
 
-        <option value="en">
-          EN
-        </option>
+      <option value="en">
+        EN
+      </option>
 
-      </select>
+    </select>
 
-    </nav>
+  </nav>
 
-  </header>
+</header>
 
 
   <!-- ==================== ПРОФИЛЬ ==================== -->
