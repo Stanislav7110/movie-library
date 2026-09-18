@@ -2797,3 +2797,473 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 });
+// ===============================
+// ПОЛЬЗОВАТЕЛИ НА ГЛАВНОЙ
+// ===============================
+
+const usersSection = document.getElementById("usersSection");
+const usersList = document.getElementById("usersList");
+const usersSearchInput = document.getElementById("usersSearchInput");
+const usersSearchType = document.getElementById("usersSearchType");
+const usersShowMore = document.getElementById("usersShowMore");
+
+let allUsers = [];
+let usersDisplayed = 6;
+
+
+// ===============================
+// ФОТО ПОЛЬЗОВАТЕЛЯ
+// ===============================
+
+function getUserAvatarUrl(userId) {
+
+  const filePath = `${userId}.jpg`;
+
+  const { data } = supabaseClient
+    .storage
+    .from("avatars")
+    .getPublicUrl(filePath);
+
+  return data?.publicUrl || "";
+}
+
+
+// ===============================
+// ЗАГРУЗКА ПОЛЬЗОВАТЕЛЕЙ
+// ===============================
+
+async function loadUsers() {
+
+  if (!usersList) {
+    return;
+  }
+
+  usersList.innerHTML =
+    "Загрузка пользователей...";
+
+  const {
+    data: profiles,
+    error: profilesError
+  } = await supabaseClient
+    .from("profiles")
+    .select("id, name, username")
+    .order("name", {
+      ascending: true
+    });
+
+  if (profilesError) {
+
+    console.error(
+      "Ошибка загрузки пользователей:",
+      profilesError
+    );
+
+    usersList.innerHTML =
+      "Не удалось загрузить пользователей.";
+
+    return;
+  }
+
+  if (!profiles || profiles.length === 0) {
+
+    usersList.innerHTML =
+      "Пользователей пока нет.";
+
+    return;
+  }
+
+
+  // ===============================
+  // ЗАГРУЖАЕМ ИХ ПОСЛЕДНИЕ ФИЛЬМЫ
+  // ===============================
+
+  const userIds =
+    profiles.map(user => user.id);
+
+  const {
+    data: userMovies,
+    error: userMoviesError
+  } = await supabaseClient
+    .from("user_movies")
+    .select(`
+      user_id,
+      movie_id,
+      created_at,
+      movies (
+        id,
+        title,
+        poster_url,
+        year,
+        type
+      )
+    `)
+    .in("user_id", userIds)
+    .order("created_at", {
+      ascending: false
+    });
+
+  if (userMoviesError) {
+
+    console.error(
+      "Ошибка загрузки фильмов пользователей:",
+      userMoviesError
+    );
+
+  }
+
+
+  // ===============================
+  // СОБИРАЕМ ДАННЫЕ
+  // ===============================
+
+  allUsers =
+    profiles.map(user => {
+
+      const movies =
+        (userMovies || [])
+          .filter(item =>
+            item.user_id === user.id &&
+            item.movies
+          )
+          .slice(0, 6)
+          .map(item => item.movies);
+
+      return {
+        ...user,
+        movies: movies
+      };
+
+    });
+
+
+  usersDisplayed = 6;
+
+  renderUsers();
+}
+
+
+// ===============================
+// ОТОБРАЖЕНИЕ ПОЛЬЗОВАТЕЛЕЙ
+// ===============================
+
+function renderUsers() {
+
+  if (!usersList) {
+    return;
+  }
+
+  const searchText =
+    usersSearchInput
+      ? usersSearchInput.value
+          .trim()
+          .toLowerCase()
+      : "";
+
+  const searchType =
+    usersSearchType
+      ? usersSearchType.value
+      : "name";
+
+
+  let filteredUsers =
+    allUsers.filter(user => {
+
+      if (!searchText) {
+        return true;
+      }
+
+      const value =
+        searchType === "username"
+          ? (user.username || "")
+          : (user.name || "");
+
+      return value
+        .toLowerCase()
+        .includes(searchText);
+
+    });
+
+
+  const visibleUsers =
+    filteredUsers.slice(
+      0,
+      usersDisplayed
+    );
+
+
+  usersList.innerHTML = "";
+
+
+  if (visibleUsers.length === 0) {
+
+    usersList.innerHTML = `
+      <div style="
+        color:#aaa;
+        text-align:center;
+        padding:20px 10px;
+      ">
+        Пользователь не найден.
+      </div>
+    `;
+
+    if (usersShowMore) {
+      usersShowMore.style.display = "none";
+    }
+
+    return;
+  }
+
+
+  visibleUsers.forEach(user => {
+
+    const userCard =
+      document.createElement("div");
+
+    userCard.style.marginBottom = "18px";
+    userCard.style.paddingBottom = "18px";
+    userCard.style.borderBottom =
+      "1px solid rgba(255,255,255,0.08)";
+    userCard.style.cursor = "pointer";
+
+
+    const avatarUrl =
+      getUserAvatarUrl(user.id);
+
+
+    const avatar =
+      avatarUrl
+        ? `
+          <img
+            src="${avatarUrl}"
+            style="
+              width:48px;
+              height:48px;
+              border-radius:50%;
+              object-fit:cover;
+              flex-shrink:0;
+              background:#333;
+            "
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+          >
+          <div style="
+            width:48px;
+            height:48px;
+            border-radius:50%;
+            background:#3a3f4a;
+            display:none;
+            align-items:center;
+            justify-content:center;
+            font-size:20px;
+            flex-shrink:0;
+          ">
+            👤
+          </div>
+        `
+        : `
+          <div style="
+            width:48px;
+            height:48px;
+            border-radius:50%;
+            background:#3a3f4a;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:20px;
+            flex-shrink:0;
+          ">
+            👤
+          </div>
+        `;
+
+
+    userCard.innerHTML = `
+      <div style="
+        display:flex;
+        align-items:center;
+        gap:10px;
+        margin-bottom:10px;
+      ">
+
+        ${avatar}
+
+        <div style="
+          min-width:0;
+        ">
+
+          <div style="
+            font-size:16px;
+            font-weight:600;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+          ">
+            ${user.name || "Без имени"}
+          </div>
+
+          <div style="
+            color:#999;
+            font-size:13px;
+            margin-top:3px;
+          ">
+            @${user.username || "без никнейма"}
+          </div>
+
+        </div>
+
+      </div>
+
+      <div style="
+        display:grid;
+        grid-template-columns:repeat(6, 1fr);
+        gap:5px;
+      ">
+
+        ${
+          user.movies.length > 0
+
+          ? user.movies.map(movie => `
+              <div
+                title="${movie.title || ""}"
+                style="
+                  aspect-ratio:2/3;
+                  border-radius:4px;
+                  overflow:hidden;
+                  background:#1d2027;
+                "
+              >
+                <img
+                  src="${movie.poster_url || ""}"
+                  alt="${movie.title || ""}"
+                  style="
+                    width:100%;
+                    height:100%;
+                    object-fit:cover;
+                    display:block;
+                  "
+                >
+              </div>
+            `).join("")
+
+          : `
+            <div style="
+              grid-column:1 / -1;
+              color:#777;
+              font-size:13px;
+              padding:8px 0;
+            ">
+              Фильмов пока нет
+            </div>
+          `
+        }
+
+      </div>
+    `;
+
+
+    // Открытие публичного профиля
+    userCard.addEventListener(
+      "click",
+      () => {
+
+        window.location.href =
+          `profile.html?id=${encodeURIComponent(user.id)}`;
+
+      }
+    );
+
+
+    usersList.appendChild(userCard);
+
+  });
+
+
+  // ===============================
+  // КНОПКА ЕЩЁ
+  // ===============================
+
+  if (usersShowMore) {
+
+    if (
+      filteredUsers.length > usersDisplayed
+    ) {
+
+      usersShowMore.style.display =
+        "block";
+
+    } else {
+
+      usersShowMore.style.display =
+        "none";
+
+    }
+
+  }
+
+}
+
+
+// ===============================
+// ПОИСК ПОЛЬЗОВАТЕЛЕЙ
+// ===============================
+
+if (usersSearchInput) {
+
+  usersSearchInput.addEventListener(
+    "input",
+    () => {
+
+      usersDisplayed = 6;
+
+      renderUsers();
+
+    }
+  );
+
+}
+
+
+if (usersSearchType) {
+
+  usersSearchType.addEventListener(
+    "change",
+    () => {
+
+      usersDisplayed = 6;
+
+      renderUsers();
+
+      if (usersSearchInput) {
+        usersSearchInput.focus();
+      }
+
+    }
+  );
+
+}
+
+
+// ===============================
+// ПОКАЗАТЬ ЕЩЁ
+// ===============================
+
+if (usersShowMore) {
+
+  usersShowMore.addEventListener(
+    "click",
+    () => {
+
+      usersDisplayed += 6;
+
+      renderUsers();
+
+    }
+  );
+
+}
+
+
+// ===============================
+// ЗАПУСК ПОЛЬЗОВАТЕЛЕЙ
+// ===============================
+
+loadUsers();
