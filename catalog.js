@@ -496,6 +496,7 @@ async function loadTMDBPage(page) {
           }
         );
 
+
       tmdbData =
         response.data;
 
@@ -568,7 +569,6 @@ async function loadTMDBPage(page) {
             ).toLowerCase();
 
 
-          // ФИЛЬМЫ
           if (
             currentType === "film"
           ) {
@@ -584,7 +584,6 @@ async function loadTMDBPage(page) {
           }
 
 
-          // СЕРИАЛЫ
           if (
             currentType === "series"
           ) {
@@ -600,7 +599,6 @@ async function loadTMDBPage(page) {
           }
 
 
-          // МУЛЬТФИЛЬМЫ
           if (
             currentType === "cartoon"
           ) {
@@ -642,7 +640,13 @@ async function loadTMDBPage(page) {
           body: {
             mode: "catalog",
             type: settings.tmdbType,
-            page: page
+            page: page,
+
+            // Передаём выбранный жанр
+            genre:
+              selectedGenre === "all"
+                ? null
+                : Number(selectedGenre)
           }
         }
       );
@@ -729,11 +733,6 @@ async function loadTMDBPage(page) {
   }
 
 }
-
-
-// --------------------------------------------------
-// ФИЛЬТР TMDB ПО ЖАНРУ
-// --------------------------------------------------
 
 function filterTMDBByGenre(
   movies
