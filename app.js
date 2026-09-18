@@ -2888,7 +2888,6 @@ const {
   .select(`
     user_id,
     movie_id,
-    created_at,
     movies (
       id,
       title,
@@ -2897,10 +2896,7 @@ const {
       type
     )
   `)
-  .in("user_id", userIds)
-  .order("created_at", {
-    ascending: false
-  });
+  .in("user_id", userIds);
 
 if (userMoviesError) {
 
