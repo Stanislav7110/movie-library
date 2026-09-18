@@ -2264,32 +2264,195 @@ async function searchMovies() {
   }
 
 
-  // ===============================
-  // ПОИСК В TMDB
-  // ===============================
+ async function loadTMDBPage(page) {
+  try {
 
-  const {
-    data: tmdbData,
-    error: tmdbError
-  } =
-    await supabaseClient.functions.invoke(
-      "tmdb-search",
-      {
-        body: {
-          query: query
+    // ==========================================
+    // ПОИСК
+    // ==========================================
+
+    if (currentSearch) {
+
+      const {
+        data: tmdbData,
+        error: tmdbError
+      } = await supabaseClient.functions.invoke(
+        "tmdb-search",
+        {
+          body: {
+            query: currentSearch
+          }
         }
+      );
+
+
+      if (tmdbError) {
+
+        console.error(
+          "Ошибка поиска TMDB:",
+          tmdbError
+        );
+
+        return {
+          results: [],
+          total_pages: 1
+        };
       }
-    );
 
 
-  if (tmdbError) {
+      let results = [];
+
+
+      if (Array.isArray(tmdbData)) {
+
+        results = tmdbData;
+
+      } else if (Array.isArray(tmdbData?.results)) {
+
+        results = tmdbData.results;
+
+      } else if (Array.isArray(tmdbData?.data)) {
+
+        results = tmdbData.data;
+
+      }
+
+
+      // ==========================================
+      // ОСТАВЛЯЕМ ТОЛЬКО НУЖНЫЙ РАЗДЕЛ
+      // ==========================================
+
+      results = results.filter(movie => {
+
+        const mediaType =
+          movie.media_type ||
+          movie.type ||
+          "";
+
+
+        // Фильмы
+        if (currentType === "film") {
+
+          return (
+            mediaType === "movie" ||
+            (!mediaType &&
+              !movie.first_air_date)
+          );
+        }
+
+
+        // Сериалы
+        if (currentType === "series") {
+
+          return (
+            mediaType === "tv" ||
+            mediaType === "series" ||
+            Boolean(movie.first_air_date)
+          );
+        }
+
+
+        // Мультфильмы
+        if (currentType === "cartoon") {
+
+          // Если TMDB явно сообщает тип мультфильма
+          if (mediaType === "cartoon") {
+            return true;
+          }
+
+          // Или если есть жанр "Мультфильм" (16)
+          if (Array.isArray(movie.genre_ids)) {
+
+            return movie.genre_ids.includes(16);
+
+          }
+
+          return false;
+        }
+
+
+        return true;
+      });
+
+
+      return {
+        results: results,
+        total_pages: 1
+      };
+    }
+
+
+    // ==========================================
+    // ОБЫЧНЫЙ КАТАЛОГ
+    // ==========================================
+
+    const {
+      data: tmdbData,
+      error: tmdbError
+    } =
+      await supabaseClient.functions.invoke(
+        "tmdb-search",
+        {
+          body: {
+            mode: "catalog",
+            type: settings.tmdbType,
+            page: page
+          }
+        }
+      );
+
+
+    if (tmdbError) {
+
+      console.error(
+        "Ошибка каталога TMDB:",
+        tmdbError
+      );
+
+      return {
+        results: [],
+        total_pages: 1
+      };
+    }
+
+
+    let results = [];
+
+
+    if (Array.isArray(tmdbData)) {
+
+      results = tmdbData;
+
+    } else if (Array.isArray(tmdbData?.results)) {
+
+      results = tmdbData.results;
+
+    } else if (Array.isArray(tmdbData?.data)) {
+
+      results = tmdbData.data;
+
+    }
+
+
+    return {
+      results: results,
+      total_pages:
+        Number(tmdbData?.total_pages || 1)
+    };
+
+  } catch (error) {
 
     console.error(
-      "Ошибка поиска TMDB:",
-      tmdbError
+      "Ошибка TMDB:",
+      error
     );
 
+    return {
+      results: [],
+      total_pages: 1
+    };
   }
+}
 
 
   // ===============================
