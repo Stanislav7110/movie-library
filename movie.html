@@ -1495,68 +1495,66 @@
 
 
               /* =================================
-                 ЕСЛИ ФИЛЬМА НЕТ — СОЗДАЁМ
-                 ================================= */
+   ЕСЛИ ФИЛЬМА НЕТ — СОЗДАЁМ
+   ================================= */
 
-              if (!movieInDatabase) {
+if (!movieInDatabase) {
 
-                const {
-                  data: newMovie,
-                  error: insertMovieError
-                } =
-                  await supabaseClient
-                    .from("movies")
-                    .insert({
+  const {
+    data: newMovie,
+    error: insertMovieError
+  } =
+    await supabaseClient
+      .from("movies")
+      .insert({
 
-                      title:
-                        tmdbMovie.title ||
-                        "Без названия",
+        title:
+          tmdbMovie.title ||
+          "Без названия",
 
-                      year:
-                        tmdbMovie.year ||
-                        null,
+        year:
+          tmdbMovie.year ||
+          null,
 
-                      description:
-                        tmdbMovie.description ||
-                        "",
+        description:
+          tmdbMovie.description ||
+          "",
 
-                      poster_url:
-                        tmdbMovie.poster_url ||
-                        "",
+        poster_url:
+          tmdbMovie.poster_url ||
+          "",
 
-                      type:
-                        tmdbMovie.type ||
-                        "Фильм",
+        type:
+          "movie",
 
-                      tmdb_id:
-                        tmdbMovie.id
+        tmdb_id:
+          tmdbMovie.id
 
-                    })
-                    .select()
-                    .single();
-
-
-                if (insertMovieError) {
-
-                  console.error(
-                    "Ошибка создания фильма:",
-                    insertMovieError
-                  );
-
-                  alert(
-                    "Не удалось добавить фильм в Кинотеку."
-                  );
-
-                  return;
-
-                }
+      })
+      .select()
+      .single();
 
 
-                movieInDatabase =
-                  newMovie;
+  if (insertMovieError) {
 
-              }
+    console.error(
+      "Ошибка создания фильма:",
+      insertMovieError
+    );
 
+    alert(
+      "Не удалось добавить фильм в Кинотеку."
+    );
+
+    return;
+
+  }
+
+
+  movieInDatabase =
+    newMovie;
+
+}
 
               /* =================================
                  ДОБАВЛЯЕМ ФИЛЬМ ПОЛЬЗОВАТЕЛЮ
