@@ -629,7 +629,7 @@ async function loadTMDBPage(page) {
     }
 
 
-    // ==========================================
+      // ==========================================
     // ОБЫЧНЫЙ КАТАЛОГ
     // ==========================================
 
@@ -642,7 +642,7 @@ async function loadTMDBPage(page) {
             type: settings.tmdbType,
             page: page,
 
-            // Передаём выбранный жанр
+            // Передаём выбранный жанр в TMDB
             genre:
               selectedGenre === "all"
                 ? null
@@ -709,8 +709,116 @@ async function loadTMDBPage(page) {
     }
 
 
+    // ==========================================
+    // ДОПОЛНИТЕЛЬНАЯ ПРОВЕРКА ТИПА И ЖАНРА
+    // ==========================================
+
+    results =
+      results.filter(movie => {
+
+        const genreIds =
+          Array.isArray(movie.genre_ids)
+            ? movie.genre_ids.map(id => Number(id))
+            : [];
+
+
+        // --------------------------------------
+        // ФИЛЬМЫ
+        // --------------------------------------
+
+        if (currentType === "film") {
+
+          // Не показываем мультфильмы
+          // в разделе обычных фильмов
+          if (genreIds.includes(16)) {
+            return false;
+          }
+
+        }
+
+
+        // --------------------------------------
+        // СЕРИАЛЫ
+        // --------------------------------------
+
+        if (currentType === "series") {
+
+          const mediaType =
+            String(
+              movie.media_type ||
+              movie.type ||
+              ""
+            ).toLowerCase();
+
+
+          if (
+            mediaType &&
+            mediaType !== "tv" &&
+            mediaType !== "series"
+          ) {
+
+            return false;
+
+          }
+
+        }
+
+
+        // --------------------------------------
+        // МУЛЬТФИЛЬМЫ
+        // --------------------------------------
+
+        if (currentType === "cartoon") {
+
+          // В разделе мультфильмов
+          // обязательно должен быть жанр 16
+          if (!genreIds.includes(16)) {
+            return false;
+          }
+
+        }
+
+
+        // --------------------------------------
+        // ВСЕ ЖАНРЫ
+        // --------------------------------------
+
+        if (
+          selectedGenre === "all"
+        ) {
+
+          return true;
+
+        }
+
+
+        // --------------------------------------
+        // ВЫБРАННЫЙ ЖАНР
+        // --------------------------------------
+
+        const wantedGenre =
+          Number(selectedGenre);
+
+
+        // У результата должен быть
+        // выбранный жанр
+        if (
+          !genreIds.includes(wantedGenre)
+        ) {
+
+          return false;
+
+        }
+
+
+        return true;
+
+      });
+
+
     return {
       results: results,
+
       total_pages:
         Number(
           tmdbData?.total_pages || 1
@@ -734,73 +842,103 @@ async function loadTMDBPage(page) {
 
 }
 
-function filterTMDBByGenre(
-  movies
-) {
 
-  if (
-    selectedGenre === "all"
-  ) {
+// --------------------------------------------------
+// ДОПОЛНИТЕЛЬНАЯ ФИЛЬТРАЦИЯ ЖАНРА
+// --------------------------------------------------
 
-    return movies;
+function filterTMDBByGenre(movies) {
 
-  }
+  return movies.filter(movie => {
+
+    const genreIds =
+      Array.isArray(movie.genre_ids)
+        ? movie.genre_ids.map(id => Number(id))
+        : [];
 
 
-  return movies.filter(
-    movie => {
+    // ==========================================
+    // ФИЛЬМЫ
+    // ==========================================
 
-      if (
-        Array.isArray(
-          movie.genre_ids
-        )
-      ) {
+    if (currentType === "film") {
 
-        return movie.genre_ids.some(
-          id =>
-            String(id) ===
-            String(selectedGenre)
-        );
-
+      // Не показываем мультфильмы
+      // среди обычных фильмов
+      if (genreIds.includes(16)) {
+        return false;
       }
-
-
-      if (
-        Array.isArray(
-          movie.genres
-        )
-      ) {
-
-        return movie.genres.some(
-          genre => {
-
-            if (
-              typeof genre ===
-              "object"
-            ) {
-
-              return (
-                String(genre.id) ===
-                String(selectedGenre)
-              );
-
-            }
-
-            return (
-              String(genre) ===
-              String(selectedGenre)
-            );
-
-          }
-        );
-
-      }
-
-
-      return false;
 
     }
-  );
+
+
+    // ==========================================
+    // СЕРИАЛЫ
+    // ==========================================
+
+    if (currentType === "series") {
+
+      const mediaType =
+        String(
+          movie.media_type ||
+          movie.type ||
+          ""
+        ).toLowerCase();
+
+
+      if (
+        mediaType &&
+        mediaType !== "tv" &&
+        mediaType !== "series"
+      ) {
+
+        return false;
+
+      }
+
+    }
+
+
+    // ==========================================
+    // МУЛЬТФИЛЬМЫ
+    // ==========================================
+
+    if (currentType === "cartoon") {
+
+      // Обязательно мультфильм
+      if (!genreIds.includes(16)) {
+        return false;
+      }
+
+    }
+
+
+    // ==========================================
+    // ВСЕ ЖАНРЫ
+    // ==========================================
+
+    if (
+      selectedGenre === "all"
+    ) {
+
+      return true;
+
+    }
+
+
+    // ==========================================
+    // ВЫБРАННЫЙ ЖАНР
+    // ==========================================
+
+    const wantedGenre =
+      Number(selectedGenre);
+
+
+    return genreIds.includes(
+      wantedGenre
+    );
+
+  });
 
 }
 
