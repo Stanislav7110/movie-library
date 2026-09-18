@@ -729,7 +729,12 @@ if (profileTitleElement) {
   }
 
   // Футер
-  document.querySelector("footer").textContent = t.footer;
+  const footerElement =
+  document.querySelector("footer");
+
+if (footerElement) {
+  footerElement.textContent = t.footer;
+}
 
   // Запоминаем язык
   localStorage.setItem("siteLanguage", language);
