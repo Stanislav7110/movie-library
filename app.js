@@ -5,6 +5,8 @@ const SUPABASE_KEY = "sb_publishable_GKFUCUwNTj4m-FRGL2Pm2g_i1DI1xkk";
 
 const { createClient } = supabase;
 
+console.log("APP.JS ЗАПУЩЕН");
+
 const supabaseClient = createClient(
   SUPABASE_URL,
   SUPABASE_KEY
