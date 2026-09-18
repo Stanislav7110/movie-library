@@ -1083,9 +1083,6 @@ loadMovie();
 
 <script>
 
-const addToLibraryBtn =
-  document.querySelector(".movie-actions button");
-
 if (addToLibraryBtn) {
 
   addToLibraryBtn.addEventListener("click", async () => {
@@ -1100,12 +1097,16 @@ if (addToLibraryBtn) {
     } = await supabaseClient.auth.getSession();
 
     if (sessionError) {
+
       console.error(
         "Ошибка проверки авторизации:",
         sessionError
       );
 
-      alert("Не удалось проверить авторизацию.");
+      alert(
+        "Не удалось проверить авторизацию."
+      );
+
       return;
     }
 
@@ -1113,7 +1114,11 @@ if (addToLibraryBtn) {
       !sessionData ||
       !sessionData.session
     ) {
-      alert("Сначала войдите в аккаунт.");
+
+      alert(
+        "Сначала войдите в аккаунт."
+      );
+
       return;
     }
 
@@ -1155,7 +1160,6 @@ if (addToLibraryBtn) {
 
       if (libraryError) {
 
-        // Фильм уже есть у пользователя
         if (
           libraryError.code === "23505"
         ) {
@@ -1222,7 +1226,10 @@ if (addToLibraryBtn) {
       }
 
 
-      // Проверяем наличие TMDB ID
+      // =================================
+      // ПРОВЕРЯЕМ TMDB ID
+      // =================================
+
       if (!tmdbMovie.id) {
 
         console.error(
@@ -1271,7 +1278,7 @@ if (addToLibraryBtn) {
 
 
       // =================================
-      // ФИЛЬМ УЖЕ ЕСТЬ В НАШЕЙ КИНОТЕКЕ
+      // ФИЛЬМ УЖЕ ЕСТЬ В КИНОТЕКЕ
       // =================================
 
       if (
@@ -1287,7 +1294,7 @@ if (addToLibraryBtn) {
 
       // =================================
       // ЕСЛИ ФИЛЬМА НЕТ —
-      // СОЗДАЁМ ЕГО В НАШЕЙ КИНОТЕКЕ
+      // СОЗДАЁМ ЕГО В КИНОТЕКЕ
       // =================================
 
       if (!movieInDatabase) {
@@ -1349,7 +1356,6 @@ if (addToLibraryBtn) {
 
       // =================================
       // ДОБАВЛЯЕМ ФИЛЬМ В КАРТОТЕКУ
-      // ПОЛЬЗОВАТЕЛЯ
       // =================================
 
       const {
@@ -1373,8 +1379,6 @@ if (addToLibraryBtn) {
 
       if (libraryError) {
 
-        // Фильм уже находится
-        // в картотеке пользователя
         if (
           libraryError.code === "23505"
         ) {
@@ -1405,8 +1409,6 @@ if (addToLibraryBtn) {
 
       addToLibraryBtn.textContent =
         "Добавлено в картотеку";
-
-    }
 
   });
 
