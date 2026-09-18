@@ -2873,43 +2873,50 @@ async function loadUsers() {
   }
 
 
-  // ===============================
-  // ЗАГРУЖАЕМ ИХ ПОСЛЕДНИЕ ФИЛЬМЫ
-  // ===============================
+ // ===============================
+// ЗАГРУЖАЕМ ИХ ПОСЛЕДНИЕ ФИЛЬМЫ
+// ===============================
 
-  const userIds =
-    profiles.map(user => user.id);
+const userIds =
+  profiles.map(user => user.id);
 
-  const {
-    data: userMovies,
-    error: userMoviesError
-  } = await supabaseClient
-    .from("user_movies")
-    .select(`
-      user_id,
-      movie_id,
-      created_at,
-      movies (
-        id,
-        title,
-        poster_url,
-        year,
-        type
-      )
-    `)
-    .in("user_id", userIds)
-    .order("created_at", {
-      ascending: false
-    });
+const {
+  data: userMovies,
+  error: userMoviesError
+} = await supabaseClient
+  .from("user_movies")
+  .select(`
+    user_id,
+    movie_id,
+    created_at,
+    movies (
+      id,
+      title,
+      poster_url,
+      year,
+      type
+    )
+  `)
+  .in("user_id", userIds)
+  .order("created_at", {
+    ascending: false
+  });
 
-  if (userMoviesError) {
+if (userMoviesError) {
 
-    console.error(
-      "Ошибка загрузки фильмов пользователей:",
-      userMoviesError
-    );
+  console.error(
+    "Ошибка загрузки фильмов пользователей:",
+    userMoviesError
+  );
 
-  }
+} else {
+
+  console.log(
+    "Фильмы пользователей:",
+    userMovies
+  );
+
+}
 
 
   // ===============================
