@@ -73,6 +73,39 @@
       text-transform: uppercase;
     }
 
+    .catalog-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      width: 360px;
+      max-width: 100%;
+    }
+
+    #catalogSearch {
+      width: 100%;
+      padding: 14px 18px;
+      border: 1px solid #3a3f4a;
+      border-radius: 30px;
+      outline: none;
+      background: #242832;
+      color: #ffffff;
+      font-size: 16px;
+    }
+
+    #catalogSearch::placeholder {
+      color: #888;
+    }
+
+    #catalogSearch:focus {
+      border-color: #ffcc00;
+    }
+
     .genre-area {
       position: relative;
       display: inline-block;
@@ -129,7 +162,6 @@
       color: #111;
     }
 
-    /* Библиотека на всю ширину страницы */
     .content {
       width: 100%;
       max-width: none;
@@ -154,6 +186,28 @@
       text-align: center;
       color: #777;
       border-top: 1px solid #2d313b;
+    }
+
+    @media (max-width: 700px) {
+      header {
+        padding: 20px;
+      }
+
+      .catalog-header {
+        padding: 35px 20px 10px;
+      }
+
+      .catalog-header h1 {
+        font-size: 36px;
+      }
+
+      .content {
+        padding: 30px 20px;
+      }
+
+      .search-box {
+        width: 100%;
+      }
     }
   </style>
 
@@ -188,13 +242,26 @@
 
       <h1 id="catalogTitle">ФИЛЬМЫ</h1>
 
-      <div class="genre-area">
+      <div class="catalog-controls">
 
-        <button id="genreButton" class="genre-button">
-          Жанр ▾
-        </button>
+        <div class="search-box">
+          <input
+            type="text"
+            id="catalogSearch"
+            placeholder="Поиск..."
+            autocomplete="off"
+          >
+        </div>
 
-        <div id="genreList" class="genre-list"></div>
+        <div class="genre-area">
+
+          <button id="genreButton" class="genre-button">
+            Жанр ▾
+          </button>
+
+          <div id="genreList" class="genre-list"></div>
+
+        </div>
 
       </div>
 
