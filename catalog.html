@@ -129,10 +129,12 @@
       color: #111;
     }
 
+    /* Библиотека на всю ширину страницы */
     .content {
-      max-width: 1200px;
-      margin: auto;
-      padding: 35px 20px;
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 35px 40px;
     }
 
     .content h2 {
@@ -143,6 +145,7 @@
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 25px;
+      width: 100%;
     }
 
     footer {
@@ -191,7 +194,8 @@
           Жанр ▾
         </button>
 
-     <div id="genreList" class="genre-list"></div>
+        <div id="genreList" class="genre-list"></div>
+
       </div>
 
     </section>
@@ -229,3 +233,4 @@
 
 </body>
 </html>
+
