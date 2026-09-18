@@ -2110,7 +2110,7 @@ async function searchMovies() {
   if (!query) {
 
     searchResults.innerHTML =
-      "Введите название фильма.";
+      "Введите название.";
 
     return;
 
@@ -2154,11 +2154,90 @@ async function searchMovies() {
   }
 
 
+  // ===============================
+  // ПОИСК В TMDB
+  // ===============================
+
+  let tmdbData = null;
+
+
+  const {
+    data: tmdbResult,
+    error: tmdbError
+  } =
+    await supabaseClient.functions.invoke(
+      "tmdb-search",
+      {
+        body: {
+          query: query
+        }
+      }
+    );
+
+
+  if (tmdbError) {
+
+    console.error(
+      "Ошибка поиска TMDB:",
+      tmdbError
+    );
+
+  } else {
+
+    tmdbData =
+      tmdbResult;
+
+  }
+
+
+  // ===============================
+  // ПОЛУЧАЕМ РЕЗУЛЬТАТЫ TMDB
+  // ===============================
+
+  let tmdbMovies = [];
+
+
+  if (
+    Array.isArray(tmdbData)
+  ) {
+
+    tmdbMovies =
+      tmdbData;
+
+  }
+
+  else if (
+    Array.isArray(
+      tmdbData?.results
+    )
+  ) {
+
+    tmdbMovies =
+      tmdbData.results;
+
+  }
+
+  else if (
+    Array.isArray(
+      tmdbData?.data
+    )
+  ) {
+
+    tmdbMovies =
+      tmdbData.data;
+
+  }
+
+
+  // ===============================
+  // ОЧИЩАЕМ РЕЗУЛЬТАТЫ
+  // ===============================
+
   searchResults.innerHTML = "";
 
 
   // ===============================
-  // РЕЗУЛЬТАТЫ НАШЕЙ КИНОТЕКИ
+  // НАША КИНОТЕКА
   // ===============================
 
   if (
@@ -2179,11 +2258,13 @@ async function searchMovies() {
       localTitle
     );
 
+
     localMovies.forEach(
       (movie) => {
 
         const result =
           document.createElement("div");
+
 
         result.style.display =
           "flex";
@@ -2205,6 +2286,7 @@ async function searchMovies() {
 
         result.style.cursor =
           "pointer";
+
 
         result.innerHTML = `
           <img
@@ -2236,6 +2318,7 @@ async function searchMovies() {
           </div>
         `;
 
+
         result.addEventListener(
           "click",
           () => {
@@ -2245,6 +2328,7 @@ async function searchMovies() {
 
           }
         );
+
 
         searchResults.appendChild(
           result
@@ -2257,13 +2341,11 @@ async function searchMovies() {
 
 
   // ===============================
-  // РЕЗУЛЬТАТЫ TMDB
+  // TMDB
   // ===============================
 
   if (
-    tmdbData &&
-    tmdbData.results &&
-    tmdbData.results.length > 0
+    tmdbMovies.length > 0
   ) {
 
     const tmdbTitle =
@@ -2279,13 +2361,15 @@ async function searchMovies() {
       tmdbTitle
     );
 
-    tmdbData.results
-      .slice(0, 10)
+
+    tmdbMovies
+      .slice(0, 20)
       .forEach(
         (movie) => {
 
           const result =
             document.createElement("div");
+
 
           result.style.display =
             "flex";
@@ -2310,7 +2394,9 @@ async function searchMovies() {
 
 
           const poster =
-            movie.poster_path
+            movie.poster_url
+              ? movie.poster_url
+              : movie.poster_path
               ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
               : "";
 
@@ -2331,6 +2417,19 @@ async function searchMovies() {
             date
               ? date.substring(0, 4)
               : "";
+
+
+          let type = "Фильм";
+
+
+          if (
+            movie.media_type === "tv" ||
+            movie.first_air_date
+          ) {
+
+            type = "Сериал";
+
+          }
 
 
           result.innerHTML = `
@@ -2357,7 +2456,7 @@ async function searchMovies() {
                 color:#aaa;
                 font-size:14px;
               ">
-                ${year}
+                ${year} · ${type}
               </div>
 
             </div>
@@ -2385,7 +2484,10 @@ async function searchMovies() {
                       movie.overview || "",
 
                     poster_url:
-                      poster
+                      poster,
+
+                    type:
+                      type
 
                   })
                 );
@@ -2415,9 +2517,7 @@ async function searchMovies() {
   if (
     (!localMovies ||
       localMovies.length === 0) &&
-    (!tmdbData ||
-      !tmdbData.results ||
-      tmdbData.results.length === 0)
+    tmdbMovies.length === 0
   ) {
 
     searchResults.innerHTML =
